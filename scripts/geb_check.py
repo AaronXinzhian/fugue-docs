@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python 3 标准库 (os, re, sys, json, argparse)
-[OUTPUT]: 提供 GEB 同构性检查命令行工具;退出码 0=同构, 1=存在违规
+[INPUT]: 依赖 Python 3 标准库 (os, re, sys, json, argparse);--strict 时延迟导入同目录 geb_scaffold 的静态分析器
+[OUTPUT]: 提供 GEB 同构性检查命令行工具(默认结构层检查 + --strict 语义漂移检查);退出码 0=同构, 1=存在违规
 [POS]: GEB 协议工具层-一致性验证器
-[PROTOCOL]: 变更时更新此头部,然后检查上级 SKILL.md 中对本脚本的描述
+[PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md 与 SKILL.md 中对本脚本的描述
 """
 
 import argparse
@@ -25,6 +25,8 @@ EXCLUDED_DIRS = {
     "__pycache__", ".venv", "venv", "env", ".next", ".nuxt",
     "vendor", "coverage", ".idea", ".vscode", "migrations",
     ".pytest_cache", ".mypy_cache", "site-packages",
+    # 测试夹具是样本数据而非系统的一部分,不参与同构要求
+    "fixtures", "__fixtures__", "testdata",
 }
 
 EXCLUDED_FILE_PATTERNS = [
@@ -102,7 +104,70 @@ def extract_referenced_files(index_text):
     return anywhere, in_tables
 
 
-def run_checks(root):
+def head_text(filepath):
+    try:
+        with open(filepath, encoding="utf-8", errors="replace") as f:
+            return "".join(f.readline() for _ in range(L3_SCAN_LINES))
+    except OSError:
+        return ""
+
+
+def run_strict_checks(root, dir_map, l1_path):
+    """语义漂移检查(--strict):保守启发式,宁可漏报不可误报。
+
+    1) L1 目录树应提及每个含代码的顶级目录——目录改名/新增后 L1 没跟上是常见漂移。
+    2) L3 [INPUT] 应提及文件实际 import 的项目内部模块——依赖变了头部没改是另一种漂移。
+       匹配按 token 宽松进行(路径任一段出现在头部即算提及)。
+    """
+    violations = []
+    top_dirs = sorted({d.replace(os.sep, "/").split("/")[0]
+                       for d in dir_map if d != "."})
+    # 根目录的单文件模块(如 utils.py → "utils")同样是项目内部依赖
+    root_modules = {os.path.splitext(f)[0] for f in dir_map.get(".", [])}
+    if l1_path:
+        l1_text = open(l1_path, encoding="utf-8", errors="replace").read()
+        for d in top_dirs:
+            if d not in l1_text:
+                violations.append({
+                    "level": "L1", "path": d,
+                    "problem": "L1 未提及顶级代码目录 %s(strict)" % d,
+                })
+    try:
+        import geb_scaffold  # 延迟导入,避免与 geb_scaffold 的顶层互相导入冲突
+    except ImportError:
+        return violations
+    for rel_dir, files in sorted(dir_map.items()):
+        for f_name in files:
+            fpath = os.path.join(root, rel_dir, f_name)
+            head = head_text(fpath)
+            if "[INPUT]" not in head:
+                continue  # 结构层已另行报缺
+            # 只在 [INPUT] 声明段内匹配——不能让代码里的 import 语句自己满足检查
+            idx_in, idx_out = head.find("[INPUT]"), head.find("[OUTPUT]")
+            if 0 <= idx_in < idx_out:
+                input_segment = head[idx_in:idx_out]
+            else:
+                input_segment = next(
+                    (l for l in head.splitlines() if "[INPUT]" in l), "")
+            imports, _outputs = geb_scaffold.analyze_file(fpath)
+            for imp in imports:
+                tokens = [t for t in re.split(r"[./:\\]+", imp) if t]
+                # 仅核查项目内部依赖:相对导入,或首段命中顶级目录/根模块名
+                internal = imp.startswith(".") or (
+                    tokens and (tokens[0] in top_dirs or tokens[0] in root_modules)
+                )
+                if not internal or not tokens:
+                    continue
+                if not any(t in input_segment for t in tokens):
+                    violations.append({
+                        "level": "L3",
+                        "path": os.path.normpath(os.path.join(rel_dir, f_name)),
+                        "problem": "[INPUT] 未提及实际依赖 %s(strict)" % imp,
+                    })
+    return violations
+
+
+def run_checks(root, strict=False):
     violations = []  # 每项: {"level", "path", "problem"}
     dir_map = walk_project(root)
     all_code_files = [
@@ -175,11 +240,15 @@ def run_checks(root):
                     "problem": "文件头缺少标签: %s" % ", ".join(missing),
                 })
 
+    if strict:
+        violations += run_strict_checks(root, dir_map, l1_path)
+
     stats = {
         "code_files": len(all_code_files),
         "code_dirs": len(dir_map),
         "violations": len(violations),
         "tiny_project_l2_waived": tiny,
+        "strict": strict,
     }
     return violations, stats
 
@@ -188,6 +257,8 @@ def main():
     parser = argparse.ArgumentParser(description="GEB 分形文档同构性检查器")
     parser.add_argument("root", help="项目根目录")
     parser.add_argument("--json", action="store_true", help="以 JSON 输出")
+    parser.add_argument("--strict", action="store_true",
+                        help="额外执行语义漂移检查(L1 目录提及 + L3 [INPUT] 与实际 import 对账)")
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -195,7 +266,7 @@ def main():
         print("错误: %s 不是目录" % root, file=sys.stderr)
         return 2
 
-    violations, stats = run_checks(root)
+    violations, stats = run_checks(root, strict=args.strict)
 
     if args.json:
         print(json.dumps(

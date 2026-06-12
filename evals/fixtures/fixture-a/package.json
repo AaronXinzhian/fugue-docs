@@ -1,0 +1,12 @@
+{
+  "name": "user-admin-service",
+  "version": "0.3.1",
+  "description": "Small user administration HTTP service",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0"
+  }
+}

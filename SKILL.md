@@ -95,7 +95,8 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 ## 工具
 
 ```bash
-python3 scripts/geb_check.py <项目根目录>            # 同构检查,人类可读报告
+python3 scripts/geb_check.py <项目根目录>            # 同构检查(结构层),人类可读报告
+python3 scripts/geb_check.py <项目根目录> --strict   # 加查语义漂移:L1 目录提及、L3 [INPUT] 与实际 import 对账
 python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
 python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
 python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么

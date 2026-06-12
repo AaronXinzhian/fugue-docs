@@ -172,6 +172,8 @@ def main():
                         help="生成 GitHub Actions 检查工作流,并复制工具到项目 scripts/geb/")
     parser.add_argument("--copy-tools", action="store_true",
                         help="把 geb_check.py / geb_scaffold.py 复制到项目 scripts/geb/")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="只列出将写入的位置,不做任何修改")
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -182,6 +184,23 @@ def main():
         parser.error("至少指定一个动作:--tool / --pre-commit / --ci / --copy-tools")
 
     tools = sorted(TOOLS) if "all" in args.tool else args.tool
+
+    # 写入位置预告:本工具会修改目标项目的以下位置,先亮牌
+    planned = [TOOLS[t] for t in tools]
+    if args.pre_commit:
+        planned.append(".git/hooks/pre-commit(+ geb_check.py 副本)")
+    if args.ci:
+        planned.append(".github/workflows/geb-check.yml")
+    if args.ci or args.copy_tools:
+        planned.append("scripts/geb/(geb_check.py、geb_scaffold.py、FOLDER_INDEX.md)")
+    print("将写入 %s 下的:" % root)
+    for p in planned:
+        print("  - %s" % p)
+    if args.dry_run:
+        print("\n(dry-run:未做任何修改)")
+        return 0
+    print()
+
     if tools:
         protocol = load_protocol(args.lang)
         for t in tools:
