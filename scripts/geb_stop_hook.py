@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python3 标准库 (sys, os, json); 同目录 geb_check 模块(run_checks, find_index_file, L1_NAMES)
+[INPUT]: 依赖 json, os, sys, geb_check
 [OUTPUT]: Claude Code Stop hook——项目不同构时输出 {"decision":"block"} 阻止收工
 [POS]: fugue-docs 工具层-回环硬约束钩子
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本钩子的描述

@@ -23,6 +23,8 @@ fugue-docs/
 ```mermaid
 graph TD
     geb_scaffold --> geb_check
+    geb_sync --> geb_check
+    geb_sync --> geb_scaffold
     geb_stop_hook --> geb_check
     geb_adapt --> geb_check
     geb_adapt --> adapters_PROTOCOL

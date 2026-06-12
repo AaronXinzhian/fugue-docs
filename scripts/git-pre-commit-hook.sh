@@ -1,5 +1,5 @@
 #!/bin/sh
-# [INPUT]: 依赖 git, python3, geb_check.py(同目录或 ~/.claude/skills/fugue-docs/scripts/)
+# [INPUT]: 依赖 (未检出外部依赖)
 # [OUTPUT]: git pre-commit 钩子——两相不同构时拒绝提交(跨工具硬约束,不依赖任何 AI 助手)
 # [POS]: fugue-docs 工具层-通用回环硬约束(Claude Code 之外的所有环境)
 # [PROTOCOL]: 变更时更新此头部,然后检查 README 中对本钩子的描述

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python3 标准库 (argparse, os, re, shutil, stat, sys); ../adapters/PROTOCOL*.md; 同目录 geb_check.py、geb_scaffold.py
+[INPUT]: 依赖 argparse, os, re, shutil, stat, sys
 [OUTPUT]: 提供一键适配命令——把 GEB 协议注入各 AI 工具的规则文件,并可安装 pre-commit / CI 硬约束
 [POS]: fugue-docs 工具层-通用性适配器(让 Codex/Cursor/Cline/Copilot/任意模型用户一条命令接入)
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本脚本的描述
@@ -68,8 +68,9 @@ jobs:
 """
 
 
-def load_protocol(lang):
-    name = "PROTOCOL.md" if lang == "zh" else "PROTOCOL_EN.md"
+def load_protocol(lang, compact=False):
+    name = "PROTOCOL%s%s.md" % ("_COMPACT" if compact else "",
+                                "" if lang == "zh" else "_EN")
     path = os.path.join(ADAPTERS_DIR, name)
     with open(path, encoding="utf-8", errors="replace") as f:
         return f.read().strip()
@@ -182,6 +183,8 @@ def main():
                         help="生成 GitHub Actions 检查工作流,并复制工具到项目 scripts/geb/")
     parser.add_argument("--copy-tools", action="store_true",
                         help="把 geb_check.py / geb_scaffold.py 复制到项目 scripts/geb/")
+    parser.add_argument("--compact", action="store_true",
+                        help="注入精简版协议(约 300 词,供低上下文模型/规则字数受限的工具)")
     parser.add_argument("--dry-run", action="store_true",
                         help="只列出将写入的位置,不做任何修改")
     args = parser.parse_args()
@@ -212,7 +215,7 @@ def main():
     print()
 
     if tools:
-        protocol = load_protocol(args.lang)
+        protocol = load_protocol(args.lang, compact=args.compact)
         for t in tools:
             rel = TOOLS[t]
             action = inject(os.path.join(root, rel), protocol)

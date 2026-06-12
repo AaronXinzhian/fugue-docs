@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python3 标准库; ../scripts/geb_check.py(子进程调用)
+[INPUT]: 依赖 json, os, re, shutil, subprocess, sys, tempfile
 [OUTPUT]: 为 iteration 目录下每个 run 生成 grading.json(expectations: text/passed/evidence)
 [POS]: fugue-docs 评测包-自动评分器(对 iteration 目录下的 with/without 运行逐断言打分)
 [PROTOCOL]: 断言变更时同步更新 evals/evals.json 与各 eval_metadata.json

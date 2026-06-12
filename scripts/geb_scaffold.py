@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python3 标准库 (argparse, ast, os, re, sys); 同目录 geb_check 模块
+[INPUT]: 依赖 argparse, ast, os, re, sys, geb_check
 [OUTPUT]: 提供确定性脚手架命令——为缺失处生成 L3 头骨架、L2/L1 索引草稿(语义留 TODO)
 [POS]: fugue-docs 工具层-确定性脚手架(静态分析填 INPUT/OUTPUT,语义相留给 AI/人)
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本脚本的描述

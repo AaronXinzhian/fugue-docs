@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 Python 3 标准库 (os, re, sys, json, argparse);--strict 时延迟导入同目录 geb_scaffold 的静态分析器
+[INPUT]: 依赖 argparse, json, os, re, sys
 [OUTPUT]: 提供 GEB 同构性检查命令行工具(默认结构层检查 + --strict 语义漂移检查);退出码 0=同构, 1=存在违规
 [POS]: GEB 协议工具层-一致性验证器
 [PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md 与 SKILL.md 中对本脚本的描述
@@ -52,16 +52,27 @@ def is_code_file(path):
     return not any(p.search(rel) for p in EXCLUDED_FILE_PATTERNS)
 
 
-def walk_project(root):
-    """返回 {相对目录路径: [代码文件名]},仅含至少有一个代码文件的目录。"""
+def walk_project(root, subprojects=None):
+    """返回 {相对目录路径: [代码文件名]},仅含至少有一个代码文件的目录。
+
+    递归分形:子目录若含 PROJECT_INDEX.md,即是一个子项目(它的 L1 同时充当
+    父项目视角下的 L2)。父项目的遍历在子项目边界剪枝——子项目内部文件不计入
+    父项目的 L2/L3 义务,由子项目自查。subprojects 传入 list 时收集其相对路径。
+    """
     result = {}
     for dirpath, dirnames, filenames in os.walk(root):
+        rel = os.path.relpath(dirpath, root)
+        if rel != "." and os.path.isfile(os.path.join(dirpath, "PROJECT_INDEX.md")):
+            if subprojects is not None:
+                subprojects.append(rel)
+            dirnames[:] = []  # 子项目内部不归父项目管
+            continue
         dirnames[:] = sorted(
             d for d in dirnames if d not in EXCLUDED_DIRS and not d.startswith(".")
         )
         code_files = sorted(f for f in filenames if is_code_file(f))
         if code_files:
-            result[os.path.relpath(dirpath, root)] = code_files
+            result[rel] = code_files
     return result
 
 
@@ -196,9 +207,10 @@ def run_strict_checks(root, dir_map, l1_path):
     return violations
 
 
-def run_checks(root, strict=False, complete=False):
+def run_checks(root, strict=False, complete=False, recursive=True):
     violations = []  # 每项: {"level", "path", "problem"}
-    dir_map = walk_project(root)
+    subprojects = []
+    dir_map = walk_project(root, subprojects)
     all_code_files = [
         (d, f) for d, files in dir_map.items() for f in files
     ]
@@ -244,7 +256,8 @@ def run_checks(root, strict=False, complete=False):
         for f_name in code_files:
             if f_name not in referenced_anywhere:
                 violations.append({
-                    "level": "L2", "path": os.path.join(rel_dir, f_name),
+                    "level": "L2",
+                    "path": os.path.normpath(os.path.join(rel_dir, f_name)),
                     "problem": "索引 %s 未列出该文件(缺漏条目)" % own_name,
                 })
         # 幽灵:清单表格提及但文件不存在(仅核对本目录层级的引用)
@@ -271,6 +284,17 @@ def run_checks(root, strict=False, complete=False):
 
     if strict:
         violations += run_strict_checks(root, dir_map, l1_path)
+        # 父项目的 L1 必须提及每个子项目(子项目对父级而言就是一个模块)
+        if l1_path and subprojects:
+            with open(l1_path, encoding="utf-8", errors="replace") as f:
+                l1_text = f.read()
+            for sp in subprojects:
+                name = os.path.basename(sp)
+                if name not in l1_text:
+                    violations.append({
+                        "level": "L1", "path": sp,
+                        "problem": "L1 未提及子项目 %s(strict)" % sp,
+                    })
 
     if complete:
         # 初始化完成度:任何头部或索引里残留的 TODO 占位都是"半成品同构"
@@ -298,9 +322,22 @@ def run_checks(root, strict=False, complete=False):
                         "problem": "文件头残留 TODO(语义) 占位,初始化未完成(complete)",
                     })
 
+    # 递归分形:子项目按同一套规则独立检查,违规带路径前缀汇入父报告
+    n_sub_files, n_sub_dirs = 0, 0
+    if recursive:
+        for sp in subprojects:
+            sub_v, sub_stats = run_checks(
+                os.path.join(root, sp), strict=strict, complete=complete)
+            for v in sub_v:
+                v["path"] = sp if v["path"] == "." else os.path.join(sp, v["path"])
+            violations += sub_v
+            n_sub_files += sub_stats["code_files"]
+            n_sub_dirs += sub_stats["code_dirs"]
+
     stats = {
-        "code_files": len(all_code_files),
-        "code_dirs": len(dir_map),
+        "code_files": len(all_code_files) + n_sub_files,
+        "code_dirs": len(dir_map) + n_sub_dirs,
+        "subprojects": len(subprojects),
         "violations": len(violations),
         "tiny_project_l2_waived": tiny,
         "strict": strict,
@@ -338,7 +375,10 @@ def main():
         ))
     else:
         print("GEB 同构性检查 — %s" % root)
-        print("代码文件 %(code_files)d 个 / 代码目录 %(code_dirs)d 个" % stats)
+        line = "代码文件 %(code_files)d 个 / 代码目录 %(code_dirs)d 个" % stats
+        if stats.get("subprojects"):
+            line += " / 子项目 %(subprojects)d 个(递归检查)" % stats
+        print(line)
         if stats["tiny_project_l2_waived"]:
             print("(极小项目:L2 要求已豁免)")
         if not violations:

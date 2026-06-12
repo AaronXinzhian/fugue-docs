@@ -8,9 +8,10 @@
 ## 文件清单
 | 文件 | 职责 | 关键导出 |
 |------|------|----------|
-| grade_iteration.py | 自动评分器:对每个运行目录逐断言打分,生成 grading.json | CLI:`python3 grade_iteration.py <iteration目录>` |
+| grade_iteration.py | 自动评分器:对每个运行目录逐断言打分,生成 grading.json | WS, GEB_CHECK, INDEX_NAMES, L3_TAGS, read(), head_lines(), first_docstring(), find_index(), run_geb_check(), run_app() |
 
 ## 数据文件
 - `evals.json` — 3 个测试用例(提示词 + 断言)
+- `comprehension.md` — 理解测验(度量"理解成本"这一真目标的方法与 fixture-b 标准题组)
 - `fixtures/fixture-a` — 无文档的 JS 样例项目(测"初始化"场景)
 - `fixtures/fixture-b` — 已有完整 GEB 结构的 Python 样例项目(测"变更回环"与"删除重构"场景)
