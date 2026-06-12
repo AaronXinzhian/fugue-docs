@@ -41,8 +41,18 @@ L2_NAMES = ("FOLDER_INDEX.md", "CLAUDE.md")
 L3_TAGS = ("[INPUT]", "[OUTPUT]", "[POS]")
 L3_SCAN_LINES = 50  # L3 头必须出现在文件前 50 行内
 
-# 极小项目豁免:代码文件 ≤ 5 且全部位于根目录时,允许省略 L2
-TINY_PROJECT_FILE_LIMIT = 5
+# 规模弹性(默认 profile 的伸缩):代码文件 ≤ 20、一级代码目录 ≤ 5 且无嵌套时,
+# L2 可省略——清单义务转嫁给 L1。层数由复杂度决定,而非教条。
+SMALL_PROJECT_FILE_LIMIT = 20
+SMALL_PROJECT_DIR_LIMIT = 5
+
+
+def is_small_project(dir_map):
+    files = sum(len(v) for v in dir_map.values())
+    non_root = [d for d in dir_map if d != "."]
+    return (files <= SMALL_PROJECT_FILE_LIMIT
+            and len(non_root) <= SMALL_PROJECT_DIR_LIMIT
+            and all(os.sep not in d and "/" not in d for d in non_root))
 
 
 def is_code_file(path):
@@ -223,22 +233,22 @@ def run_checks(root, strict=False, complete=False, recursive=True):
             "problem": "根目录缺少 PROJECT_INDEX.md(或 CLAUDE.md)项目索引",
         })
 
-    # --- 极小项目判定 ---
-    tiny = (
-        len(all_code_files) <= TINY_PROJECT_FILE_LIMIT
-        and all(d == "." for d in dir_map)
-    )
+    # --- 规模弹性判定 ---
+    small = is_small_project(dir_map)
 
     # --- L2 + 清单对账 ---
     for rel_dir, code_files in sorted(dir_map.items()):
         abs_dir = os.path.join(root, rel_dir)
+        own_l2 = None
         if rel_dir == ".":
             index_path = l1_path  # 根目录代码文件记录在 L1 中
-        elif tiny:
-            continue
         else:
-            index_path = find_index_file(abs_dir, L2_NAMES)
-            if not index_path:
+            own_l2 = find_index_file(abs_dir, L2_NAMES)
+            if own_l2:
+                index_path = own_l2  # 有 L2 优先用 L2(即便是小项目)
+            elif small:
+                index_path = l1_path  # 小项目免 L2,清单义务转嫁给 L1
+            else:
                 violations.append({
                     "level": "L2", "path": rel_dir,
                     "problem": "缺少 FOLDER_INDEX.md 文件夹索引",
@@ -260,8 +270,9 @@ def run_checks(root, strict=False, complete=False, recursive=True):
                     "path": os.path.normpath(os.path.join(rel_dir, f_name)),
                     "problem": "索引 %s 未列出该文件(缺漏条目)" % own_name,
                 })
-        # 幽灵:清单表格提及但文件不存在(仅核对本目录层级的引用)
-        if rel_dir != ".":
+        # 幽灵:清单表格提及但文件不存在(仅当用的是本目录自己的 L2 时核对——
+        # 回落到 L1 时,L1 表格里合法引用着其他目录的文件,不能误判)
+        if own_l2:
             for ref in sorted(referenced_in_tables):
                 if ref != own_name and not os.path.exists(
                     os.path.join(abs_dir, ref)
@@ -339,10 +350,48 @@ def run_checks(root, strict=False, complete=False, recursive=True):
         "code_dirs": len(dir_map) + n_sub_dirs,
         "subprojects": len(subprojects),
         "violations": len(violations),
-        "tiny_project_l2_waived": tiny,
+        "l2_waived_small_project": small,
         "strict": strict,
     }
     return violations, stats
+
+
+def emit_facts(root, out_path):
+    """机器事实源:扫描结果落为结构化 JSON,供 LLM/工具消费,免得各处重复推导。"""
+    import geb_scaffold
+    subprojects = []
+    dir_map = walk_project(root, subprojects)
+    files = {}
+    analyses_by_file = {}
+    for d, names in dir_map.items():
+        for f in names:
+            rel = os.path.normpath(os.path.join(d, f))
+            imports, exports = geb_scaffold.analyze_file(os.path.join(root, rel))
+            analyses_by_file[(d, f)] = (imports, exports)
+            files[rel.replace(os.sep, "/")] = {"imports": imports, "exports": exports}
+    manifests = [m for m in (
+        "package.json", "pyproject.toml", "requirements.txt", "go.mod",
+        "Cargo.toml", "pom.xml", "build.gradle", "Gemfile", "composer.json",
+        "Makefile",
+    ) if os.path.isfile(os.path.join(root, m))]
+    langs = {}
+    for rel in files:
+        ext = os.path.splitext(rel)[1]
+        langs[ext] = langs.get(ext, 0) + 1
+    facts = {
+        "root": os.path.basename(root),
+        "dirs": sorted(d.replace(os.sep, "/") for d in dir_map),
+        "subprojects": sorted(s.replace(os.sep, "/") for s in subprojects),
+        "files": files,
+        "edges": ["%s -> %s" % e for e in
+                  geb_scaffold.mermaid_edges(root, dir_map, analyses_by_file)],
+        "manifests": manifests,
+        "languages": dict(sorted(langs.items(), key=lambda kv: -kv[1])),
+        "small_project": is_small_project(dir_map),
+    }
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(facts, f, ensure_ascii=False, indent=2)
+    return facts
 
 
 def main():
@@ -355,6 +404,10 @@ def main():
                         help="额外检查 TODO(语义) 占位是否清零(初始化完成度)")
     parser.add_argument("--if-adopted", action="store_true",
                         help="项目未采纳协议(无 L1 索引)时静默跳过并返回 0;供钩子/CI 用,采纳判定的唯一事实源")
+    parser.add_argument("--report", action="store_true",
+                        help="末尾追加一行机器生成的回环报告(GEB 回环:L3 ✓ | L2 ✓ | L1 ✓)")
+    parser.add_argument("--emit-facts", metavar="FILE",
+                        help="把扫描出的机器事实(文件/依赖/导出/边/清单)写为 JSON,供 LLM 与工具消费")
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -364,6 +417,10 @@ def main():
 
     if args.if_adopted and not find_index_file(root, L1_NAMES):
         return 0  # 未采纳,零打扰
+
+    if args.emit_facts:
+        emit_facts(root, args.emit_facts)
+        print("机器事实已写入 %s" % args.emit_facts)
 
     violations, stats = run_checks(root, strict=args.strict, complete=args.complete)
 
@@ -379,14 +436,20 @@ def main():
         if stats.get("subprojects"):
             line += " / 子项目 %(subprojects)d 个(递归检查)" % stats
         print(line)
-        if stats["tiny_project_l2_waived"]:
-            print("(极小项目:L2 要求已豁免)")
+        if stats["l2_waived_small_project"]:
+            print("(小项目 profile:L2 可省略,清单并入 L1)")
         if not violations:
             print("✓ 两相同构,无违规。")
         else:
             print("✗ 发现 %d 处违规:" % len(violations))
             for v in violations:
                 print("  [%(level)s] %(path)s — %(problem)s" % v)
+    if args.report:
+        marks = []
+        for lvl in ("L3", "L2", "L1"):
+            n = sum(1 for v in violations if v["level"] == lvl)
+            marks.append("%s %s" % (lvl, "✓" if n == 0 else "✗%d" % n))
+        print("GEB 回环:%s" % " | ".join(marks))
     return 1 if violations else 0
 
 

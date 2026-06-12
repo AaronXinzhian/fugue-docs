@@ -19,7 +19,8 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from geb_check import walk_project, check_l3, find_index_file, L1_NAMES, L2_NAMES  # noqa: E402
+from geb_check import (L1_NAMES, L2_NAMES, check_l3, find_index_file,  # noqa: E402
+                       is_small_project, walk_project)
 
 # 占位前缀拆开拼接,避免本文件头部的源码字面量被 geb_check --complete 误判为残留占位
 _TODO = "TODO(" + "语义)"
@@ -314,22 +315,30 @@ def mermaid_edges(root, dir_map, analyses_by_file):
     return sorted(edges)
 
 
-def render_l1(root, dir_map, analyses_by_file):
+def render_l1(root, dir_map, analyses_by_file, small=False):
     project = os.path.basename(os.path.abspath(root))
-    # 目录树
+    # 目录树(小项目 profile 下无 L2,树注释不指向 FOLDER_INDEX)
     tree = ["%s/" % project]
     for rel in sorted(d for d in dir_map if d != "."):
         depth = rel.count(os.sep)
-        tree.append("%s├── %s/  # TODO(语义):一句话职责 → %s/FOLDER_INDEX.md"
-                    % ("│   " * depth, os.path.basename(rel), rel.replace(os.sep, "/")))
-    # 根目录文件表
+        pointer = "" if small else " → %s/FOLDER_INDEX.md" % rel.replace(os.sep, "/")
+        tree.append("%s├── %s/  # %s:一句话职责%s"
+                    % ("│   " * depth, os.path.basename(rel), _TODO, pointer))
+    # 文件清单:小项目 profile 下 L1 直接列出全部文件(免 L2);否则只列根目录文件
+    if small:
+        listed = [(os.path.normpath(os.path.join(d, f)).replace(os.sep, "/"), (d, f))
+                  for d, files in sorted(dir_map.items()) for f in sorted(files)]
+        files_heading = "## 文件清单"
+    else:
+        listed = [(f, (".", f)) for f in dir_map.get(".", [])]
+        files_heading = "## 根目录文件"
     root_rows = "\n".join(
-        "| %s | TODO(语义):职责 | %s |"
-        % (f, ", ".join(analyses_by_file[(".", f)][1]) or "—")
-        for f in dir_map.get(".", [])
+        "| %s | %s:职责 | %s |"
+        % (name, _TODO, ", ".join(analyses_by_file[key][1]) or "—")
+        for name, key in listed
     ) or "| (无) | | |"
     edges = mermaid_edges(root, dir_map, analyses_by_file)
-    mermaid = "\n".join("    %s --> %s" % e for e in edges) or "    %% TODO(语义):补充模块依赖关系"
+    mermaid = "\n".join("    %s --> %s" % e for e in edges) or "    %% " + _TODO + ":补充模块依赖关系"
     n_files = sum(len(v) for v in dir_map.values())
     return """# %s — 项目索引(L1)
 
@@ -352,14 +361,15 @@ graph TD
 %s
 ```
 
-## 根目录文件
+%s
 | 文件 | 职责 | 关键导出 |
 |------|------|----------|
 %s
 
 ## 全局约定
-TODO(语义):错误处理方式、命名约定、其他全项目法则
-""" % (project, TODO_PROJECT, n_files, "\n".join(tree), mermaid, root_rows)
+%s:错误处理方式、命名约定、其他全项目法则
+""" % (project, TODO_PROJECT, n_files, "\n".join(tree), mermaid,
+       files_heading, root_rows, _TODO)
 
 
 # ---------------- 主流程 ----------------
@@ -380,6 +390,10 @@ def main():
         for f in files:
             analyses_by_file[(rel_dir, f)] = analyze_file(os.path.join(root, rel_dir, f))
 
+    small = is_small_project(dir_map)
+    if small:
+        print("(小项目 profile:免 L2,全部文件清单并入 L1)")
+
     n_l3, n_l2, n_l1, skipped = 0, 0, 0, 0
     # L3
     for rel_dir, files in sorted(dir_map.items()):
@@ -396,9 +410,9 @@ def main():
             if not args.dry_run:
                 insert_header(fpath, text)
             n_l3 += 1
-    # L2
+    # L2(小项目 profile 下整体跳过)
     for rel_dir, files in sorted(dir_map.items()):
-        if rel_dir == ".":
+        if rel_dir == "." or small:
             continue
         abs_dir = os.path.join(root, rel_dir)
         if find_index_file(abs_dir, L2_NAMES):
@@ -414,7 +428,7 @@ def main():
         print("[L1] PROJECT_INDEX.md")
         if not args.dry_run:
             with open(os.path.join(root, "PROJECT_INDEX.md"), "w", encoding="utf-8") as fh:
-                fh.write(render_l1(root, dir_map, analyses_by_file))
+                fh.write(render_l1(root, dir_map, analyses_by_file, small=small))
         n_l1 = 1
 
     print("\n脚手架%s:L3 头 %d 个,L2 索引 %d 个,L1 索引 %d 个(已有跳过 %d 处)。"

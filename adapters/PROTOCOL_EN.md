@@ -18,7 +18,7 @@ You are the guardian of the GEB fractal documentation system. Code is the **mach
 [PROTOCOL]: update this header on change, then check the parent FOLDER_INDEX.md
 ```
 
-**Exceptions (anti doc-spam)**: no L3 for generated files, pure configs (json/yaml/lock), or vendored deps; no L2 for folders without code files; projects with ≤5 code files and no subfolders may skip L2. Documentation must cost less than the ambiguity it removes.
+**Exceptions (anti doc-spam)**: no L3 for generated files, pure configs (json/yaml/lock), or vendored deps; no L2 for folders without code files; small projects (≤20 code files, ≤5 top-level dirs, no nesting) may skip L2 with the file ledger folded into L1. Layer count is not dogma — the protocol's invariants are: every semantic boundary has a locatable index, every index declares its coverage, every entity backlinks to its parent, machines can verify it all, and docs must cost less than the ambiguity they remove. L1/L2/L3 is just the default profile.
 
 ## After changing code — the forward loop (mandatory)
 

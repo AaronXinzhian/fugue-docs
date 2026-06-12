@@ -15,6 +15,8 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 
 项目熵增的根源只有一个:变更总是发生在机器相,而语义相无人照看。本协议的解法不是"提醒你写文档",而是**重新定义"完成"**——任一相的变化没有在另一相显现,任务就没有完成。
 
+协议真正的不变量只有五条(L1/L2/L3 是它们的**默认 profile**,不是教条):**多尺度**——每个语义边界(项目/模块/文件)有一份可定位索引,尺度数量随复杂度伸缩;**覆盖声明**——每份索引列出它覆盖的下级实体;**可反链**——每个实体能链回上级索引;**机器可验证**——覆盖关系与引用漂移由脚本断言;**成本比例**——文档成本必须低于它消除的歧义。
+
 三个来自 GEB 的结构特性支撑这一点:
 
 - **自相似(分形)**:L1/L2/L3 每一层的结构相同——"这是什么、包含什么、和谁相连"。局部即整体的缩影。
@@ -59,7 +61,7 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 
 - **不加 L3**:生成文件、vendored 依赖、`node_modules`、lock 文件、纯数据/配置文件(json/yaml/toml)、迁移脚本。
 - **不建 L2**:不含代码文件的文件夹(纯资源、纯配置目录)。
-- 极小项目(代码文件 ≤ 5 个、无子目录)可以只用 L1 + L3,省略 L2。
+- 小项目 profile(代码文件 ≤ 20、一级代码目录 ≤ 5 且无嵌套)自动降为 L1 + L3 两层:免 L2,全部文件清单并入 L1(脚手架与检查器自动识别;已有 L2 的项目不受影响)。
 - 索引描述用一句话说清职责即可,不要复述实现细节——细节属于 L3 和代码本身。
 - **递归分形(monorepo)**:子目录含 `PROJECT_INDEX.md` 即为子项目——它的 L1 同时充当父项目视角下的 L2,父项目把它当作一个模块(L1 提及即可),检查与同步会自动递归进入。
 
@@ -102,7 +104,10 @@ python3 scripts/geb_sync.py <项目根目录>             # 机器字段同步:[
 python3 scripts/geb_check.py <项目根目录>            # 同构检查(结构层),人类可读报告
 python3 scripts/geb_check.py <项目根目录> --strict   # 加查语义漂移:L1 目录提及、L3 [INPUT] 与实际 import 对账
 python3 scripts/geb_check.py <项目根目录> --complete # 加查 TODO(语义) 占位清零(初始化收尾时必跑)
+python3 scripts/geb_check.py <项目根目录> --report   # 末尾输出机器生成的回环行(GEB 回环:L3 ✓ | L2 ✓ | L1 ✓),直接抄进汇报
+python3 scripts/geb_check.py <项目根目录> --emit-facts .geb-facts.json  # 机器事实源(文件/依赖/导出/边/技术栈),逆向回环前先读它省 token
 python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
+python3 scripts/geb_sync.py <项目根目录> --changed   # 只同步 git 有改动的文件,大仓库提速
 python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
 python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么
 python3 scripts/geb_adapt.py <项目根目录> --tool <工具名> [--pre-commit] [--ci]  # 用户要求在 Cursor/Codex/Cline 等其他工具上使用协议时,用它注入规则文件并安装硬约束
