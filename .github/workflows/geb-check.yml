@@ -1,0 +1,12 @@
+name: GEB self-check
+# 本仓库吃自己的狗粮:每次 push/PR 用自己的检查器(含 --strict 语义漂移层)检查自己
+on:
+  push:
+  pull_request:
+jobs:
+  geb-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run geb_check on this repo (strict)
+        run: python3 scripts/geb_check.py . --strict
