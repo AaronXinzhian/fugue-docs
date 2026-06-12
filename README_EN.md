@@ -169,6 +169,16 @@ Three findings worth unpacking:
 
 **③ The daily maintenance tax is tiny.** On structured projects, the skill costs only ~3k extra tokens (the fixed cost of reading the protocol) with near-identical time. With the scaffolder, large-project initialization drops further from "deep-read everything" to "fill in semantics". A small tax for "any AI or newcomer understands the project on arrival".
 
+## Project status & boundaries of applicability
+
+Plainly: this is a young project (released June 2026). Judge fitness by these boundaries.
+
+**Good fit**: solo or small-team projects where AI does most of the coding; inheriting an undocumented legacy codebase (scaffold the skeleton, let AI fill semantics); long-lived projects where every new AI session or new teammate should understand the structure on arrival.
+
+**Use with caution / not yet**: teams that barely use AI — the loop's maintenance cost only pays off when AI carries it, by hand it becomes a burden; very large monorepos — recursive fractal support just landed and lacks battle-testing on real big repos; and don't treat it as a universal documentation solution — it governs **structure and dependency sync**; tutorials, API references, and design docs are out of scope.
+
+**Verification status, stated honestly**: small-scale script-graded controlled runs (n=1 per scenario, replayable) + this repo's own dogfooding (CI self-checks with --strict on every push) + multiple rounds of external model reviews (every finding and its resolution is in the commit history); **no long-term production data from teams yet**. Comprehension tests and real-repo case studies are accumulating. Found a problem? Open an issue — digesting criticism is literally how this project iterates.
+
 ## License
 
 [MIT](LICENSE). The protocol concept belongs to Zhao Chunxiang; *Gödel, Escher, Bach* belongs to Douglas Hofstadter; the code and text in this repository are independent work.
