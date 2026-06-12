@@ -79,9 +79,10 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 ## 初始化流程(给没有结构的项目搭建)
 
 1. 扫描目录树(排除 `.git`、`node_modules`、构建产物等),理解整体架构。
-2. **自底向上**建立:先逐个**真读**代码文件、写 L3 头(禁止凭文件名编造)→ 再为每个文件夹写 L2(L2 是该文件夹所有 L3 的汇总)→ 最后写 L1(L1 是所有 L2 的汇总)。自底向上才能保证每一层都有事实依据。
-3. 运行 `geb_check.py` 验证全覆盖。
-4. 若存在 `CLAUDE.md`,追加协议声明段(模板见 references/templates.md);若不存在,建议用户创建。
+2. 代码文件较多(约 >20 个)时,先运行 `python3 scripts/geb_scaffold.py <项目根目录>` 生成骨架:静态分析自动填好 `[INPUT]/[OUTPUT]` 和索引清单表,语义处留 `TODO(语义)` 占位。机器只填机器擅长的,语义判断留给你。小项目可跳过此步直接手写。
+3. **自底向上**补全语义:逐个**真读**代码文件、补全 L3 头的 TODO(禁止凭文件名编造)→ 再补每个文件夹 L2 的模块定位(L2 是该文件夹所有 L3 的汇总)→ 最后补 L1 的项目定位与依赖图(L1 是所有 L2 的汇总)。自底向上才能保证每一层都有事实依据。
+4. 运行 `geb_check.py` 验证全覆盖,并确认全部 `TODO(语义)` 占位已清零。
+5. 若存在 `CLAUDE.md`,追加协议声明段(模板见 references/templates.md);若不存在,建议用户创建。
 
 ## 守护者戒律(禁止行为)
 
@@ -94,8 +95,10 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 ## 工具
 
 ```bash
-python3 scripts/geb_check.py <项目根目录>          # 人类可读报告
-python3 scripts/geb_check.py <项目根目录> --json   # 机器可读,供脚本/CI 使用
+python3 scripts/geb_check.py <项目根目录>            # 同构检查,人类可读报告
+python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
+python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
+python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么
 ```
 
 检查项:L1 存在性、L2 覆盖率、L3 覆盖率、L2 清单与实际文件对账(缺漏条目 + 幽灵条目)。退出码非 0 = 两相不同构。

@@ -1,0 +1,25 @@
+{
+  "name": "fugue-docs",
+  "version": "1.1.0",
+  "description": "赋格文档 fugue-docs — GEB 分形文档协议的 skill 实现:代码(机器相)与文档(语义相)两相同构,L1/L2/L3 分形索引 + 回环硬约束。Fractal self-referential documentation protocol inspired by GEB.",
+  "author": {
+    "name": "AaronXinzhian"
+  },
+  "homepage": "https://github.com/AaronXinzhian/fugue-docs#readme",
+  "repository": "https://github.com/AaronXinzhian/fugue-docs",
+  "license": "MIT",
+  "keywords": [
+    "claude-code-plugin",
+    "documentation",
+    "GEB",
+    "fractal",
+    "self-reference",
+    "index",
+    "dependency-graph",
+    "mermaid",
+    "skill"
+  ],
+  "skills": [
+    "./"
+  ]
+}

@@ -1,5 +1,7 @@
 # fugue-docs — 赋格文档
 
+**简体中文** | [English](README_EN.md)
+
 > "The map IS the terrain. The terrain IS the map."
 >
 > 代码是机器相,文档是语义相,两相必须同构;任一相变化必须在另一相显现,否则视为未完成。
@@ -23,22 +25,45 @@ fugue-docs 是该协议的**独立实现**:未使用原仓库任何代码,以 sk
 
 ## 安装
 
+方式一,插件市场(推荐,在 Claude Code 里两行命令):
+
+```
+/plugin marketplace add AaronXinzhian/fugue-docs
+/plugin install fugue-docs@fugue-docs
+```
+
+方式二,手动安装为个人 skill:
+
 ```bash
 git clone https://github.com/AaronXinzhian/fugue-docs.git
 cp -r fugue-docs ~/.claude/skills/fugue-docs
 ```
 
-装好后无需任何命令:Claude Code 在你所有项目里增删改代码时会自动应用协议。
+## 使用方法
+
+装好后**无需记任何命令**——这是 skill 形态与命令行工具的本质区别:
+
+- **自动触发**:在任何项目里让 Claude 新增/修改/删除/重命名代码,它会自动执行协议(改完代码即回环更新 L3→L2→L1);要求"初始化文档"、"梳理项目结构"、"文档和代码对不上了"等也会自动触发。
+- **手动调用 `/fugue-docs`**:这不是系统内置命令——Claude Code 会给每个已安装的 skill 自动生成同名斜杠命令。想明确指定走协议时输入 `/fugue-docs` 加上你的要求即可,例如 `/fugue-docs 给这个项目建索引`。
+- **命令行工具**(不依赖 AI,可单独使用):
+
+| 命令 | 作用 |
+|------|------|
+| `python3 scripts/geb_check.py <项目目录>` | 同构性检查,`--json` 供 CI 使用 |
+| `python3 scripts/geb_scaffold.py <项目目录>` | 确定性脚手架(见下),`--dry-run` 预览 |
 
 ## 组件
 
 ```
 fugue-docs/
-├── SKILL.md                    # 协议本体(教义、场景路由、回环流程、戒律)
-├── references/templates.md     # L1/L2 模板 + 13 种语言的 L3 文件头模板
-├── scripts/geb_check.py        # 同构性检查器(可独立用于任何项目/CI)
-├── scripts/geb_stop_hook.py    # Stop 钩子:回环不完成不许收工(可选硬约束)
-└── evals/evals.json            # 测试用例与断言(用 skill-creator 评测框架可复跑)
+├── SKILL.md                       # 协议本体(教义、场景路由、回环流程、戒律)
+├── references/templates.md        # L1/L2 模板 + 13 种语言的 L3 文件头模板
+├── scripts/geb_check.py           # 同构性检查器(可独立用于任何项目/CI)
+├── scripts/geb_scaffold.py        # 确定性脚手架(静态分析生成骨架)
+├── scripts/geb_stop_hook.py       # Claude Code Stop 钩子:回环不完成不许收工
+├── scripts/git-pre-commit-hook.sh # git 提交钩:跨工具硬约束
+├── .claude-plugin/                # 插件市场分发清单
+└── evals/evals.json               # 测试用例与断言(用 skill-creator 评测框架可复跑)
 ```
 
 ### 同构性检查器(独立可用,零依赖)
@@ -49,6 +74,15 @@ python3 scripts/geb_check.py /path/to/project --json   # 供 CI / 脚本使用,�
 ```
 
 检查:L1 存在性、L2 覆盖率、L3 标签齐全度、索引清单与实际文件对账(缺漏条目 + 幽灵条目)。
+
+### 确定性脚手架(大项目初始化提速)
+
+```bash
+python3 scripts/geb_scaffold.py /path/to/project           # 生成骨架(幂等,绝不覆盖已有内容)
+python3 scripts/geb_scaffold.py /path/to/project --dry-run # 只预览
+```
+
+借鉴原版 CLI 的静态分析思路,但分工不同:**机器只填机器擅长的**——`[INPUT]`(import 分析)、`[OUTPUT]`(导出分析,Python 走 AST,其余语言走模式匹配)、目录树、依赖图初稿由脚本秒级生成;`[POS]`、模块定位等语义判断一律留 `TODO(语义)` 占位,由 AI 真读代码后补全。大项目初始化从"逐文件精读"降为"补语义",省一大半 token,且不产生机器编造的假语义。
 
 ### 硬约束模式(可选,推荐)
 
@@ -93,6 +127,7 @@ chmod +x .git/hooks/pre-commit
 4. **自底向上初始化**:先真读代码写 L3,再汇总成 L2,最后 L1,杜绝凭文件名编造假文档。
 5. **降级验证**:沙箱禁止执行脚本时按检查器逻辑人工对账并如实声明。
 6. **回环汇报行**:每次任务结束附 `GEB 回环:L3 ✓ | L2 ✓ | L1 —`,同步情况一眼可见。
+7. **确定性脚手架**:机器相分析(INPUT/OUTPUT)交给静态分析秒出,语义相(POS/职责)留 TODO 给 AI——两相分工,各司其职。
 
 ## 实测
 
