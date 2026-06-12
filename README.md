@@ -12,7 +12,9 @@
 
 > 代码是机器相,文档是语义相,两相必须同构;任一相变化必须在另一相显现,否则视为未完成。
 
-一个 Claude Code **skill**,把「GEB 分形文档协议」变成 AI 编程的日常工作方式:三级分形索引(L1 项目 / L2 文件夹 / L3 文件头)+ 强制回环检查 + 机器可验证的同构性,用来对抗 AI 辅助开发时代的项目熵增——代码越写越乱、文档永远滞后。
+一个把「GEB 分形文档协议」变成 AI 编程日常工作方式的工具集:三级分形索引(L1 项目 / L2 文件夹 / L3 文件头)+ 强制回环检查 + 机器可验证的同构性,用来对抗 AI 辅助开发时代的项目熵增——代码越写越乱、文档永远滞后。
+
+以 Claude Code skill 为最佳体验,同时**万模通用**:Codex、Cursor、Windsurf、Cline(可接 DeepSeek 等任意模型)、Copilot 乃至网页聊天,一条命令即可接入同一协议与同一套硬约束,详见[「万模通用」](#万模通用任何工具任何模型)一节。
 
 ## 思想来源与致谢
 
@@ -68,6 +70,32 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 |------|------|
 | `python3 scripts/geb_check.py <项目目录>` | 同构性检查,`--json` 供 CI 使用 |
 | `python3 scripts/geb_scaffold.py <项目目录>` | 确定性脚手架,`--dry-run` 预览 |
+| `python3 scripts/geb_adapt.py <项目目录> --tool …` | 把协议接入其他 AI 工具(见下节) |
+
+## 万模通用(任何工具、任何模型)
+
+协议与工具是解耦的:[adapters/PROTOCOL.md](adapters/PROTOCOL.md) 是协议的**可移植核心**(单一事实来源,中英双版),`geb_adapt.py` 一条命令把它注入任何工具的规则文件,还能顺手装上硬约束:
+
+```bash
+python3 scripts/geb_adapt.py /path/to/project --tool cursor codex --pre-commit
+python3 scripts/geb_adapt.py /path/to/project --tool all --lang en --ci
+```
+
+| 工具 / 模型 | 接入方式 | 命令 |
+|------------|---------|------|
+| Claude Code | skill 自动触发(最佳体验) | `/plugin install fugue-docs@fugue-docs` |
+| OpenAI Codex CLI | `AGENTS.md` | `--tool codex` |
+| Cursor | `.cursorrules` | `--tool cursor` |
+| Windsurf | `.windsurfrules` | `--tool windsurf` |
+| Cline / Roo Code(可接 DeepSeek 等任意模型) | `.clinerules` | `--tool cline` |
+| GitHub Copilot | `.github/copilot-instructions.md` | `--tool copilot` |
+| 任意聊天模型(Grok / DeepSeek 网页等) | `GEB_PROTOCOL.md` 粘贴为系统提示词 | `--tool generic` |
+| 任意 git 仓库(与 AI 无关) | pre-commit 拒绝不同构提交 | `--pre-commit` |
+| 任意 CI | GitHub Actions 检查工作流 | `--ci` |
+
+注入是**幂等**的:协议内容写在 `GEB-PROTOCOL BEGIN/END` 标记之间,重复运行原地更新,绝不碰你规则文件里的其他内容;`--pre-commit` 安装的钩子自包含(检查器随钩子复制),不依赖本仓库存在。
+
+**为什么非 Claude 模型也能接近同样的效果?** 因为协议把对"模型自觉性"的要求系统性地搬进了确定性工具:脚手架产出明确的 `TODO(语义)` 工单,检查器产出逐条违规清单,pre-commit/CI 把违规清单变成无法绕过的反馈。模型只需要"会读错误信息并照着修"——这是所有现代模型都过关的能力。模型越强语义质量越好,但**结构的完整性由工具保证,与模型无关**。
 
 ## 组件
 
@@ -75,8 +103,10 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 fugue-docs/
 ├── SKILL.md                       # 协议本体(教义、场景路由、回环流程、戒律)
 ├── references/templates.md        # L1/L2 模板 + 13 种语言的 L3 文件头模板
+├── adapters/PROTOCOL.md           # 协议可移植核心(中/英双版,万模通用的单一事实来源)
 ├── scripts/geb_check.py           # 同构性检查器(可独立用于任何项目/CI)
 ├── scripts/geb_scaffold.py        # 确定性脚手架(静态分析生成骨架)
+├── scripts/geb_adapt.py           # 通用适配器:注入任意工具规则文件 + 装硬约束
 ├── scripts/geb_stop_hook.py       # Claude Code Stop 钩子:回环不完成不许收工
 ├── scripts/git-pre-commit-hook.sh # git 提交钩:跨工具硬约束
 ├── .claude-plugin/                # 插件市场分发清单
@@ -114,16 +144,7 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # 只预览
 }
 ```
 
-**其他工具用户**:协议与工具无关——
-
-1. **方法论注入(任何 AI 工具)**:把 [SKILL.md](SKILL.md) 正文作为系统提示词 / 项目规则注入(Cursor 放 `.cursorrules`,OpenAI Codex CLI 放 `AGENTS.md`)。模型相(Claude/GPT/DeepSeek/Grok)不影响协议本身。
-2. **同构检查(任何环境)**:`geb_check.py` 零依赖,可挂任意 CI。
-3. **硬约束(任何 git 仓库)**:复制 [scripts/git-pre-commit-hook.sh](scripts/git-pre-commit-hook.sh) 为项目的 `.git/hooks/pre-commit` 并加执行权限,两相不同构时提交直接被拒,无论代码是人写的还是哪家 AI 写的:
-
-```bash
-cp ~/.claude/skills/fugue-docs/scripts/git-pre-commit-hook.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+**其他工具用户**:见上文[「万模通用」](#万模通用任何工具任何模型)——`geb_adapt.py --pre-commit` 一条命令即可装上同样的提交闸门(自包含,不依赖本仓库),两相不同构时提交直接被拒,无论代码是人写的还是哪家 AI 写的。
 
 ## 实测数据
 

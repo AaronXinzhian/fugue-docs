@@ -12,7 +12,9 @@
 
 > コードは「機械相」、ドキュメントは「意味相」。両相は常に同型(isomorphic)でなければならない——一方の変化が他方に反映されない限り、タスクは未完了とみなす。
 
-「GEB フラクタル・ドキュメント・プロトコル」を AI コーディングの日常的な作法に変える Claude Code **スキル**です。三層フラクタル索引(L1 プロジェクト / L2 フォルダ / L3 ファイルヘッダ)+ 強制ループ更新 + 機械検証可能な同型性により、AI 支援開発時代のプロジェクト・エントロピー——コードは散らかり、ドキュメントは常に遅れる——に対抗します。
+「GEB フラクタル・ドキュメント・プロトコル」を AI コーディングの日常的な作法に変えるツールキットです。三層フラクタル索引(L1 プロジェクト / L2 フォルダ / L3 ファイルヘッダ)+ 強制ループ更新 + 機械検証可能な同型性により、AI 支援開発時代のプロジェクト・エントロピー——コードは散らかり、ドキュメントは常に遅れる——に対抗します。
+
+Claude Code スキルとしての利用が最良の体験ですが、設計上**モデル非依存**です:Codex、Cursor、Windsurf、Cline(DeepSeek など任意のモデル)、Copilot、さらには Web チャットまで、コマンド一発で同じプロトコルと同じハード制約に接続できます。詳細は「あらゆるツール・モデルで使える」の節を参照してください。
 
 ## 出典とクレジット
 
@@ -68,6 +70,32 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 |----------|------|
 | `python3 scripts/geb_check.py <プロジェクト>` | 同型性チェック。`--json` で CI 向け出力 |
 | `python3 scripts/geb_scaffold.py <プロジェクト>` | 決定論的スキャフォールド。`--dry-run` でプレビュー |
+| `python3 scripts/geb_adapt.py <プロジェクト> --tool …` | 他の AI ツールへプロトコルを接続(次節) |
+
+## あらゆるツール・モデルで使える
+
+プロトコルはツールから分離されています:[adapters/PROTOCOL.md](adapters/PROTOCOL.md) が**可搬なプロトコル・コア**(単一の事実源、中/英)であり、`geb_adapt.py` がそれを任意のツールのルールファイルへコマンド一発で注入します(ハード制約の同時インストールも可能):
+
+```bash
+python3 scripts/geb_adapt.py /path/to/project --tool cursor codex --pre-commit
+python3 scripts/geb_adapt.py /path/to/project --tool all --lang en --ci
+```
+
+| ツール / モデル | 接続方式 | コマンド |
+|----------------|---------|---------|
+| Claude Code | スキル自動トリガ(最良の体験) | `/plugin install fugue-docs@fugue-docs` |
+| OpenAI Codex CLI | `AGENTS.md` | `--tool codex` |
+| Cursor | `.cursorrules` | `--tool cursor` |
+| Windsurf | `.windsurfrules` | `--tool windsurf` |
+| Cline / Roo Code(DeepSeek など任意のモデル) | `.clinerules` | `--tool cline` |
+| GitHub Copilot | `.github/copilot-instructions.md` | `--tool copilot` |
+| 任意のチャットモデル(Grok / DeepSeek Web など) | `GEB_PROTOCOL.md` をシステムプロンプトに貼り付け | `--tool generic` |
+| 任意の git リポジトリ(AI 非依存) | 不一致コミットを pre-commit が拒否 | `--pre-commit` |
+| 任意の CI | GitHub Actions 検査ワークフロー | `--ci` |
+
+注入は**冪等**です:プロトコルは `GEB-PROTOCOL BEGIN/END` マーカーの間に書かれ、再実行時はその場で更新、ルールファイルの他の内容には一切触れません。`--pre-commit` のフックは自己完結型(チェッカーを同梱コピー)で、本リポジトリへの依存はありません。
+
+**なぜ Claude 以外のモデルでも同等に近い効果が出るのか?** プロトコルが「モデルの自覚」への要求を決定論的ツールへ体系的に移したからです:スキャフォールドは明示的な `TODO` 作業リストを、チェッカーは違反の逐条リストを出力し、pre-commit/CI がそれを無視できないフィードバックに変えます。モデルに必要なのは「エラーメッセージを読んで直す」能力だけ——現代のモデルなら全て備えています。強いモデルほど意味の質は上がりますが、**構造の完全性はツールが保証し、モデルに依存しません**。
 
 ## 構成
 
@@ -75,8 +103,10 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 fugue-docs/
 ├── SKILL.md                       # プロトコル本体(教義、ルーティング、ループ、戒律)
 ├── references/templates.md        # L1/L2 テンプレート + 13 言語の L3 ヘッダテンプレート
+├── adapters/PROTOCOL.md           # 可搬なプロトコル・コア(中/英、単一の事実源)
 ├── scripts/geb_check.py           # 同型性チェッカー(単体利用可、CI 対応)
 ├── scripts/geb_scaffold.py        # 決定論的スキャフォールド(静的解析)
+├── scripts/geb_adapt.py           # 汎用アダプタ:任意ツールへ注入 + ハード制約導入
 ├── scripts/geb_stop_hook.py       # Claude Code Stop フック:ループ未完なら終了不可
 ├── scripts/git-pre-commit-hook.sh # git pre-commit フック:ツール非依存のハード制約
 ├── .claude-plugin/                # マーケットプレイス配布マニフェスト
@@ -114,16 +144,7 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # プレビューの�
 }
 ```
 
-**他ツールのユーザー**——プロトコルはツール非依存です:
-
-1. **方法論の注入(任意の AI ツール)**:[SKILL.md](SKILL.md) の本文をシステムプロンプト / プロジェクトルールに投入(Cursor は `.cursorrules`、OpenAI Codex CLI は `AGENTS.md`)。背後のモデル(Claude/GPT/DeepSeek/Grok)は問いません。
-2. **同型性チェック(任意の環境)**:`geb_check.py` は依存ゼロの Python 3。任意の CI に組み込めます。
-3. **ハード制約(任意の git リポジトリ)**:[scripts/git-pre-commit-hook.sh](scripts/git-pre-commit-hook.sh) をプロジェクトの `.git/hooks/pre-commit` にコピーして実行権限を付与。両相不一致のコミットは、書いたのが人間でもどの AI でも拒否されます:
-
-```bash
-cp ~/.claude/skills/fugue-docs/scripts/git-pre-commit-hook.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+**他ツールのユーザー**:上記「あらゆるツール・モデルで使える」を参照——`geb_adapt.py --pre-commit` 一発で同じコミットゲートを導入できます(自己完結型、本リポジトリへの依存なし)。両相不一致のコミットは、書いたのが人間でもどの AI でも拒否されます。
 
 ## 実測データ
 

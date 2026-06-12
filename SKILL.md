@@ -99,6 +99,7 @@ python3 scripts/geb_check.py <项目根目录>            # 同构检查,人类�
 python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
 python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
 python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么
+python3 scripts/geb_adapt.py <项目根目录> --tool <工具名> [--pre-commit] [--ci]  # 用户要求在 Cursor/Codex/Cline 等其他工具上使用协议时,用它注入规则文件并安装硬约束
 ```
 
 检查项:L1 存在性、L2 覆盖率、L3 覆盖率、L2 清单与实际文件对账(缺漏条目 + 幽灵条目)。退出码非 0 = 两相不同构。

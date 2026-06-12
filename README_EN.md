@@ -12,7 +12,9 @@
 
 > Code is the machine phase; documentation is the semantic phase. The two phases must stay isomorphic — any change in one phase that is not reflected in the other means the task is incomplete.
 
-A Claude Code **skill** that turns the *GEB Fractal Documentation Protocol* into an everyday way of working with AI: a three-level fractal index (L1 project / L2 folder / L3 file header) plus a mandatory update loop and machine-verifiable isomorphism — built to fight project entropy in the age of AI-assisted coding, where code grows messy and docs always lag behind.
+A toolkit that turns the *GEB Fractal Documentation Protocol* into an everyday way of working with AI: a three-level fractal index (L1 project / L2 folder / L3 file header) plus a mandatory update loop and machine-verifiable isomorphism — built to fight project entropy in the age of AI-assisted coding, where code grows messy and docs always lag behind.
+
+Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex, Cursor, Windsurf, Cline (with DeepSeek or any model), Copilot, even web chat — one command plugs them all into the same protocol and the same hard constraints. See [Works with any tool, any model](#works-with-any-tool-any-model).
 
 ## Origin & Credits
 
@@ -68,6 +70,32 @@ Once installed there are **no commands to remember** — that is the point of th
 |---------|---------|
 | `python3 scripts/geb_check.py <project>` | Isomorphism check; `--json` for CI |
 | `python3 scripts/geb_scaffold.py <project>` | Deterministic scaffolder; `--dry-run` to preview |
+| `python3 scripts/geb_adapt.py <project> --tool …` | Plug the protocol into other AI tools (next section) |
+
+## Works with any tool, any model
+
+The protocol is decoupled from the tooling: [adapters/PROTOCOL_EN.md](adapters/PROTOCOL_EN.md) is the **portable core** (single source of truth, Chinese & English), and `geb_adapt.py` injects it into any tool's rule file with one command — optionally installing the hard constraints at the same time:
+
+```bash
+python3 scripts/geb_adapt.py /path/to/project --tool cursor codex --pre-commit --lang en
+python3 scripts/geb_adapt.py /path/to/project --tool all --ci --lang en
+```
+
+| Tool / model | Integration | Command |
+|--------------|------------|---------|
+| Claude Code | skill, auto-triggered (best experience) | `/plugin install fugue-docs@fugue-docs` |
+| OpenAI Codex CLI | `AGENTS.md` | `--tool codex` |
+| Cursor | `.cursorrules` | `--tool cursor` |
+| Windsurf | `.windsurfrules` | `--tool windsurf` |
+| Cline / Roo Code (DeepSeek or any model) | `.clinerules` | `--tool cline` |
+| GitHub Copilot | `.github/copilot-instructions.md` | `--tool copilot` |
+| Any chat model (Grok / DeepSeek web, …) | paste `GEB_PROTOCOL.md` as system prompt | `--tool generic` |
+| Any git repo (AI-independent) | pre-commit rejects out-of-sync commits | `--pre-commit` |
+| Any CI | GitHub Actions check workflow | `--ci` |
+
+Injection is **idempotent**: the protocol lives between `GEB-PROTOCOL BEGIN/END` markers, re-runs update in place, and the rest of your rule file is never touched. The `--pre-commit` hook is self-contained (the checker is copied alongside), with no dependency on this repository.
+
+**Why can non-Claude models get close to the same results?** Because the protocol systematically moves the demand for "model discipline" into deterministic tooling: the scaffolder emits an explicit `TODO` worklist, the checker emits an itemized violation list, and pre-commit/CI turn that list into feedback that cannot be ignored. All a model needs is the ability to read an error message and fix accordingly — table stakes for every modern model. Stronger models produce richer semantics, but **structural integrity is guaranteed by the tools, independent of the model**.
 
 ## Components
 
@@ -75,8 +103,10 @@ Once installed there are **no commands to remember** — that is the point of th
 fugue-docs/
 ├── SKILL.md                       # The protocol (doctrine, routing, loops, commandments)
 ├── references/templates.md        # L1/L2 templates + L3 header templates for 13 languages
+├── adapters/PROTOCOL.md           # Portable protocol core (zh/en, single source of truth)
 ├── scripts/geb_check.py           # Isomorphism checker (standalone, CI-friendly)
 ├── scripts/geb_scaffold.py        # Deterministic scaffolder (static analysis)
+├── scripts/geb_adapt.py           # Universal adapter: inject rules into any tool + install constraints
 ├── scripts/geb_stop_hook.py       # Claude Code Stop hook: no loop, no finish
 ├── scripts/git-pre-commit-hook.sh # git pre-commit hook: tool-agnostic hard constraint
 ├── .claude-plugin/                # marketplace distribution manifests
@@ -114,16 +144,7 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # preview only
 }
 ```
 
-**Users of other tools** — the protocol is tool-agnostic:
-
-1. **Methodology injection (any AI tool)**: drop the body of [SKILL.md](SKILL.md) into your system prompt / project rules — `.cursorrules` for Cursor, `AGENTS.md` for OpenAI Codex CLI. The underlying model (Claude/GPT/DeepSeek/Grok) doesn't matter.
-2. **Isomorphism check (any environment)**: `geb_check.py` is zero-dependency Python 3; wire it into any CI.
-3. **Hard constraint (any git repo)**: copy [scripts/git-pre-commit-hook.sh](scripts/git-pre-commit-hook.sh) to your project's `.git/hooks/pre-commit` and make it executable. Out-of-sync commits are rejected, no matter who (human or which AI) wrote the code:
-
-```bash
-cp ~/.claude/skills/fugue-docs/scripts/git-pre-commit-hook.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+**Users of other tools**: see [Works with any tool, any model](#works-with-any-tool-any-model) above — `geb_adapt.py --pre-commit` installs the same commit gate with one command (self-contained, no dependency on this repo). Out-of-sync commits are rejected, no matter who (human or which AI) wrote the code.
 
 ## Benchmarks
 
