@@ -68,7 +68,7 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 
 | 命令 | 作用 |
 |------|------|
-| `python3 scripts/geb_check.py <项目目录>` | 同构性检查,`--json` 供 CI 使用 |
+| `python3 scripts/geb_check.py <项目目录>` | 结构同构检查;`--strict` 漂移对账,`--complete` 查 TODO 清零,`--json` 供 CI |
 | `python3 scripts/geb_scaffold.py <项目目录>` | 确定性脚手架,`--dry-run` 预览 |
 | `python3 scripts/geb_adapt.py <项目目录> --tool …` | 把协议接入其他 AI 工具(见下节) |
 
@@ -147,6 +147,8 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # 只预览
 ```
 
 **其他工具用户**:见上文[「万模通用」](#万模通用任何工具任何模型)——`geb_adapt.py --pre-commit` 一条命令即可装上同样的提交闸门(自包含,不依赖本仓库),两相不同构时提交直接被拒,无论代码是人写的还是哪家 AI 写的。
+
+**团队采纳建议**(由轻到重,别一步到位):① 先 `geb_adapt.py --dry-run` 看清会改什么;② 挑一个仓库装 pre-commit 试运行一两周;③ 觉得值再上 CI 作为团队闸门;④ 个人全局 skill 留给重度使用者自选。协议的执行强度应该跟着信任度走,而不是反过来。
 
 ## 实测数据
 

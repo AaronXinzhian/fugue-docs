@@ -68,7 +68,7 @@ Once installed there are **no commands to remember** — that is the point of th
 
 | Command | Purpose |
 |---------|---------|
-| `python3 scripts/geb_check.py <project>` | Isomorphism check; `--json` for CI |
+| `python3 scripts/geb_check.py <project>` | Structural check; `--strict` drift audit, `--complete` TODO sweep, `--json` for CI |
 | `python3 scripts/geb_scaffold.py <project>` | Deterministic scaffolder; `--dry-run` to preview |
 | `python3 scripts/geb_adapt.py <project> --tool …` | Plug the protocol into other AI tools (next section) |
 
@@ -147,6 +147,8 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # preview only
 ```
 
 **Users of other tools**: see [Works with any tool, any model](#works-with-any-tool-any-model) above — `geb_adapt.py --pre-commit` installs the same commit gate with one command (self-contained, no dependency on this repo). Out-of-sync commits are rejected, no matter who (human or which AI) wrote the code.
+
+**Team adoption path** (light to heavy — don't jump straight to the end): ① `geb_adapt.py --dry-run` to see what would change; ② pilot pre-commit on one repo for a week or two; ③ promote to CI as the team gate if it earns its keep; ④ the global skill is a personal opt-in for heavy users. Enforcement strength should follow trust, not precede it.
 
 ## Benchmarks
 

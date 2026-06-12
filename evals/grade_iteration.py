@@ -240,6 +240,10 @@ def main():
         eval_dir = os.path.join(iteration, eval_name)
         meta = json.loads(read(os.path.join(eval_dir, "eval_metadata.json")) or "{}")
         assertions = meta.get("assertions", [])
+        if not assertions:
+            print("%s: 跳过——缺少 %s/eval_metadata.json(assertions),"
+                  "请按 README 从 evals.json 复制对应条目" % (eval_name, eval_name))
+            continue
         for run in ("with_skill", "without_skill", "old_skill"):
             project = os.path.join(eval_dir, run, "outputs", "project")
             if not os.path.isdir(project):

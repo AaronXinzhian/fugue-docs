@@ -21,7 +21,7 @@ for name in eval-1-add-feature-loop eval-2-delete-refactor-loop; do
 done
 ```
 
-2. **跑 AI**:对每个用例,把 `evals.json` 里的 prompt 交给你的 AI 工具执行两次——`with_skill` 一侧先注入本协议(Claude Code 装本 skill,或其他工具用 `geb_adapt.py` 注入规则),`without_skill` 一侧裸跑;都直接修改各自 `outputs/project`。同时在每个 `<side>/eval_metadata.json` 放入该用例的 prompt 与 assertions(从 `evals.json` 复制),并记录 tokens/耗时(如你的工具提供)。
+2. **跑 AI**:对每个用例,把 `evals.json` 里的 prompt 交给你的 AI 工具执行两次——`with_skill` 一侧先注入本协议(Claude Code 装本 skill,或其他工具用 `geb_adapt.py` 注入规则),`without_skill` 一侧裸跑;都直接修改各自 `outputs/project`。同时在**每个用例目录**(如 `eval-0-init-legacy-js-project/`)下放一份 `eval_metadata.json`,内容为该用例的 prompt 与 assertions(从 `evals.json` 复制对应条目即可);tokens/耗时如你的工具提供,可记在各 `<side>/timing.json`。
 
 3. **自动评分**:
 

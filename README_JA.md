@@ -68,7 +68,7 @@ cp -r fugue-docs ~/.claude/skills/fugue-docs
 
 | コマンド | 用途 |
 |----------|------|
-| `python3 scripts/geb_check.py <プロジェクト>` | 同型性チェック。`--json` で CI 向け出力 |
+| `python3 scripts/geb_check.py <プロジェクト>` | 構造チェック。`--strict` ドリフト照合、`--complete` TODO 残存検査、`--json` で CI 向け |
 | `python3 scripts/geb_scaffold.py <プロジェクト>` | 決定論的スキャフォールド。`--dry-run` でプレビュー |
 | `python3 scripts/geb_adapt.py <プロジェクト> --tool …` | 他の AI ツールへプロトコルを接続(次節) |
 
@@ -147,6 +147,8 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # プレビューの�
 ```
 
 **他ツールのユーザー**:上記「あらゆるツール・モデルで使える」を参照——`geb_adapt.py --pre-commit` 一発で同じコミットゲートを導入できます(自己完結型、本リポジトリへの依存なし)。両相不一致のコミットは、書いたのが人間でもどの AI でも拒否されます。
+
+**チーム導入パス**(軽い順に、一足飛びにしない):① まず `geb_adapt.py --dry-run` で変更内容を確認;② 1 リポジトリで pre-commit を 1〜2 週間試運転;③ 価値を確認できたら CI をチームのゲートに昇格;④ グローバル skill はヘビーユーザーの個人オプトイン。強制の強さは信頼に従うべきで、先行してはいけません。
 
 ## 実測データ
 

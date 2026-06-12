@@ -6,7 +6,7 @@
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本脚本的描述
 
 设计哲学:机器只填机器擅长的(依赖、导出——可静态分析),绝不假装理解语义。
-[POS]、模块定位、项目定位一律留 TODO(语义) 占位,由 AI 真读代码后补全。
+[POS]、模块定位、项目定位一律留语义 TODO 占位,由 AI 真读代码后补全。
 这样大项目初始化从"逐文件精读"降为"补语义",省时省 token,且不产生假文档。
 
 幂等:已有完整 L3 头的文件、已存在的索引文件一律跳过,绝不覆盖。
@@ -21,9 +21,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geb_check import walk_project, check_l3, find_index_file, L1_NAMES, L2_NAMES  # noqa: E402
 
-TODO_POS = "TODO(语义):本文件在系统中的定位与职责"
-TODO_MODULE = "TODO(语义):本模块在整体架构中的角色、被谁调用、调用谁"
-TODO_PROJECT = "TODO(语义):这个项目是什么、给谁用、解决什么问题"
+# 占位前缀拆开拼接,避免本文件头部的源码字面量被 geb_check --complete 误判为残留占位
+_TODO = "TODO(" + "语义)"
+TODO_POS = _TODO + ":本文件在系统中的定位与职责"
+TODO_MODULE = _TODO + ":本模块在整体架构中的角色、被谁调用、调用谁"
+TODO_PROJECT = _TODO + ":这个项目是什么、给谁用、解决什么问题"
 MAX_ITEMS = 10
 
 
@@ -78,7 +80,9 @@ def analyze_go(text):
 
 def analyze_rust(text):
     inputs = re.findall(r"^\s*use\s+([\w:]+)", text, re.M)
-    outputs = re.findall(r"^\s*pub\s+(?:async\s+)?(?:fn|struct|enum|trait|mod|const|static)\s+(\w+)", text, re.M)
+    outputs = re.findall(
+        r"^\s*pub(?:\([^)]*\))?\s+(?:async\s+)?(?:fn|struct|enum|trait|mod|const|static)\s+(\w+)",
+        text, re.M)
     return inputs, outputs
 
 
@@ -116,7 +120,9 @@ def analyze_ruby(text):
 
 
 def analyze_php(text):
-    inputs = re.findall(r"^\s*use\s+([\w\\]+)", text, re.M)
+    # use function Foo\bar; / use const X; 应取符号名而非关键字
+    inputs = re.findall(r"^\s*use\s+(?:function\s+|const\s+)?([\w\\]+)", text, re.M)
+    inputs = [i for i in inputs if i not in ("function", "const")]
     inputs += re.findall(r"""(?:require|include)(?:_once)?\s*\(?\s*['"]([^'"]+)['"]""", text)
     outputs = re.findall(r"^\s*(?:abstract\s+|final\s+)?(?:class|interface|trait)\s+(\w+)", text, re.M)
     outputs += re.findall(r"^function\s+(\w+)", text, re.M)
@@ -124,7 +130,10 @@ def analyze_php(text):
 
 
 def analyze_swift(text):
-    inputs = re.findall(r"^\s*import\s+(\w+)", text, re.M)
+    # import class Module.Symbol 等带种类关键字的导入应取模块名
+    inputs = re.findall(
+        r"^\s*import\s+(?:(?:class|struct|enum|protocol|func|var|let|typealias)\s+)?([\w.]+)",
+        text, re.M)
     outputs = re.findall(
         r"^(?:public\s+|open\s+|final\s+)*(?:func|class|struct|enum|protocol|extension)\s+([\w.]+)",
         text, re.M)
@@ -134,6 +143,8 @@ def analyze_swift(text):
 def analyze_shell(text):
     inputs = re.findall(r"^\s*(?:source|\.)\s+(\S+)", text, re.M)
     outputs = re.findall(r"^(?:function\s+)?([A-Za-z_]\w*)\s*\(\)\s*\{", text, re.M)
+    # bash 的 function myfunc { 语法(无括号)
+    outputs += re.findall(r"^function\s+([A-Za-z_]\w*)\s*\{", text, re.M)
     return inputs, outputs
 
 
@@ -162,7 +173,8 @@ ANALYZERS = {
     ".java": analyze_java, ".kt": analyze_java,
     ".cs": analyze_csharp,
     ".c": analyze_c, ".h": analyze_c, ".cpp": analyze_c, ".hpp": analyze_c,
-    ".cc": analyze_c, ".m": analyze_c, ".mm": analyze_c,
+    ".cc": analyze_c, ".cxx": analyze_c, ".c++": analyze_c,
+    ".m": analyze_c, ".mm": analyze_c,
     ".rb": analyze_ruby,
     ".php": analyze_php,
     ".swift": analyze_swift,

@@ -40,16 +40,13 @@ TOOLS = {
 }
 
 PRE_COMMIT_SH = """#!/bin/sh
-# GEB-MANAGED-HOOK v2(由 fugue-docs geb_adapt.py 安装;此标记用于安全更新,请勿删除)
+# GEB-MANAGED-HOOK v3(由 fugue-docs geb_adapt.py 安装;此标记用于安全更新,请勿删除)
 # 跳过一次检查:git commit --no-verify
 REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 0
-# 采纳判定与 geb_check 一致:PROJECT_INDEX.md,或含 GEB 标识的 CLAUDE.md
-if [ ! -f "$REPO_ROOT/PROJECT_INDEX.md" ]; then
-    grep -q -e "GEB" -e "FOLDER_INDEX" "$REPO_ROOT/CLAUDE.md" 2>/dev/null || exit 0
-fi
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHECKER="${GEB_CHECK:-$HOOK_DIR/geb_check.py}"
-if ! python3 "$CHECKER" "$REPO_ROOT"; then
+# 采纳判定由 geb_check --if-adopted 统一负责(单一事实源),未采纳项目零打扰
+if ! python3 "$CHECKER" "$REPO_ROOT" --if-adopted; then
     echo "" >&2
     echo "GEB: 代码与文档两相不同构,提交被拒绝。请完成 L3->L2->L1 回环后再提交。" >&2
     exit 1

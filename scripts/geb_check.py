@@ -18,6 +18,7 @@ CODE_EXTENSIONS = {
     ".c", ".h", ".cpp", ".hpp", ".cc", ".cs",
     ".rb", ".php", ".sh", ".bash", ".zsh", ".lua",
     ".scala", ".m", ".mm", ".vue", ".svelte",
+    ".cxx", ".c++",
 }
 
 EXCLUDED_DIRS = {
@@ -74,8 +75,17 @@ def check_l3(filepath):
     return [t for t in L3_TAGS if t not in head]
 
 
-# CLAUDE.md 被认作索引所需的协议标识(任一命中即可)
-GEB_MARKERS = ("GEB", "[PROTOCOL]", "PROJECT_INDEX", "FOLDER_INDEX")
+# CLAUDE.md 被认作索引所需的协议标识(任一命中即可)。
+# 必须是强信号:裸 "GEB" 三个字母曾导致"散文里提了一句这本书"的项目被误判采纳
+# (外部评审两次抓到),故仅认协议专名与协议产物名。
+GEB_MARKERS = (
+    "[PROTOCOL]", "PROJECT_INDEX", "FOLDER_INDEX",
+    "GEB 协议", "GEB 分形", "GEB Protocol", "GEB-PROTOCOL",
+)
+
+# 语义占位标记:脚手架生成、应由 AI/人补全;--complete 模式下残留即违规
+# (拆开拼接,避免本文件自己的头部 50 行被自己的检查误判)
+TODO_MARKERS = ("TODO(" + "语义)", "TODO(" + "semantic)")
 
 
 def find_index_file(dirpath, names):
@@ -99,8 +109,8 @@ def find_index_file(dirpath, names):
 
 
 _FILENAME_PATTERN = re.compile(
-    r"\b[\w][\w.\-]*\.(?:%s)\b"
-    % "|".join(ext.lstrip(".") for ext in sorted(CODE_EXTENSIONS))
+    r"\b[\w][\w.\-]*\.(?:%s)(?!\w)"
+    % "|".join(re.escape(ext.lstrip(".")) for ext in sorted(CODE_EXTENSIONS))
 )
 
 
@@ -186,7 +196,7 @@ def run_strict_checks(root, dir_map, l1_path):
     return violations
 
 
-def run_checks(root, strict=False):
+def run_checks(root, strict=False, complete=False):
     violations = []  # 每项: {"level", "path", "problem"}
     dir_map = walk_project(root)
     all_code_files = [
@@ -262,6 +272,32 @@ def run_checks(root, strict=False):
     if strict:
         violations += run_strict_checks(root, dir_map, l1_path)
 
+    if complete:
+        # 初始化完成度:任何头部或索引里残留的 TODO 占位都是"半成品同构"
+        index_files = {p for p in (l1_path,) if p}
+        for rel_dir in dir_map:
+            idx = find_index_file(os.path.join(root, rel_dir), L2_NAMES)
+            if idx:
+                index_files.add(idx)
+        for idx in sorted(index_files):
+            with open(idx, encoding="utf-8", errors="replace") as f:
+                text = f.read()
+            if any(m in text for m in TODO_MARKERS):
+                violations.append({
+                    "level": "L1" if idx == l1_path else "L2",
+                    "path": os.path.relpath(idx, root),
+                    "problem": "索引中残留 TODO(语义) 占位,初始化未完成(complete)",
+                })
+        for rel_dir, files in sorted(dir_map.items()):
+            for f_name in files:
+                head = head_text(os.path.join(root, rel_dir, f_name))
+                if any(m in head for m in TODO_MARKERS):
+                    violations.append({
+                        "level": "L3",
+                        "path": os.path.normpath(os.path.join(rel_dir, f_name)),
+                        "problem": "文件头残留 TODO(语义) 占位,初始化未完成(complete)",
+                    })
+
     stats = {
         "code_files": len(all_code_files),
         "code_dirs": len(dir_map),
@@ -278,6 +314,10 @@ def main():
     parser.add_argument("--json", action="store_true", help="以 JSON 输出")
     parser.add_argument("--strict", action="store_true",
                         help="额外执行语义漂移检查(L1 目录提及 + L3 [INPUT] 与实际 import 对账)")
+    parser.add_argument("--complete", action="store_true",
+                        help="额外检查 TODO(语义) 占位是否清零(初始化完成度)")
+    parser.add_argument("--if-adopted", action="store_true",
+                        help="项目未采纳协议(无 L1 索引)时静默跳过并返回 0;供钩子/CI 用,采纳判定的唯一事实源")
     args = parser.parse_args()
 
     root = os.path.abspath(args.root)
@@ -285,7 +325,10 @@ def main():
         print("错误: %s 不是目录" % root, file=sys.stderr)
         return 2
 
-    violations, stats = run_checks(root, strict=args.strict)
+    if args.if_adopted and not find_index_file(root, L1_NAMES):
+        return 0  # 未采纳,零打扰
+
+    violations, stats = run_checks(root, strict=args.strict, complete=args.complete)
 
     if args.json:
         print(json.dumps(

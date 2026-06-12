@@ -11,11 +11,6 @@
 
 REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 0
 
-# 采纳判定与 geb_check / Stop 钩子一致:PROJECT_INDEX.md,或含 GEB 标识的 CLAUDE.md
-if [ ! -f "$REPO_ROOT/PROJECT_INDEX.md" ]; then
-    grep -q -e "GEB" -e "FOLDER_INDEX" "$REPO_ROOT/CLAUDE.md" 2>/dev/null || exit 0
-fi
-
 # 定位检查器:环境变量 > 本脚本同目录 > 全局安装路径
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 for candidate in "$GEB_CHECK" "$SCRIPT_DIR/geb_check.py" \
@@ -31,7 +26,8 @@ if [ -z "$GEB_CHECK_PATH" ]; then
     exit 0
 fi
 
-if ! python3 "$GEB_CHECK_PATH" "$REPO_ROOT"; then
+# 采纳判定由 geb_check --if-adopted 统一负责(单一事实源),未采纳项目零打扰
+if ! python3 "$GEB_CHECK_PATH" "$REPO_ROOT" --if-adopted; then
     echo "" >&2
     echo "fugue-docs: 代码与文档两相不同构,提交被拒绝。" >&2
     echo "请完成 L3(文件头)→ L2(FOLDER_INDEX.md)→ L1(PROJECT_INDEX.md)回环后再提交。" >&2
