@@ -74,11 +74,27 @@ def check_l3(filepath):
     return [t for t in L3_TAGS if t not in head]
 
 
+# CLAUDE.md 被认作索引所需的协议标识(任一命中即可)
+GEB_MARKERS = ("GEB", "[PROTOCOL]", "PROJECT_INDEX", "FOLDER_INDEX")
+
+
 def find_index_file(dirpath, names):
+    """寻找该目录的索引文件。
+
+    CLAUDE.md 是 AI 工具的通用指令文件,内容可能与本协议毫无关系;只有当它
+    包含 GEB 协议标识时才被认作索引——否则一份普通散文 CLAUDE.md 就能
+    "形式上采纳"协议而绕过结构检查(外部评审指出的漏洞)。
+    """
     for name in names:
         candidate = os.path.join(dirpath, name)
-        if os.path.isfile(candidate) and os.path.getsize(candidate) > 0:
-            return candidate
+        if not (os.path.isfile(candidate) and os.path.getsize(candidate) > 0):
+            continue
+        if name == "CLAUDE.md":
+            with open(candidate, encoding="utf-8", errors="replace") as f:
+                text = f.read()
+            if not any(m in text for m in GEB_MARKERS):
+                continue
+        return candidate
     return None
 
 
@@ -125,7 +141,8 @@ def run_strict_checks(root, dir_map, l1_path):
     # 根目录的单文件模块(如 utils.py → "utils")同样是项目内部依赖
     root_modules = {os.path.splitext(f)[0] for f in dir_map.get(".", [])}
     if l1_path:
-        l1_text = open(l1_path, encoding="utf-8", errors="replace").read()
+        with open(l1_path, encoding="utf-8", errors="replace") as f:
+            l1_text = f.read()
         for d in top_dirs:
             if d not in l1_text:
                 violations.append({
@@ -135,6 +152,8 @@ def run_strict_checks(root, dir_map, l1_path):
     try:
         import geb_scaffold  # 延迟导入,避免与 geb_scaffold 的顶层互相导入冲突
     except ImportError:
+        print("警告: 找不到 geb_scaffold,--strict 的 [INPUT] 漂移检查已跳过"
+              "(请把两个脚本放在同一目录)", file=sys.stderr)
         return violations
     for rel_dir, files in sorted(dir_map.items()):
         for f_name in files:

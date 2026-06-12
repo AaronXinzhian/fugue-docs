@@ -11,8 +11,10 @@
 
 REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 0
 
-# 与 Stop 钩子同一开关:项目未采用协议(无 PROJECT_INDEX.md)则零打扰
-[ -f "$REPO_ROOT/PROJECT_INDEX.md" ] || exit 0
+# 采纳判定与 geb_check / Stop 钩子一致:PROJECT_INDEX.md,或含 GEB 标识的 CLAUDE.md
+if [ ! -f "$REPO_ROOT/PROJECT_INDEX.md" ]; then
+    grep -q -e "GEB" -e "FOLDER_INDEX" "$REPO_ROOT/CLAUDE.md" 2>/dev/null || exit 0
+fi
 
 # 定位检查器:环境变量 > 本脚本同目录 > 全局安装路径
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

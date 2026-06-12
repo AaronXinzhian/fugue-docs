@@ -67,7 +67,10 @@ def analyze_js(text):
 
 
 def analyze_go(text):
-    inputs = re.findall(r'^\s*(?:import\s+)?(?:\w+\s+)?"([\w./-]+)"', text, re.M)
+    # 只在 import 语句/块内取路径,避免把 case "x/y" 等普通字符串当依赖
+    inputs = re.findall(r'^import\s+(?:\w+\s+)?"([\w./-]+)"', text, re.M)
+    for block in re.findall(r"^import\s*\(([^)]*)\)", text, re.M | re.S):
+        inputs += re.findall(r'"([\w./-]+)"', block)
     outputs = re.findall(r"^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)", text, re.M)
     outputs += re.findall(r"^type\s+([A-Z]\w*)", text, re.M)
     return inputs, outputs
@@ -80,10 +83,69 @@ def analyze_rust(text):
 
 
 def analyze_java(text):
-    inputs = re.findall(r"^\s*import\s+([\w.]+)\s*;", text, re.M)
+    # 分号可选:Kotlin 的 import 没有分号
+    inputs = re.findall(r"^\s*import\s+(?:static\s+)?([\w.]+)", text, re.M)
     outputs = re.findall(
         r"^\s*(?:public|open)\s+(?:final\s+|abstract\s+|data\s+)?(?:class|interface|enum|record|object)\s+(\w+)",
         text, re.M)
+    return inputs, outputs
+
+
+def analyze_csharp(text):
+    # C# 用 using 而非 import(外部评审指出)
+    inputs = re.findall(r"^\s*using\s+(?:static\s+)?([\w.]+)\s*;", text, re.M)
+    outputs = re.findall(
+        r"^\s*(?:public|internal)\s+(?:static\s+|abstract\s+|sealed\s+|partial\s+|readonly\s+)*"
+        r"(?:class|interface|enum|struct|record)\s+(\w+)",
+        text, re.M)
+    return inputs, outputs
+
+
+def analyze_c(text):
+    """C / C++ / Objective-C:#include 与 #import;导出对 C 系语言静态难判,仅取 ObjC 接口。"""
+    inputs = re.findall(r'^\s*#\s*(?:include|import)\s*[<"]([^">]+)[">]', text, re.M)
+    outputs = re.findall(r"^\s*@interface\s+(\w+)", text, re.M)
+    return inputs, outputs
+
+
+def analyze_ruby(text):
+    inputs = re.findall(r"""^\s*require(?:_relative)?\s+['"]([^'"]+)['"]""", text, re.M)
+    outputs = re.findall(r"^\s*(?:class|module)\s+([A-Z]\w*)", text, re.M)
+    outputs += re.findall(r"^def\s+(?:self\.)?(\w+)", text, re.M)
+    return inputs, outputs
+
+
+def analyze_php(text):
+    inputs = re.findall(r"^\s*use\s+([\w\\]+)", text, re.M)
+    inputs += re.findall(r"""(?:require|include)(?:_once)?\s*\(?\s*['"]([^'"]+)['"]""", text)
+    outputs = re.findall(r"^\s*(?:abstract\s+|final\s+)?(?:class|interface|trait)\s+(\w+)", text, re.M)
+    outputs += re.findall(r"^function\s+(\w+)", text, re.M)
+    return inputs, outputs
+
+
+def analyze_swift(text):
+    inputs = re.findall(r"^\s*import\s+(\w+)", text, re.M)
+    outputs = re.findall(
+        r"^(?:public\s+|open\s+|final\s+)*(?:func|class|struct|enum|protocol|extension)\s+([\w.]+)",
+        text, re.M)
+    return inputs, outputs
+
+
+def analyze_shell(text):
+    inputs = re.findall(r"^\s*(?:source|\.)\s+(\S+)", text, re.M)
+    outputs = re.findall(r"^(?:function\s+)?([A-Za-z_]\w*)\s*\(\)\s*\{", text, re.M)
+    return inputs, outputs
+
+
+def analyze_scala(text):
+    inputs = re.findall(r"^\s*import\s+([\w.]+)", text, re.M)
+    outputs = re.findall(r"^(?:case\s+)?(?:class|object|trait)\s+(\w+)", text, re.M)
+    return inputs, outputs
+
+
+def analyze_lua(text):
+    inputs = re.findall(r"""require\s*\(?\s*['"]([\w./-]+)['"]""", text)
+    outputs = re.findall(r"^function\s+([\w.:]+)", text, re.M)
     return inputs, outputs
 
 
@@ -97,7 +159,16 @@ ANALYZERS = {
     ".mjs": analyze_js, ".cjs": analyze_js, ".vue": analyze_js, ".svelte": analyze_js,
     ".go": analyze_go,
     ".rs": analyze_rust,
-    ".java": analyze_java, ".kt": analyze_java, ".cs": analyze_java,
+    ".java": analyze_java, ".kt": analyze_java,
+    ".cs": analyze_csharp,
+    ".c": analyze_c, ".h": analyze_c, ".cpp": analyze_c, ".hpp": analyze_c,
+    ".cc": analyze_c, ".m": analyze_c, ".mm": analyze_c,
+    ".rb": analyze_ruby,
+    ".php": analyze_php,
+    ".swift": analyze_swift,
+    ".sh": analyze_shell, ".bash": analyze_shell, ".zsh": analyze_shell,
+    ".scala": analyze_scala,
+    ".lua": analyze_lua,
 }
 
 
@@ -150,8 +221,12 @@ def render_header(ext, lines, has_docstring):
 
 
 def insert_header(path, header_text):
-    with open(path, encoding="utf-8", errors="replace") as f:
-        src_lines = f.readlines()
+    # newline="" 读写,保持文件原有行尾(CRLF 文件不被静默改为 LF)
+    with open(path, encoding="utf-8", errors="replace", newline="") as f:
+        src = f.read()
+    if "\r\n" in src:
+        header_text = header_text.replace("\n", "\r\n")
+    src_lines = src.splitlines(keepends=True)
     idx = 0
     # 跳过 shebang、Python 编码声明、PHP 起始标签
     if src_lines and src_lines[0].startswith("#!"):
@@ -161,7 +236,7 @@ def insert_header(path, header_text):
     if idx < len(src_lines) and src_lines[idx].lstrip().startswith("<?php"):
         idx += 1
     new = src_lines[:idx] + [header_text] + src_lines[idx:]
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="") as f:
         f.write("".join(new))
 
 

@@ -40,12 +40,16 @@ TOOLS = {
 }
 
 PRE_COMMIT_SH = """#!/bin/sh
-# GEB 协议 pre-commit 硬约束(由 fugue-docs geb_adapt.py 安装,自包含)
+# GEB-MANAGED-HOOK v2(由 fugue-docs geb_adapt.py 安装;此标记用于安全更新,请勿删除)
 # 跳过一次检查:git commit --no-verify
 REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 0
-[ -f "$REPO_ROOT/PROJECT_INDEX.md" ] || exit 0
+# 采纳判定与 geb_check 一致:PROJECT_INDEX.md,或含 GEB 标识的 CLAUDE.md
+if [ ! -f "$REPO_ROOT/PROJECT_INDEX.md" ]; then
+    grep -q -e "GEB" -e "FOLDER_INDEX" "$REPO_ROOT/CLAUDE.md" 2>/dev/null || exit 0
+fi
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
-if ! python3 "$HOOK_DIR/geb_check.py" "$REPO_ROOT"; then
+CHECKER="${GEB_CHECK:-$HOOK_DIR/geb_check.py}"
+if ! python3 "$CHECKER" "$REPO_ROOT"; then
     echo "" >&2
     echo "GEB: 代码与文档两相不同构,提交被拒绝。请完成 L3->L2->L1 回环后再提交。" >&2
     exit 1
@@ -70,29 +74,35 @@ jobs:
 def load_protocol(lang):
     name = "PROTOCOL.md" if lang == "zh" else "PROTOCOL_EN.md"
     path = os.path.join(ADAPTERS_DIR, name)
-    with open(path, encoding="utf-8") as f:
+    with open(path, encoding="utf-8", errors="replace") as f:
         return f.read().strip()
 
 
 def inject(target_path, protocol_text):
-    """把协议写入目标规则文件的标记区间;无标记则追加;幂等。"""
+    """把协议写入目标规则文件的标记区间;无标记则追加;幂等。
+
+    以 newline="" 读写,保持目标文件原有行尾(CRLF 文件不被静默改为 LF)。
+    """
     block = "%s\n%s\n%s" % (BEGIN, protocol_text, END)
     if os.path.isfile(target_path):
-        with open(target_path, encoding="utf-8") as f:
+        with open(target_path, encoding="utf-8", errors="replace", newline="") as f:
             existing = f.read()
+        nl = "\r\n" if "\r\n" in existing else "\n"
+        if nl != "\n":
+            block = block.replace("\n", nl)
         if BEGIN in existing and END in existing:
             pattern = re.compile(re.escape(BEGIN) + r".*?" + re.escape(END), re.S)
             updated = pattern.sub(lambda _m: block, existing)
             action = "更新"
         else:
-            sep = "" if existing.endswith("\n\n") else ("\n" if existing.endswith("\n") else "\n\n")
-            updated = existing + sep + block + "\n"
+            sep = "" if existing.endswith(nl * 2) else (nl if existing.endswith(nl) else nl * 2)
+            updated = existing + sep + block + nl
             action = "追加到"
     else:
         updated = block + "\n"
         action = "创建"
     os.makedirs(os.path.dirname(target_path) or ".", exist_ok=True)
-    with open(target_path, "w", encoding="utf-8") as f:
+    with open(target_path, "w", encoding="utf-8", newline="") as f:
         f.write(updated)
     return action
 
@@ -134,12 +144,15 @@ def install_pre_commit(root):
                 os.path.join(hooks_dir, "geb_check.py"))
     target = os.path.join(hooks_dir, "pre-commit")
     if os.path.isfile(target):
-        with open(target, encoding="utf-8") as f:
-            if "fugue-docs" not in f.read():
-                target = os.path.join(hooks_dir, "pre-commit.geb")
-                note = "(已存在他人 pre-commit,写入 pre-commit.geb,请自行合并)"
-            else:
-                note = "(更新)"
+        with open(target, encoding="utf-8", errors="replace") as f:
+            existing = f.read()
+        if "GEB-MANAGED-HOOK" in existing:
+            note = "(更新托管版本)"
+        else:
+            # 不是本工具托管的钩子(可能是用户手装的完整模板或其他工具的钩子),
+            # 绝不静默覆盖——写到旁路文件,由用户决定如何合并
+            target = os.path.join(hooks_dir, "pre-commit.geb")
+            note = "(已存在非托管 pre-commit,未覆盖;新钩子写入 pre-commit.geb,请自行合并)"
     else:
         note = ""
     with open(target, "w", encoding="utf-8") as f:
