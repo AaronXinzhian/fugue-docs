@@ -72,6 +72,19 @@ python3 scripts/geb_check.py /path/to/project --json   # 供 CI / 脚本使用,�
 }
 ```
 
+## 不用 Claude Code?照样能用
+
+协议本身与工具无关,三个组件按依赖强度递减:
+
+1. **方法论注入(任何 AI 工具)**:把 [SKILL.md](SKILL.md) 的正文作为系统提示词 / 项目规则注入——Cursor 放 `.cursorrules`,OpenAI Codex CLI 放 `AGENTS.md`,其他工具放各自的规则文件。模型相(Claude/GPT/DeepSeek/Grok)不影响协议本身。
+2. **同构检查(任何环境)**:`geb_check.py` 零依赖,只要有 Python 3 就能跑,可挂任意 CI。
+3. **硬约束(任何 git 仓库)**:Claude Code 用户用上面的 Stop 钩子;其他工具的用户用 git 提交钩——把 [scripts/git-pre-commit-hook.sh](scripts/git-pre-commit-hook.sh) 复制为项目的 `.git/hooks/pre-commit` 并加执行权限,两相不同构时提交直接被拒,无论代码是谁(人或哪家 AI)写的。
+
+```bash
+cp ~/.claude/skills/fugue-docs/scripts/git-pre-commit-hook.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
 ## 相对原版协议的扩展
 
 1. **同构从口号变成机器验证**:`geb_check.py` 让"两相同构"可被脚本断言,可挂 CI。
