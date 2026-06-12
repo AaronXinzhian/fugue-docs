@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""
+[INPUT]: 依赖 Python 3 标准库 (os, re, sys, json, argparse)
+[OUTPUT]: 提供 GEB 同构性检查命令行工具;退出码 0=同构, 1=存在违规
+[POS]: GEB 协议工具层-一致性验证器
+[PROTOCOL]: 变更时更新此头部,然后检查上级 SKILL.md 中对本脚本的描述
+"""
+
+import argparse
+import json
+import os
+import re
+import sys
+
+CODE_EXTENSIONS = {
+    ".py", ".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs",
+    ".go", ".rs", ".java", ".kt", ".swift",
+    ".c", ".h", ".cpp", ".hpp", ".cc", ".cs",
+    ".rb", ".php", ".sh", ".bash", ".zsh", ".lua",
+    ".scala", ".m", ".mm", ".vue", ".svelte",
+}
+
+EXCLUDED_DIRS = {
+    ".git", "node_modules", "dist", "build", "out", "target",
+    "__pycache__", ".venv", "venv", "env", ".next", ".nuxt",
+    "vendor", "coverage", ".idea", ".vscode", "migrations",
+    ".pytest_cache", ".mypy_cache", "site-packages",
+}
+
+EXCLUDED_FILE_PATTERNS = [
+    re.compile(r"\.min\.(js|css)$"),
+    re.compile(r"\.d\.ts$"),
+    re.compile(r"(^|/)conftest\.py$"),
+]
+
+L1_NAMES = ("PROJECT_INDEX.md", "CLAUDE.md")
+L2_NAMES = ("FOLDER_INDEX.md", "CLAUDE.md")
+L3_TAGS = ("[INPUT]", "[OUTPUT]", "[POS]")
+L3_SCAN_LINES = 50  # L3 头必须出现在文件前 50 行内
+
+# 极小项目豁免:代码文件 ≤ 5 且全部位于根目录时,允许省略 L2
+TINY_PROJECT_FILE_LIMIT = 5
+
+
+def is_code_file(path):
+    if os.path.splitext(path)[1].lower() not in CODE_EXTENSIONS:
+        return False
+    rel = path.replace(os.sep, "/")
+    return not any(p.search(rel) for p in EXCLUDED_FILE_PATTERNS)
+
+
+def walk_project(root):
+    """返回 {相对目录路径: [代码文件名]},仅含至少有一个代码文件的目录。"""
+    result = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(
+            d for d in dirnames if d not in EXCLUDED_DIRS and not d.startswith(".")
+        )
+        code_files = sorted(f for f in filenames if is_code_file(f))
+        if code_files:
+            result[os.path.relpath(dirpath, root)] = code_files
+    return result
+
+
+def check_l3(filepath):
+    """检查文件前 L3_SCAN_LINES 行是否含全部 L3 标签,返回缺失标签列表。"""
+    try:
+        with open(filepath, encoding="utf-8", errors="replace") as f:
+            head = "".join(f.readline() for _ in range(L3_SCAN_LINES))
+    except OSError:
+        return list(L3_TAGS)
+    return [t for t in L3_TAGS if t not in head]
+
+
+def find_index_file(dirpath, names):
+    for name in names:
+        candidate = os.path.join(dirpath, name)
+        if os.path.isfile(candidate) and os.path.getsize(candidate) > 0:
+            return candidate
+    return None
+
+
+_FILENAME_PATTERN = re.compile(
+    r"\b[\w][\w.\-]*\.(?:%s)\b"
+    % "|".join(ext.lstrip(".") for ext in sorted(CODE_EXTENSIONS))
+)
+
+
+def extract_referenced_files(index_text):
+    """提取索引中的代码文件名引用。
+
+    返回 (anywhere, in_tables):
+    - anywhere: 全文中出现的文件名(用于"缺漏条目"宽松判定——提到了就算)
+    - in_tables: 仅 Markdown 表格行中出现的文件名(用于"幽灵条目"判定——
+      散文中合法地提及其他目录的文件,如"被 app.py 调用",不应误报)
+    """
+    anywhere = {m.group(0) for m in _FILENAME_PATTERN.finditer(index_text)}
+    table_lines = "\n".join(
+        line for line in index_text.splitlines() if line.lstrip().startswith("|")
+    )
+    in_tables = {m.group(0) for m in _FILENAME_PATTERN.finditer(table_lines)}
+    return anywhere, in_tables
+
+
+def run_checks(root):
+    violations = []  # 每项: {"level", "path", "problem"}
+    dir_map = walk_project(root)
+    all_code_files = [
+        (d, f) for d, files in dir_map.items() for f in files
+    ]
+
+    # --- L1 ---
+    l1_path = find_index_file(root, L1_NAMES)
+    if not l1_path:
+        violations.append({
+            "level": "L1", "path": ".",
+            "problem": "根目录缺少 PROJECT_INDEX.md(或 CLAUDE.md)项目索引",
+        })
+
+    # --- 极小项目判定 ---
+    tiny = (
+        len(all_code_files) <= TINY_PROJECT_FILE_LIMIT
+        and all(d == "." for d in dir_map)
+    )
+
+    # --- L2 + 清单对账 ---
+    for rel_dir, code_files in sorted(dir_map.items()):
+        abs_dir = os.path.join(root, rel_dir)
+        if rel_dir == ".":
+            index_path = l1_path  # 根目录代码文件记录在 L1 中
+        elif tiny:
+            continue
+        else:
+            index_path = find_index_file(abs_dir, L2_NAMES)
+            if not index_path:
+                violations.append({
+                    "level": "L2", "path": rel_dir,
+                    "problem": "缺少 FOLDER_INDEX.md 文件夹索引",
+                })
+                continue
+        if not index_path:
+            continue
+        with open(index_path, encoding="utf-8", errors="replace") as f:
+            index_text = f.read()
+        referenced_anywhere, referenced_in_tables = extract_referenced_files(
+            index_text
+        )
+        own_name = os.path.basename(index_path)
+        # 缺漏:实际存在但索引未提及
+        for f_name in code_files:
+            if f_name not in referenced_anywhere:
+                violations.append({
+                    "level": "L2", "path": os.path.join(rel_dir, f_name),
+                    "problem": "索引 %s 未列出该文件(缺漏条目)" % own_name,
+                })
+        # 幽灵:清单表格提及但文件不存在(仅核对本目录层级的引用)
+        if rel_dir != ".":
+            for ref in sorted(referenced_in_tables):
+                if ref != own_name and not os.path.exists(
+                    os.path.join(abs_dir, ref)
+                ):
+                    violations.append({
+                        "level": "L2", "path": os.path.join(rel_dir, ref),
+                        "problem": "索引 %s 引用了不存在的文件(幽灵条目)" % own_name,
+                    })
+
+    # --- L3 ---
+    for rel_dir, code_files in sorted(dir_map.items()):
+        for f_name in code_files:
+            rel_file = os.path.normpath(os.path.join(rel_dir, f_name))
+            missing = check_l3(os.path.join(root, rel_file))
+            if missing:
+                violations.append({
+                    "level": "L3", "path": rel_file,
+                    "problem": "文件头缺少标签: %s" % ", ".join(missing),
+                })
+
+    stats = {
+        "code_files": len(all_code_files),
+        "code_dirs": len(dir_map),
+        "violations": len(violations),
+        "tiny_project_l2_waived": tiny,
+    }
+    return violations, stats
+
+
+def main():
+    parser = argparse.ArgumentParser(description="GEB 分形文档同构性检查器")
+    parser.add_argument("root", help="项目根目录")
+    parser.add_argument("--json", action="store_true", help="以 JSON 输出")
+    args = parser.parse_args()
+
+    root = os.path.abspath(args.root)
+    if not os.path.isdir(root):
+        print("错误: %s 不是目录" % root, file=sys.stderr)
+        return 2
+
+    violations, stats = run_checks(root)
+
+    if args.json:
+        print(json.dumps(
+            {"isomorphic": not violations, "stats": stats,
+             "violations": violations},
+            ensure_ascii=False, indent=2,
+        ))
+    else:
+        print("GEB 同构性检查 — %s" % root)
+        print("代码文件 %(code_files)d 个 / 代码目录 %(code_dirs)d 个" % stats)
+        if stats["tiny_project_l2_waived"]:
+            print("(极小项目:L2 要求已豁免)")
+        if not violations:
+            print("✓ 两相同构,无违规。")
+        else:
+            print("✗ 发现 %d 处违规:" % len(violations))
+            for v in violations:
+                print("  [%(level)s] %(path)s — %(problem)s" % v)
+    return 1 if violations else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

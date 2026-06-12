@@ -1,0 +1,48 @@
+{
+  "skill_name": "geb-fractal-docs",
+  "evals": [
+    {
+      "id": 0,
+      "name": "init-legacy-js-project",
+      "prompt": "我半年前写了个用户管理的小服务,代码在 project/ 目录。现在准备把它交给 AI 继续开发维护,帮我把项目的文档体系搭起来,让 AI(或新同事)每次进来都能马上看懂结构、知道每个文件是干嘛的、以后改东西的时候文档不会再烂掉。",
+      "expected_output": "完整的 GEB 三级结构:根目录 L1 索引、4 个 src 子目录 L2 索引、5 个 js 文件 L3 头注释,且原代码逻辑不被破坏",
+      "files": ["fixtures/fixture-a"],
+      "assertions": [
+        "根目录存在 L1 项目索引(PROJECT_INDEX.md 或 CLAUDE.md),内容包含目录结构与各模块职责",
+        "src、src/routes、src/models、src/utils 四个目录均有 L2 索引文件,并列出该目录全部代码文件",
+        "全部 5 个 .js 文件顶部都有包含 [INPUT]、[OUTPUT]、[POS] 的结构化头注释",
+        "至少一份索引包含自指更新声明(变更时更新本文件)",
+        "原有代码未被破坏:5 个 .js 文件仍存在且 module.exports 导出未变"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "add-feature-loop",
+      "prompt": "在 project/ 这个项目里加一个导出功能:services 下新建 export_service.py,提供 export_users_to_csv(path) 函数,从 storage 读出所有用户写成 CSV(表头 id,name,email)。再在 app.py 加一个 export <path> 命令接上它。",
+      "expected_output": "新功能可用,且 L3(新文件头+app.py 头更新)→ L2(services 清单新增条目)回环完成,geb_check 无违规",
+      "files": ["fixtures/fixture-b"],
+      "assertions": [
+        "services/export_service.py 存在、定义 export_users_to_csv,且文件头包含 [INPUT]、[OUTPUT]、[POS]",
+        "services/FOLDER_INDEX.md 文件清单中新增了 export_service.py 条目",
+        "app.py 顶部头注释已更新以反映新的 export 命令(头部文本提及 export)",
+        "geb_check.py 对结果项目运行报告 0 违规",
+        "功能正确:add 两个用户后执行 export,生成的 CSV 含表头 id,name,email 与两行数据"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "delete-refactor-loop",
+      "prompt": "project/ 里 services/legacy_format.py 这个老模块该清理掉了。它里面的 format_date 还被 report.py 用着,把这个函数挪到根目录的 utils.py,改好引用,然后删掉 legacy_format.py。",
+      "expected_output": "legacy_format.py 删除、format_date 迁入 utils.py、引用改好,且 L3/L2/L1 三层索引中幽灵引用清零,geb_check 无违规",
+      "files": ["fixtures/fixture-b"],
+      "assertions": [
+        "services/legacy_format.py 已删除",
+        "format_date 已定义在根目录 utils.py 中,且 utils.py 头部 [OUTPUT] 提及 format_date",
+        "report.py 改为从 utils 导入 format_date,其头部 [INPUT] 不再提及 legacy_format",
+        "services/FOLDER_INDEX.md 与 PROJECT_INDEX.md 中不再出现 legacy_format 引用",
+        "geb_check.py 对结果项目运行报告 0 违规",
+        "功能正确:report 命令仍能正常输出报表"
+      ]
+    }
+  ]
+}
