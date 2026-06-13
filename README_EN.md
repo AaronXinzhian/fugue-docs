@@ -18,9 +18,9 @@ Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex
 
 ## Origin & Credits
 
-The protocol concept comes entirely from **Zhao Chunxiang (chunxiang)**'s "GEB Fractal Documentation System Protocol", inspired by Douglas Hofstadter's *Gödel, Escher, Bach*. The original official implementation (CLI + Claude Code plugin + VSCode extension) lives at [Claudate/project-multilevel-index](https://github.com/Claudate/project-multilevel-index) (MIT).
+The protocol's founding ideas come from **Zhao Chunxiang (chunxiang)**'s "GEB Fractal Documentation System Protocol" (the L1/L2/L3 index, self-referencing updates, the loop), inspired by Douglas Hofstadter's *Gödel, Escher, Bach*. The original official implementation (CLI + Claude Code plugin + VSCode extension) lives at [Claudate/project-multilevel-index](https://github.com/Claudate/project-multilevel-index) (MIT).
 
-fugue-docs is an **independent implementation**: it uses no code from the original repository and re-imagines the protocol as a skill (methodology injection) rather than a plugin/CLI. The name "fugue" honors Polyphony — one of the protocol's three core properties: code, indexes, and docs answer each other like voices in a fugue, keeping the project self-maintaining.
+fugue-docs is an **independent implementation and an independent evolution**: it uses no code from the original repository, written from scratch as a skill (methodology injection) rather than a plugin/CLI; the protocol-invariant abstraction, machine-field views (geb_sync), recursive fractal, scale-elastic profiles, and the machine facts source are original to this repository (the full evolution is in the commit history). The name "fugue" honors Polyphony — one of the protocol's three core properties: code, indexes, and docs answer each other like voices in a fugue, keeping the project self-maintaining.
 
 ## Capabilities
 

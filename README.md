@@ -18,9 +18,9 @@
 
 ## 思想来源与致谢
 
-本项目的协议思想完全来自 **赵纯想(chunxiang)** 提出的「GEB 分形文档系统协议」,其灵感源于侯世达《哥德尔、埃舍尔、巴赫》。原版官方实现(CLI + Claude Code 插件 + VSCode 扩展)见 [Claudate/project-multilevel-index](https://github.com/Claudate/project-multilevel-index)(MIT)。
+本项目的协议初始思想来自 **赵纯想(chunxiang)** 提出的「GEB 分形文档系统协议」(L1/L2/L3 三级索引、自指更新、回环),其灵感源于侯世达《哥德尔、埃舍尔、巴赫》。原版官方实现(CLI + Claude Code 插件 + VSCode 扩展)见 [Claudate/project-multilevel-index](https://github.com/Claudate/project-multilevel-index)(MIT)。
 
-fugue-docs 是该协议的**独立实现**:未使用原仓库任何代码,以 skill(方法论注入)而非插件/CLI 的形态重写。取名「赋格」,因为复调性(Polyphony)正是协议三大特性之一——代码、索引、文档三个声部相互呼应,如赋格曲般自我维护。
+fugue-docs 是**独立实现与独立演化**:未使用原仓库任何代码,以 skill(方法论注入)而非插件/CLI 的形态从零编写;协议不变量抽象、机器字段视图化(geb_sync)、递归分形、规模弹性 profile、机器事实源等设计为本仓库原创(演化全程见提交历史)。取名「赋格」,因为复调性(Polyphony)正是协议三大特性之一——代码、索引、文档三个声部相互呼应,如赋格曲般自我维护。
 
 ## 核心能力
 
