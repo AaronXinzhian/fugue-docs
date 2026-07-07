@@ -14,7 +14,7 @@ fugue-docs/
 ├── SKILL.md           # 协议本体(Claude Code skill 入口)
 ├── adapters/          # 协议可移植核心(中/英),万模通用的单一事实来源
 ├── assets/            # logo 等静态资源
-├── evals/             # 评测包:用例、夹具、评分器 → evals/FOLDER_INDEX.md
+├── evals/             # 评测包:用例、夹具、评分器、理解成本测验 → evals/FOLDER_INDEX.md
 ├── references/        # L1/L2/L3 多语言模板库
 └── scripts/           # 全部可执行工具 → scripts/FOLDER_INDEX.md
 ```

@@ -31,7 +31,42 @@ python3 grade_iteration.py /tmp/geb-eval/iteration-1
 
 每个运行目录会生成 `grading.json`(逐断言 pass/fail + 证据)。所有断言均为脚本判定:文件存在性、L3 标签、索引条目、`geb_check` 违规数,以及实际运行夹具项目的功能验证(eval-1 会真的执行 `app.py add/export`,eval-2 会执行 `report`)。
 
+## 理解成本测验
+
+`comprehension.md` 用来度量协议的真目标:只读索引是否能用更少 token 获得接近读代码的理解质量。跑完 docs-only / code-only 两个新会话后,把答案与 token 数写成 JSON:
+
+```json
+{
+  "runs": [
+    {
+      "condition": "docs_only",
+      "token_count": 1200,
+      "answers": {
+        "1": "……",
+        "2": "……"
+      }
+    },
+    {
+      "condition": "code_only",
+      "token_count": 4200,
+      "answers": {
+        "1": "……",
+        "2": "……"
+      }
+    }
+  ]
+}
+```
+
+然后运行:
+
+```bash
+python3 grade_comprehension.py answers.json
+```
+
+默认 rubric 是 `comprehension_fixture_b.json`;输出会包含每题得分、总分、docs-only/code-only 分数比和 token 比。
+
 ## 诚实声明
 
 - 原始实测使用 Claude Code 子代理并行跑两侧;用其他工具复跑时,绝对数值(tokens/耗时)会不同,但断言通过率可直接对比。
-- 评分器依赖 `../scripts/geb_check.py`,请在仓库内原位运行。
+- `grade_iteration.py` 依赖 `../scripts/geb_check.py`;`grade_comprehension.py` 只依赖本目录 rubric JSON。

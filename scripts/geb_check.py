@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 [INPUT]: 依赖 argparse, json, os, re, sys
-[OUTPUT]: 提供 GEB 同构性检查命令行工具(默认结构层检查 + --strict 语义漂移检查);退出码 0=同构, 1=存在违规
+[OUTPUT]: 提供 GEB 同构性检查命令行工具(结构层 + 路径级清单对账 + --strict 语义漂移检查);退出码 0=同构, 1=存在违规
 [POS]: GEB 协议工具层-一致性验证器
 [PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md 与 SKILL.md 中对本脚本的描述
 """
@@ -129,26 +129,80 @@ def find_index_file(dirpath, names):
     return None
 
 
-_FILENAME_PATTERN = re.compile(
-    r"\b[\w][\w.\-]*\.(?:%s)(?!\w)"
+_FILE_REF_PATTERN = re.compile(
+    r"(?:[\w][\w.\-]*/)*[\w][\w.\-]*\.(?:%s)(?!\w)"
     % "|".join(re.escape(ext.lstrip(".")) for ext in sorted(CODE_EXTENSIONS))
 )
 
 
-def extract_referenced_files(index_text):
-    """提取索引中的代码文件名引用。
+def normalize_ref(ref):
+    ref = ref.strip().strip("`").replace("\\", "/")
+    while ref.startswith("./"):
+        ref = ref[2:]
+    return ref
 
-    返回 (anywhere, in_tables):
-    - anywhere: 全文中出现的文件名(用于"缺漏条目"宽松判定——提到了就算)
-    - in_tables: 仅 Markdown 表格行中出现的文件名(用于"幽灵条目"判定——
-      散文中合法地提及其他目录的文件,如"被 app.py 调用",不应误报)
+
+def extract_reference_sets(text):
+    paths = {normalize_ref(m.group(0)) for m in _FILE_REF_PATTERN.finditer(text)}
+    names = {os.path.basename(p) for p in paths}
+    return paths, names
+
+
+def extract_referenced_files(index_text):
+    """提取索引中的代码文件引用。
+
+    返回 dict:
+    - anywhere_paths / anywhere_names: 全文中出现的代码路径/文件名(用于缺漏宽松判定)
+    - table_paths / table_names: 仅 Markdown 清单表第一列中的代码路径/文件名(用于幽灵判定——
+      其他列中合法地提及其他目录的文件,如"被 app.py 调用",不应误报)
     """
-    anywhere = {m.group(0) for m in _FILENAME_PATTERN.finditer(index_text)}
-    table_lines = "\n".join(
-        line for line in index_text.splitlines() if line.lstrip().startswith("|")
-    )
-    in_tables = {m.group(0) for m in _FILENAME_PATTERN.finditer(table_lines)}
-    return anywhere, in_tables
+    first_cells = []
+    for line in index_text.splitlines():
+        if not line.lstrip().startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if cells:
+            first_cells.append(cells[0])
+    anywhere_paths, anywhere_names = extract_reference_sets(index_text)
+    table_paths, table_names = extract_reference_sets("\n".join(first_cells))
+    return {
+        "anywhere_paths": anywhere_paths,
+        "anywhere_names": anywhere_names,
+        "table_paths": table_paths,
+        "table_names": table_names,
+    }
+
+
+def rel_code_path(rel_dir, f_name):
+    return normalize_ref(os.path.normpath(os.path.join(rel_dir, f_name)))
+
+
+def run_l1_table_ghost_checks(root, dir_map, l1_path):
+    """检查 L1 表格里的路径级幽灵引用。
+
+    小项目 profile 会把全部文件清单并入 L1;没有这一步时,L1 表格里的
+    services/old.py 这类幽灵项不会被自有 L2 检查覆盖。为避免误报,这里只
+    检查表格中的代码引用,并且只硬判路径型引用或根目录代码文件名。
+    """
+    if not l1_path:
+        return []
+    with open(l1_path, encoding="utf-8", errors="replace") as f:
+        refs = extract_referenced_files(f.read())
+    actual = {
+        rel_code_path(d, f_name)
+        for d, files in dir_map.items() for f_name in files
+    }
+    root_files = set(dir_map.get(".", []))
+    violations = []
+    for ref in sorted(refs["table_paths"]):
+        should_check = "/" in ref or ref in root_files
+        if should_check and ref not in actual:
+            violations.append({
+                "level": "L1",
+                "path": ref,
+                "problem": "L1 清单表引用了不存在的文件(幽灵条目)",
+            })
+    return violations
 
 
 def head_text(filepath):
@@ -258,22 +312,22 @@ def run_checks(root, strict=False, complete=False, recursive=True):
             continue
         with open(index_path, encoding="utf-8", errors="replace") as f:
             index_text = f.read()
-        referenced_anywhere, referenced_in_tables = extract_referenced_files(
-            index_text
-        )
+        refs = extract_referenced_files(index_text)
         own_name = os.path.basename(index_path)
         # 缺漏:实际存在但索引未提及
         for f_name in code_files:
-            if f_name not in referenced_anywhere:
+            rel_path = rel_code_path(rel_dir, f_name)
+            if (rel_path not in refs["anywhere_paths"]
+                    and f_name not in refs["anywhere_names"]):
                 violations.append({
                     "level": "L2",
-                    "path": os.path.normpath(os.path.join(rel_dir, f_name)),
+                    "path": rel_path,
                     "problem": "索引 %s 未列出该文件(缺漏条目)" % own_name,
                 })
         # 幽灵:清单表格提及但文件不存在(仅当用的是本目录自己的 L2 时核对——
         # 回落到 L1 时,L1 表格里合法引用着其他目录的文件,不能误判)
         if own_l2:
-            for ref in sorted(referenced_in_tables):
+            for ref in sorted(refs["table_paths"]):
                 if ref != own_name and not os.path.exists(
                     os.path.join(abs_dir, ref)
                 ):
@@ -281,6 +335,8 @@ def run_checks(root, strict=False, complete=False, recursive=True):
                         "level": "L2", "path": os.path.join(rel_dir, ref),
                         "problem": "索引 %s 引用了不存在的文件(幽灵条目)" % own_name,
                     })
+
+    violations += run_l1_table_ghost_checks(root, dir_map, l1_path)
 
     # --- L3 ---
     for rel_dir, code_files in sorted(dir_map.items()):

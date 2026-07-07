@@ -1,0 +1,135 @@
+{
+  "name": "fixtures/fixture-b comprehension benchmark",
+  "thresholds": {
+    "score_ratio": 0.85,
+    "token_ratio": 0.4
+  },
+  "questions": [
+    {
+      "id": "1",
+      "question": "这个项目是做什么的?怎么运行?",
+      "rubric": [
+        {
+          "label": "命令行工具",
+          "weight": 0.25,
+          "any": ["命令行", "cli", "command line"]
+        },
+        {
+          "label": "团队名册/用户管理",
+          "weight": 0.35,
+          "any": ["团队名册", "名册", "用户", "roster"]
+        },
+        {
+          "label": "app.py 入口",
+          "weight": 0.25,
+          "any": ["app.py"]
+        },
+        {
+          "label": "JSON 本地存储",
+          "weight": 0.15,
+          "any": ["json", "本地"]
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "question": "新增一个按邮箱查用户的功能,应该改哪几个文件?",
+      "rubric": [
+        {
+          "label": "业务层 user_service.py",
+          "weight": 0.45,
+          "any": ["user_service.py", "user_service"]
+        },
+        {
+          "label": "入口 app.py",
+          "weight": 0.35,
+          "any": ["app.py"]
+        },
+        {
+          "label": "经 storage 读取",
+          "weight": 0.2,
+          "any": ["storage", "store.py", "存储"]
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "question": "哪个模块允许直接读写数据文件?为什么?",
+      "rubric": [
+        {
+          "label": "只有 storage 层",
+          "weight": 0.5,
+          "any": ["storage", "store.py"]
+        },
+        {
+          "label": "services 不直接碰文件",
+          "weight": 0.3,
+          "any": ["services 不直接", "service 不直接", "不直接操作文件", "不直接碰文件"]
+        },
+        {
+          "label": "全局约定/分层约束",
+          "weight": 0.2,
+          "any": ["全局约定", "约定", "分层"]
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "question": "report 功能依赖哪些模块?",
+      "rubric": [
+        {
+          "label": "storage.store",
+          "weight": 0.4,
+          "any": ["storage.store", "storage", "store.py"]
+        },
+        {
+          "label": "legacy_format/format_date",
+          "weight": 0.4,
+          "any": ["legacy_format", "format_date"]
+        },
+        {
+          "label": "time",
+          "weight": 0.2,
+          "any": ["time"]
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "question": "删除 legacy_format.py 前需要处理什么?",
+      "rubric": [
+        {
+          "label": "report.py 仍在使用",
+          "weight": 0.45,
+          "any": ["report.py", "report"]
+        },
+        {
+          "label": "迁移 format_date",
+          "weight": 0.4,
+          "any": ["format_date", "迁移", "移动", "挪"]
+        },
+        {
+          "label": "更新引用",
+          "weight": 0.15,
+          "any": ["引用", "import", "导入"]
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "question": "用户数据校验发生在哪里?",
+      "rubric": [
+        {
+          "label": "utils.validate_email",
+          "weight": 0.55,
+          "any": ["validate_email", "utils.py", "utils"]
+        },
+        {
+          "label": "user_service.add_user 调用",
+          "weight": 0.45,
+          "any": ["add_user", "user_service"]
+        }
+      ]
+    }
+  ]
+}

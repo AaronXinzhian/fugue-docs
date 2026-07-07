@@ -26,4 +26,12 @@
 
 报告四个数:A 得分 / B 得分 / A token / B token。健康的协议实施应满足:A 得分 ≥ B 得分的 85%,A token ≤ B token 的 40%。对更大的项目,差距应该更显著(索引价值随规模超线性增长)。
 
+本目录提供 fixture-b 的确定性 rubric 与评分器:
+
+```bash
+python3 grade_comprehension.py answers.json
+```
+
+`answers.json` 包含 `docs_only` 与 `code_only` 两个 run、各自 `token_count`、以及题号到答案文本的 `answers` 映射。评分器按 `comprehension_fixture_b.json` 的关键词 rubric 给每题累计得分,并输出 docs-only/code-only 的分数比与 token 比;rubric 是自动化代理指标,人工复核仍应优先看低分题的证据。
+
 > 给自动化任务的提示:周三案例研究可在重构完成后,对 with-skill 副本跑一轮本测验(问题需按目标项目现编 4-6 题,标准答案先由通读代码的会话产出)。

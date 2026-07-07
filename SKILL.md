@@ -69,7 +69,7 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 
 机器字段与语义字段分工不同,先机器后语义:
 
-1. **机器字段**:运行 `python3 scripts/geb_sync.py <项目根目录>`——L3 的 `[INPUT]` 行、L2/L1 清单表的行集合与"关键导出"列由静态分析自动重写(衍生数据重新生成,不靠手抄)。无法执行脚本时退回手工核对这些字段。
+1. **机器字段**:运行 `python3 scripts/geb_sync.py <项目根目录>`——L3 的 `[INPUT]` 行、L2/L1 清单表的行集合与"关键导出"列由静态分析自动重写(衍生数据重新生成,不靠手抄);删除/重命名后清单幽灵项也由清单重建清理。无法执行脚本时退回手工核对这些字段。
 2. **语义字段(你的职责)**:所改文件的 `[OUTPUT]` 语义加注与 `[POS]` 是否仍准确;清单表"职责"列、新文件的 TODO 占位;新建文件必须带完整头部。
 3. **L1 语义**:模块结构、依赖关系或技术栈变化时,更新 `PROJECT_INDEX.md` 的定位/目录树/约定(图可用 `geb_sync --graph` 重绘)。只是内部实现变化则无需动,但必须**检查过**才能下这个结论。
 4. **验证**:运行 `python3 scripts/geb_check.py <项目根目录>`,违规清零。若环境不允许执行脚本,则按检查器的逻辑人工对账(L1 存在、L2 覆盖且清单与实际文件一致、L3 标签齐全),并在汇报中说明是人工核验。
@@ -107,7 +107,7 @@ python3 scripts/geb_check.py <项目根目录> --complete # 加查 TODO(语义) 
 python3 scripts/geb_check.py <项目根目录> --report   # 末尾输出机器生成的回环行(GEB 回环:L3 ✓ | L2 ✓ | L1 ✓),直接抄进汇报
 python3 scripts/geb_check.py <项目根目录> --emit-facts .geb-facts.json  # 机器事实源(文件/依赖/导出/边/技术栈),逆向回环前先读它省 token
 python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
-python3 scripts/geb_sync.py <项目根目录> --changed   # 只同步 git 有改动的文件,大仓库提速
+python3 scripts/geb_sync.py <项目根目录> --changed   # 只同步 git 有改动的文件/受影响目录,删除与重命名会重建对应清单
 python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
 python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么
 python3 scripts/geb_adapt.py <项目根目录> --tool <工具名> [--pre-commit] [--ci]  # 用户要求在 Cursor/Codex/Cline 等其他工具上使用协议时,用它注入规则文件并安装硬约束

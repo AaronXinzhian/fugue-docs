@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 [INPUT]: 依赖 argparse, os, re, subprocess, sys, geb_check, geb_scaffold
-[OUTPUT]: 提供机器字段同步命令——重写 L3 [INPUT] 行、重建 L2/L1 清单表(语义列保留),--graph 重绘依赖图
+[OUTPUT]: 提供机器字段同步命令——重写 L3 [INPUT] 行、重建 L2/L1 清单表(含删除/重命名清理,语义列保留),--graph 重绘依赖图
 [POS]: fugue-docs 工具层-视图同步器:衍生数据重新生成而非人工维护,这是 v2.0 架构的核心
 [PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md 与 SKILL.md 中对本脚本的描述
 
@@ -145,23 +145,67 @@ def rebuild_graph(l1_path, root, dir_map, analyses_by_file, dry=False):
 
 # ---------------- 主流程 ----------------
 
+def _norm_rel(path):
+    return os.path.normpath(path).replace("\\", "/")
+
+
+def _rel_dir(path):
+    dirname = os.path.dirname(_norm_rel(path))
+    return dirname or "."
+
+
+def _scope_has_dir(scope, rel_dir):
+    return rel_dir in scope["dirs"] or any(
+        d == rel_dir or d.startswith(rel_dir.rstrip("/\\") + "/")
+        for d in scope["dirs"]
+    )
+
+
+def _scope_has_file(scope, rel_dir, files):
+    return any(_norm_rel(os.path.join(rel_dir, f)) in scope["files"] for f in files)
+
+
 def git_changed(root):
-    """git 工作区变更范围(含未跟踪文件);拿不到则返回 None 表示退回全量。"""
+    """git 工作区变更范围(含未跟踪文件)。
+
+    返回 {"files": set, "dirs": set}:files 供 L3 增量同步,dirs 供清单表重建。
+    删除/重命名时,文件可能已不存在于 dir_map;必须保留父目录,否则清单幽灵项不会被清理。
+    拿不到 git 信息则返回 None,由调用方退回全量同步。
+    """
     try:
-        r = subprocess.run(["git", "-C", root, "diff", "--name-only", "HEAD"],
+        r = subprocess.run(["git", "-C", root, "diff", "--name-status", "HEAD"],
                            capture_output=True, text=True, timeout=15)
         if r.returncode != 0:
             return None
         u = subprocess.run(["git", "-C", root, "ls-files", "--others",
                             "--exclude-standard"],
                            capture_output=True, text=True, timeout=15)
-        return {os.path.normpath(p) for p in
-                r.stdout.splitlines() + u.stdout.splitlines() if p.strip()}
+        files, dirs = set(), set()
+        for line in r.stdout.splitlines():
+            parts = line.split("\t")
+            if not parts or not parts[0]:
+                continue
+            status = parts[0]
+            paths = parts[1:]
+            if status.startswith(("R", "C")) and len(paths) >= 2:
+                old, new = _norm_rel(paths[0]), _norm_rel(paths[1])
+                files.add(new)
+                dirs.update({_rel_dir(old), _rel_dir(new)})
+            elif paths:
+                rel = _norm_rel(paths[-1])
+                files.add(rel)
+                dirs.add(_rel_dir(rel))
+        for line in u.stdout.splitlines():
+            rel = _norm_rel(line)
+            if rel:
+                files.add(rel)
+                dirs.add(_rel_dir(rel))
+        return {"files": files, "dirs": dirs}
     except Exception:  # noqa: BLE001
         return None
 
 
-def sync(root, graph=False, dry_run=False, prefix="", only=None):
+def sync(root, graph=False, dry_run=False, prefix="", scope=None):
     subprojects = []
     dir_map = walk_project(root, subprojects)
     analyses_by_file = {
@@ -172,8 +216,8 @@ def sync(root, graph=False, dry_run=False, prefix="", only=None):
     suffix = "(dry-run)" if dry_run else ""
 
     for (d, f), (imports, _o) in sorted(analyses_by_file.items()):
-        rel = os.path.normpath(os.path.join(d, f))
-        if only is not None and rel not in only:
+        rel = _norm_rel(os.path.join(d, f))
+        if scope is not None and rel not in scope["files"]:
             continue  # --changed 增量:未动过的文件不碰
         if sync_l3_input(os.path.join(root, rel), imports, dry=dry_run):
             changed.append("[L3] %s%s" % (prefix + rel, suffix))
@@ -182,11 +226,11 @@ def sync(root, graph=False, dry_run=False, prefix="", only=None):
     handled_small = False
     if is_small_project(dir_map):
         l1 = find_index_file(root, L1_NAMES)
-        if l1:
+        if l1 and (scope is None or scope["files"] or scope["dirs"]):
             names, analyses = [], {}
             for d, files in sorted(dir_map.items()):
                 for f in sorted(files):
-                    name = os.path.normpath(os.path.join(d, f)).replace(os.sep, "/")
+                    name = _norm_rel(os.path.join(d, f))
                     names.append(name)
                     analyses[name] = analyses_by_file[(d, f)]
             r = rebuild_table(l1, names, analyses, dry=dry_run,
@@ -198,8 +242,8 @@ def sync(root, graph=False, dry_run=False, prefix="", only=None):
     for d, files in sorted(dir_map.items()):
         if handled_small:
             break
-        if only is not None and not any(
-                os.path.normpath(os.path.join(d, f)) in only for f in files):
+        if scope is not None and not (
+                _scope_has_dir(scope, d) or _scope_has_file(scope, d, files)):
             continue
         idx = (find_index_file(root, L1_NAMES) if d == "."
                else find_index_file(os.path.join(root, d), L2_NAMES))
@@ -215,14 +259,22 @@ def sync(root, graph=False, dry_run=False, prefix="", only=None):
             changed.append("[图] %s%s" % (prefix + os.path.relpath(l1, root), suffix))
     # 递归分形:子项目同样同步(--changed 时把变更范围换算到子项目坐标)
     for sp in subprojects:
-        sub_only = None
-        if only is not None:
-            spp = sp + os.sep
-            sub_only = {rel[len(spp):] for rel in only if rel.startswith(spp)}
-            if not sub_only:
+        sub_scope = None
+        if scope is not None:
+            spp = sp.replace(os.sep, "/") + "/"
+            sub_files = {
+                rel[len(spp):] for rel in scope["files"] if rel.startswith(spp)
+            }
+            sub_dirs = {
+                "." if d == sp else d[len(spp):]
+                for d in scope["dirs"]
+                if d == sp or d.startswith(spp)
+            }
+            if not sub_files and not sub_dirs:
                 continue
+            sub_scope = {"files": sub_files, "dirs": sub_dirs}
         changed += sync(os.path.join(root, sp), graph=graph, dry_run=dry_run,
-                        prefix=prefix + sp + os.sep, only=sub_only)
+                        prefix=prefix + sp + os.sep, scope=sub_scope)
     return changed
 
 
@@ -240,13 +292,13 @@ def main():
     if not os.path.isdir(root):
         print("错误: %s 不是目录" % root, file=sys.stderr)
         return 2
-    only = None
+    scope = None
     if args.changed:
-        only = git_changed(root)
-        if only is None:
+        scope = git_changed(root)
+        if scope is None:
             print("警告: 拿不到 git 变更范围(不是 git 仓库?),退回全量同步",
                   file=sys.stderr)
-    changed = sync(root, graph=args.graph, dry_run=args.dry_run, only=only)
+    changed = sync(root, graph=args.graph, dry_run=args.dry_run, scope=scope)
     for line in changed:
         print(line)
     print("同步%s:%d 处%s。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"

@@ -1,6 +1,6 @@
 {
   "name": "fugue-docs",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "赋格文档 fugue-docs — GEB 分形文档协议的 skill 实现:代码(机器相)与文档(语义相)两相同构,L1/L2/L3 分形索引 + 回环硬约束;万模通用,geb_adapt.py 一条命令接入 Codex/Cursor/Cline/Copilot 等任意工具。Model-agnostic fractal documentation protocol inspired by GEB.",
   "author": {
     "name": "AaronXinzhian"
