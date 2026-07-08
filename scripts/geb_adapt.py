@@ -115,6 +115,7 @@ GEB 协议配套工具(由 fugue-docs geb_adapt.py 复制安装),供本项目的
 ## 文件清单
 | 文件 | 职责 | 关键导出 |
 |------|------|----------|
+| geb_arch.py | 架构事实与候选生成器(入口/模块角色/依赖边/风险提示/AI handoff brief) | 命令行工具,--out JSON,--brief Markdown |
 | geb_check.py | 同构性检查器(L1/L2/L3 覆盖与台账对账) | 命令行工具,--json 供 CI |
 | geb_scaffold.py | 确定性脚手架(静态分析生成 L3/L2/L1 骨架) | 命令行工具,--dry-run 预览 |
 | geb_sync.py | 机器字段同步器(重写 [INPUT] 与索引清单表,语义列保留) | 命令行工具,--changed 增量同步 |
@@ -124,7 +125,7 @@ GEB 协议配套工具(由 fugue-docs geb_adapt.py 复制安装),供本项目的
 def copy_tools(root):
     dest = os.path.join(root, "scripts", "geb")
     os.makedirs(dest, exist_ok=True)
-    for name in ("geb_check.py", "geb_scaffold.py", "geb_sync.py"):
+    for name in ("geb_arch.py", "geb_check.py", "geb_scaffold.py", "geb_sync.py"):
         shutil.copy(os.path.join(SCRIPT_DIR, name), os.path.join(dest, name))
     # 工具自带 L2 索引——安装工具这件事本身不能破坏同构
     l2 = os.path.join(dest, "FOLDER_INDEX.md")
@@ -167,7 +168,7 @@ def install_ci(root):
     wf = os.path.join(wf_dir, "geb-check.yml")
     with open(wf, "w", encoding="utf-8") as f:
         f.write(CI_YML)
-    return "CI 工作流已生成:.github/workflows/geb-check.yml(检查器已复制到 scripts/geb/)"
+    return "CI 工作流已生成:.github/workflows/geb-check.yml(配套工具已复制到 scripts/geb/)"
 
 
 def main():
@@ -183,7 +184,7 @@ def main():
     parser.add_argument("--ci", action="store_true",
                         help="生成 GitHub Actions 检查工作流,并复制工具到项目 scripts/geb/")
     parser.add_argument("--copy-tools", action="store_true",
-                        help="把 geb_check.py / geb_scaffold.py / geb_sync.py 复制到项目 scripts/geb/")
+                        help="把 geb_arch.py / geb_check.py / geb_scaffold.py / geb_sync.py 复制到项目 scripts/geb/")
     parser.add_argument("--compact", action="store_true",
                         help="注入精简版协议(约 300 词,供低上下文模型/规则字数受限的工具)")
     parser.add_argument("--dry-run", action="store_true",
@@ -206,7 +207,7 @@ def main():
     if args.ci:
         planned.append(".github/workflows/geb-check.yml")
     if args.ci or args.copy_tools:
-        planned.append("scripts/geb/(geb_check.py、geb_scaffold.py、geb_sync.py、FOLDER_INDEX.md)")
+        planned.append("scripts/geb/(geb_arch.py、geb_check.py、geb_scaffold.py、geb_sync.py、FOLDER_INDEX.md)")
     print("将写入 %s 下的:" % root)
     for p in planned:
         print("  - %s" % p)

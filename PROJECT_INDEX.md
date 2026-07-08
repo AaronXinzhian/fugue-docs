@@ -3,7 +3,7 @@
 > 本文件是项目的语义相入口。架构变更(模块增删、依赖关系变化、技术栈调整)后必须更新本文件。
 
 ## 定位
-GEB 分形文档协议的工具集仓库:以 Claude Code skill 为最佳体验、万模通用的协议实现,包含协议文本、检查器、脚手架、适配器与硬约束钩子。本仓库自身遵循本协议(吃自己的狗粮),CI 会对自身做同构检查。
+GEB 分形文档协议的工具集仓库:以 Claude Code skill 为最佳体验、万模通用的协议实现,包含协议文本、架构候选生成器、检查器、脚手架、适配器与硬约束钩子。本仓库自身遵循本协议(吃自己的狗粮),CI 会对自身做同构检查。
 
 ## 技术栈
 Python 3(≥3.6,零第三方依赖)+ POSIX shell + Markdown。Claude Code skill / 插件市场分发;`gh`/git 用于发布。
@@ -23,6 +23,8 @@ fugue-docs/
 ```mermaid
 graph TD
     geb_scaffold --> geb_check
+    geb_arch --> geb_check
+    geb_arch --> geb_scaffold
     geb_sync --> geb_check
     geb_sync --> geb_scaffold
     geb_stop_hook --> geb_check

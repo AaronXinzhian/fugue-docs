@@ -28,7 +28,7 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 | 场景 | 动作 |
 |------|------|
 | 进入陌生项目 / 陌生目录 | **逆向回环**:先读 L1 → 目标 L2 → 目标文件 L3 头,再读代码本体 |
-| 项目没有 GEB 结构 | **初始化流程**(见下) |
+| 项目没有 GEB 结构 | **初始化流程**(见下):先程序化事实/候选,再 AI 补语义 |
 | 新增 / 修改 / 删除 / 重命名 / 移动代码 | 改完后执行**正向回环** |
 | 用户要求检查文档一致性 / 怀疑文档过期 | 运行 `scripts/geb_check.py` 并修复报告中的违规项 |
 
@@ -84,10 +84,11 @@ description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让�
 ## 初始化流程(给没有结构的项目搭建)
 
 1. 扫描目录树(排除 `.git`、`node_modules`、构建产物等),理解整体架构。
-2. 代码文件较多(约 >20 个)时,先运行 `python3 scripts/geb_scaffold.py <项目根目录>` 生成骨架:静态分析自动填好 `[INPUT]/[OUTPUT]` 和索引清单表,语义处留 `TODO(语义)` 占位。机器只填机器擅长的,语义判断留给你。小项目可跳过此步直接手写。
-3. **自底向上**补全语义:逐个**真读**代码文件、补全 L3 头的 TODO(禁止凭文件名编造)→ 再补每个文件夹 L2 的模块定位(L2 是该文件夹所有 L3 的汇总)→ 最后补 L1 的项目定位与依赖图(L1 是所有 L2 的汇总)。自底向上才能保证每一层都有事实依据。
-4. 运行 `geb_check.py --complete` 验证全覆盖且 `TODO(语义)` 占位清零——占位残留就是"半成品同构",不算初始化完成。
-5. 若存在 `CLAUDE.md`,追加协议声明段(模板见 references/templates.md);若不存在,建议用户创建。
+2. 先运行 `python3 scripts/geb_arch.py <项目根目录> --out .geb-arch.json --brief .geb-arch.md` 生成机器事实包:入口候选、模块角色候选、依赖边、循环/孤立/legacy 风险。它不是最终文档,只是 AI/人补语义前的证据。
+3. 代码文件较多(约 >20 个)时,再运行 `python3 scripts/geb_scaffold.py <项目根目录>` 生成骨架:静态分析自动填好 `[INPUT]/[OUTPUT]` 和索引清单表,语义处留 `TODO(语义)` 占位。机器只填机器擅长的,语义判断留给你。小项目可跳过此步直接手写。
+4. **自底向上**补全语义:逐个**真读**代码文件、补全 L3 头的 TODO(禁止凭文件名编造)→ 再补每个文件夹 L2 的模块定位(L2 是该文件夹所有 L3 的汇总)→ 最后补 L1 的项目定位与依赖图(L1 是所有 L2 的汇总)。自底向上才能保证每一层都有事实依据;`geb_arch` 里的低置信候选必须读代码确认。
+5. 运行 `geb_check.py --complete` 验证全覆盖且 `TODO(语义)` 占位清零——占位残留就是"半成品同构",不算初始化完成。
+6. 若存在 `CLAUDE.md`,追加协议声明段(模板见 references/templates.md);若不存在,建议用户创建。
 
 ## 守护者戒律(禁止行为)
 
@@ -107,6 +108,7 @@ python3 scripts/geb_check.py <项目根目录> --complete # 加查 TODO(语义) 
 python3 scripts/geb_check.py <项目根目录> --report   # 末尾输出机器生成的回环行(GEB 回环:L3 ✓ | L2 ✓ | L1 ✓),直接抄进汇报
 python3 scripts/geb_check.py <项目根目录> --emit-facts .geb-facts.json  # 机器事实源(文件/依赖/导出/边/技术栈),逆向回环前先读它省 token
 python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
+python3 scripts/geb_arch.py <项目根目录> --out .geb-arch.json --brief .geb-arch.md  # 架构事实包:入口/模块角色/依赖边/风险提示
 python3 scripts/geb_sync.py <项目根目录> --changed   # 只同步 git 有改动的文件/受影响目录,删除与重命名会重建对应清单
 python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
 python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么

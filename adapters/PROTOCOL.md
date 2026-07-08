@@ -34,7 +34,7 @@
 
 ## 初始化无结构的项目
 
-**自底向上**:真读每个代码文件写 L3 → 每个文件夹汇总成 L2 → 全部汇总成 L1。每一层都要有事实依据。代码文件 >20 个时,可先用 `geb_scaffold.py` 静态生成骨架([INPUT]/[OUTPUT] 自动填好),再逐个补全 `TODO(语义)` 占位——补全时仍必须真读代码。
+先用 `geb_arch.py`(若可用)生成架构事实包与候选:入口、模块角色、依赖边、风险提示;它不是最终文档,只是证据。然后**自底向上**:真读每个代码文件写 L3 → 每个文件夹汇总成 L2 → 全部汇总成 L1。每一层都要有事实依据。代码文件 >20 个时,可再用 `geb_scaffold.py` 静态生成骨架([INPUT]/[OUTPUT] 自动填好),再逐个补全 `TODO(语义)` 占位——补全时仍必须真读代码。
 
 ## 戒律
 
@@ -44,4 +44,4 @@
 - 禁止不读代码、凭文件名编造文档——假文档比没有文档更糟。
 - 禁止把回环留给"以后"。以后不存在,熵增不等人。
 
-配套工具(零依赖 Python 3,可选但强烈建议):`geb_check.py` 同构检查、`geb_scaffold.py` 脚手架、git pre-commit 硬约束。获取与说明:https://github.com/AaronXinzhian/fugue-docs
+配套工具(零依赖 Python 3,可选但强烈建议):`geb_arch.py` 架构候选、`geb_sync.py` 机器字段同步、`geb_check.py` 同构检查、`geb_scaffold.py` 脚手架、git pre-commit 硬约束。获取与说明:https://github.com/AaronXinzhian/fugue-docs

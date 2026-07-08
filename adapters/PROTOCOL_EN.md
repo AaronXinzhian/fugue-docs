@@ -34,7 +34,7 @@ Read L1 → the target folder's L2 → the target file's L3, then the code itsel
 
 ## Initializing a project without structure
 
-**Bottom-up**: actually read each code file and write its L3 → summarize each folder into L2 → summarize everything into L1. Every level must be grounded in facts. For projects with >20 code files, run `geb_scaffold.py` first to generate the skeleton ([INPUT]/[OUTPUT] auto-filled by static analysis), then fill every `TODO` placeholder — still by actually reading the code.
+Run `geb_arch.py` first when available to produce an architecture evidence pack: entrypoints, module-role candidates, dependency edges, and risk hints. It is not final documentation; it is evidence. Then proceed **bottom-up**: actually read each code file and write its L3 → summarize each folder into L2 → summarize everything into L1. Every level must be grounded in facts. For projects with >20 code files, run `geb_scaffold.py` next to generate the skeleton ([INPUT]/[OUTPUT] auto-filled by static analysis), then fill every `TODO` placeholder — still by actually reading the code.
 
 ## Commandments
 
@@ -44,4 +44,4 @@ Read L1 → the target folder's L2 → the target file's L3, then the code itsel
 - Never fabricate documentation from filenames without reading the code — fake docs are worse than no docs.
 - Never defer the loop to "later". Later does not exist; entropy does not wait.
 
-Companion tools (zero-dependency Python 3; optional but strongly recommended): `geb_check.py` isomorphism checker, `geb_scaffold.py` scaffolder, git pre-commit hard constraint. Get them at https://github.com/AaronXinzhian/fugue-docs
+Companion tools (zero-dependency Python 3; optional but strongly recommended): `geb_arch.py` architecture candidates, `geb_sync.py` machine-field sync, `geb_check.py` isomorphism checker, `geb_scaffold.py` scaffolder, git pre-commit hard constraint. Get them at https://github.com/AaronXinzhian/fugue-docs

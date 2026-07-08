@@ -8,7 +8,8 @@
 ## 文件清单
 | 文件 | 职责 | 关键导出 |
 |------|------|----------|
-| geb_adapt.py | 万模通用适配器:把 adapters/PROTOCOL 注入各工具规则文件,安装 pre-commit/CI,复制 check/scaffold/sync 工具 | SCRIPT_DIR, ADAPTERS_DIR, BEGIN, END, TOOLS, PRE_COMMIT_SH, CI_YML, load_protocol(), inject(), TOOLS_L2 |
+| geb_adapt.py | 万模通用适配器:把 adapters/PROTOCOL 注入各工具规则文件,安装 pre-commit/CI,复制 arch/check/scaffold/sync 工具 | SCRIPT_DIR, ADAPTERS_DIR, BEGIN, END, TOOLS, PRE_COMMIT_SH, CI_YML, load_protocol(), inject(), TOOLS_L2 |
+| geb_arch.py | 架构事实与候选生成器:从静态分析事实生成入口、模块角色、依赖边、风险提示与 AI handoff brief | ROLE_RULES, ENTRYPOINT_NAMES, LEGACY_WORDS, norm(), top_module(), module_path(), ext_counts(), has_legacy_marker(), load_project(), import_index() |
 | geb_check.py | 同构性检查器:结构/路径级清单对账/--strict 漂移/--complete 占位三层;--if-adopted 采纳判定唯一事实源;--report 回环行;--emit-facts 机器事实源;小项目 profile 与子项目递归 | CODE_EXTENSIONS, EXCLUDED_DIRS, EXCLUDED_FILE_PATTERNS, L1_NAMES, L2_NAMES, L3_TAGS, L3_SCAN_LINES, SMALL_PROJECT_FILE_LIMIT, SMALL_PROJECT_DIR_LIMIT, is_small_project() |
 | geb_scaffold.py | 确定性脚手架:静态分析生成 L3/L2/L1 骨架,语义留 TODO | _TODO, TODO_POS, TODO_MODULE, TODO_PROJECT, MAX_ITEMS, analyze_python(), analyze_js(), analyze_go(), analyze_rust(), analyze_java() |
 | geb_stop_hook.py | Claude Code Stop 钩子:项目不同构时阻止收工 | MAX_LISTED, main() |

@@ -66,6 +66,25 @@ python3 grade_comprehension.py answers.json
 
 默认 rubric 是 `comprehension_fixture_b.json`;输出会包含每题得分、总分、docs-only/code-only 分数比和 token 比。
 
+## 确定性回归套件
+
+`run_regression_suite.py` 用于发布前和外部复核,不调用 AI,只验证工具层可确定的行为:
+
+- `geb_arch.py` 能从 fixture-b 识别 `app.py` 入口、`root/services/storage` 模块、关键依赖边和 legacy 风险。
+- `geb_sync.py --changed` 在删除文件后能重建受影响的 L2 清单。
+- `geb_check.py` 能发现小项目 L1 清单中的路径级幽灵条目。
+- `geb_adapt.py --copy-tools` 会复制 `geb_arch.py / geb_check.py / geb_scaffold.py / geb_sync.py`。
+- `grade_comprehension.py` 能产出健康的 docs-only/code-only 分数比与 token 比。
+- 本仓库自身通过 `geb_check --strict --complete` 和 `geb_sync --dry-run --graph`。
+
+复跑命令:
+
+```bash
+python3 -B evals/run_regression_suite.py --rounds 5 --out /tmp/fugue-regression.json
+```
+
+`--rounds` 用于重复运行临时夹具测试,降低偶发环境因素影响;输出 JSON 会记录每轮每项结果。
+
 ## 诚实声明
 
 - 原始实测使用 Claude Code 子代理并行跑两侧;用其他工具复跑时,绝对数值(tokens/耗时)会不同,但断言通过率可直接对比。

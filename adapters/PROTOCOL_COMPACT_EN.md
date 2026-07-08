@@ -10,7 +10,7 @@ Code and docs must stay in sync: if one changes and the other doesn't, the task 
 
 **Before touching anything**: read L1 → target L2 → target L3, then the code. If docs contradict code, fix in passing and say so.
 
-**Initialization**: bottom-up — actually read code to write L3 → summarize into L2 → then L1; never fabricate from filenames.
+**Initialization**: run `geb_arch.py` first if available to produce architecture facts/candidates (entrypoints, modules, dependencies, risks), then bottom-up — actually read code to write L3 → summarize into L2 → then L1; never fabricate from filenames.
 
 **Never**: change code without docs; create files without L3 headers; leave ghost index entries after deletions; fabricate docs; defer the loop.
 
