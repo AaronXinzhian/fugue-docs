@@ -1,0 +1,207 @@
+{
+  "suite": "fugue-docs deterministic regression suite",
+  "rounds_requested": 5,
+  "repo": "/Users/austinwj/Desktop/辛止庵的个人项目/赋格",
+  "commit": "72618d4",
+  "tests": [
+    "arch_fixture_b",
+    "sync_changed_delete",
+    "check_l1_path_ghost",
+    "adapt_copy_tools",
+    "comprehension_grader",
+    "self_checks"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_scaffold.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_scaffold.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_scaffold.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_scaffold.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_scaffold.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_assertion_groups": 30,
+    "passed": 30,
+    "failed": 0,
+    "pass_rate": 1.0
+  }
+}

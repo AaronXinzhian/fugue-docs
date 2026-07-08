@@ -85,6 +85,8 @@ python3 -B evals/run_regression_suite.py --rounds 5 --out /tmp/fugue-regression.
 
 `--rounds` 用于重复运行临时夹具测试,降低偶发环境因素影响;输出 JSON 会记录每轮每项结果。
 
+最新公开结果见 [REGRESSION_RESULTS.md](REGRESSION_RESULTS.md),机器原始结果保存在 [results/](results/)。
+
 ## 诚实声明
 
 - 原始实测使用 Claude Code 子代理并行跑两侧;用其他工具复跑时,绝对数值(tokens/耗时)会不同,但断言通过率可直接对比。

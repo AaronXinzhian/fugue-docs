@@ -172,6 +172,10 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # 只预览
 | 新增功能后的回环维护 | **5/5** | 5/5 | 140s / 139s | 24.4k / 21.8k |
 | 删除重构后清理幽灵引用 | **6/6** | 6/6 | 127s / 110s | 24.9k / 21.0k |
 
+### 确定性回归套件(v2.3)
+
+为避免只依赖一次 AI 对照实验,仓库同时提供不调用 AI 的多轮确定性回归套件。2026-07-08 在提交 `72618d4` 上运行 5 轮,共 30 个断言组全部通过(30/30),覆盖 `geb_arch` 架构候选、`geb_sync --changed` 删除清理、`geb_check` 路径级幽灵检查、`geb_adapt --copy-tools`、理解评分器与仓库自检。完整结果见 [evals/REGRESSION_RESULTS.md](evals/REGRESSION_RESULTS.md),原始 JSON 见 [evals/results/2026-07-08-v2.3-regression.json](evals/results/2026-07-08-v2.3-regression.json)。
+
 三个值得展开的发现:
 
 **① 差异点在"从零建立结构",而且带 skill 反而快 40%。** 基线 AI 也能写出不错的文档(入口文档、目录说明、甚至自己发明检查脚本),但不会产生 L3 机器可读头注释——而这层结构化语义正是让下一个 AI 会话"秒懂"项目的关键。带 skill 的初始化耗时 222s 对基线 367s:协议给了明确的流程,AI 不必每次现场发明一套文档体系。
