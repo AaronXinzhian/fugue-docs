@@ -93,7 +93,7 @@ def session_snapshot(path):
     if path is None or not Path(path).is_file():
         return None
     session_id, cwd, model, effort, provider, latest = None, None, None, None, None, None
-    model_epoch, counter_epoch = 0, 0
+    model_epoch, settings_epoch, counter_epoch = 0, 0, 0
     with Path(path).open(encoding="utf-8") as stream:
         for line in stream:
             try:
@@ -112,6 +112,8 @@ def session_snapshot(path):
                 new_model = payload.get("model", model)
                 new_effort = payload.get("effort", payload.get("reasoning_effort", effort))
                 if model and (new_model, new_effort) != (model, effort):
+                    settings_epoch += 1
+                if model and new_model != model:
                     model_epoch += 1
                 model, effort = new_model, new_effort
             if event.get("type") != "event_msg" or payload.get("type") != "token_count":
@@ -129,6 +131,7 @@ def session_snapshot(path):
             latest = {"session_id": session_id, "cwd": cwd, "model": model,
                       "reasoning_effort": effort, "model_provider": provider,
                       "model_epoch": model_epoch, "counter_epoch": counter_epoch,
+                      "settings_epoch": settings_epoch,
                       "timestamp": event.get("timestamp"), "source": str(Path(path).resolve()),
                       "usage": {k: usage[k] for k in COUNTERS}}
     return latest

@@ -59,6 +59,9 @@ def usage_delta(start, end):
     if (not start.get("model") or start["model"] != end.get("model")
             or start.get("model_epoch") != end.get("model_epoch")):
         return None, "model_changed_or_unknown"
+    if ("settings_epoch" in start and "settings_epoch" in end
+            and start["settings_epoch"] != end["settings_epoch"]):
+        return None, "reasoning_settings_changed"
     if start.get("counter_epoch") != end.get("counter_epoch"):
         return None, "counter_reset"
     if start.get("timestamp") and start["timestamp"] == end.get("timestamp"):

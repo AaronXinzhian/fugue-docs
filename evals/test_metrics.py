@@ -214,6 +214,13 @@ class MetricsTests(unittest.TestCase):
         start["source"], end["source"] = "old.jsonl", "new.jsonl"
         self.assertEqual((None, "source_rotated_unverified"), metrics.usage_delta(start, end))
 
+    def test_reasoning_changes_use_separate_epoch_from_legacy_model(self):
+        start, end = self.snapshot(), self.snapshot(210)
+        start["settings_epoch"], end["settings_epoch"] = 0, 1
+        self.assertEqual((None, "reasoning_settings_changed"), metrics.usage_delta(start, end))
+        del start["settings_epoch"]
+        self.assertEqual("measured_interval", metrics.usage_delta(start, end)[1])
+
     def test_unchanged_snapshot_is_not_zero_usage(self):
         start, end = self.snapshot(), self.snapshot()
         start["timestamp"] = end["timestamp"] = "2026-09-30T00:00:00Z"
