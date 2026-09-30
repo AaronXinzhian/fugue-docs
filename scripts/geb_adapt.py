@@ -119,13 +119,14 @@ GEB 协议配套工具(由 fugue-docs geb_adapt.py 复制安装),供本项目的
 | geb_arch.py | 架构事实与候选生成器(入口/模块角色/依赖边/风险提示/AI handoff brief) | 命令行工具,--out JSON,--brief Markdown |
 | geb_facts.py | 共享依赖事实解析 | dependency_facts() |
 | geb_metrics.py | Codex token 用量与对照账本 | main() |
+| geb_telemetry.py | Codex 会话绑定与数值遥测读取 | observe() |
 | geb_check.py | 同构性检查器(L1/L2/L3 覆盖与台账对账) | 命令行工具,--json 供 CI |
 | geb_scaffold.py | 确定性脚手架(静态分析生成 L3/L2/L1 骨架) | 命令行工具,--dry-run 预览 |
 | geb_sync.py | 机器字段同步器(重写 [INPUT] 与索引清单表,语义列保留) | 命令行工具,--changed 增量同步 |
 | geb_staged.py | 暂存快照检查器 | check_staged() |
 """
 
-COPY_TOOLS = ("geb_arch.py", "geb_check.py", "geb_facts.py", "geb_metrics.py", "geb_scaffold.py",
+COPY_TOOLS = ("geb_arch.py", "geb_check.py", "geb_facts.py", "geb_metrics.py", "geb_telemetry.py", "geb_scaffold.py",
               "geb_sync.py", "geb_staged.py")
 
 

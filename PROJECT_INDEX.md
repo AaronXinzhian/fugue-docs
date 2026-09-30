@@ -37,6 +37,9 @@ graph TD
     pre_commit_hook --> geb_staged
     geb_staged --> geb_check
     geb_metrics --> Codex_local_usage
+    geb_metrics --> geb_telemetry
+    geb_telemetry --> Codex_readonly_index
+    evals_token_pilot --> Codex_isolated_exec
     evals_grader --> geb_check
 ```
 

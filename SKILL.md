@@ -12,7 +12,7 @@ description: Maintain project, folder, and file indexes when developing code, in
 ## 开始开发
 
 1. 读取项目自身规则,再读 L1、目标目录 L2 和相关文件头定位代码。索引不能替代修改前对相关实现的阅读。
-2. Codex 代码开发任务开始时运行 `python3 <skill-dir>/scripts/geb_metrics.py start <root> --task <本次任务短标识>`。保留返回的 `run_id`;同一任务重复调用会复用活动记录。只读审查不初始化项目文档,不因本技能扩大用户编辑范围。
+2. Codex 开发开始时运行 `python3 <skill-dir>/scripts/geb_metrics.py start <root> --task <本次任务短标识>`。保留 `run_id`,检查 `measurement_ready`;为 false 时运行 `doctor`,明确报告原因而非忽略告警。只读审查不初始化文档,不扩大用户编辑范围。
 3. 项目尚无索引且当前任务允许编辑代码时,按下方初始化;已有索引按下方维护。已有 AGENTS.md、CLAUDE.md 和其他文档保留原有要求,协议段采用追加或托管块更新。
 
 ## 初始化
@@ -27,7 +27,7 @@ description: Maintain project, folder, and file indexes when developing code, in
 1. 代码修改后运行 `python3 <skill-dir>/scripts/geb_sync.py <root> --changed`。非 Git 项目自动回退全量。首次接入或怀疑历史漂移时使用全量同步。清单职责与非代码条目由人维护;依赖和代码行集合由机器维护。
 2. 检查所改文件的 `[OUTPUT]`、`[POS]` 和模块职责,结构变化时更新 L1。`--graph` 显式重绘依赖图,使用前核对是否会替换人工图。
 3. 运行 `python3 <skill-dir>/scripts/geb_check.py <root> --strict --complete --report` 以及项目本身的相关测试。报告实际通过、遗留或无法验证的情况,不把结构检查当语义正确证明。
-4. Codex 中运行 `python3 <skill-dir>/scripts/geb_metrics.py finish <run_id>` 收尾计量。它读取本地会话计数,不上传提示词;无法获取时记录未知。工具运行后产生的回复及未汇总子代理用量不在已截取区间内。
+4. Codex 中运行 `python3 <skill-dir>/scripts/geb_metrics.py finish <run_id> --receipt`。最终回复附简短收益单:已测 token、记录区间耗时、验收结果及净节省(无对照为未知)。有测试日志时传 `--outcome passed|failed|partial --evidence <文件>` 绑定验收依据。计量不含之后回复与未汇总的独立子会话。
 
 计量只记录实际用量。没有可比对照时,节省量保持 `null`,不能把缓存命中、字符压缩比或没读的文件数记成已节省 token。需要衡量收益或查看跨项目账本时读 [references/token-accounting.md](references/token-accounting.md)。
 

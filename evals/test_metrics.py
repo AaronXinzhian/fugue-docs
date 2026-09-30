@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 copy, json, pathlib, sys, tempfile, unittest, geb_metrics
+[INPUT]: 依赖 copy, contextlib, json, os, pathlib, sqlite3, sys, tempfile, unittest, unittest.mock, uuid, geb_metrics, geb_telemetry
 [OUTPUT]: 提供 token 账本缺失值、计数重置、对照与重复记录测试
 [POS]: fugue-docs 评测包-计量可信度回归
 [PROTOCOL]: 变更时同步 evals/FOLDER_INDEX.md 与计量说明
 """
 
 import copy
+from contextlib import closing
 import json
+import os
 from pathlib import Path
+import sqlite3
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 import geb_metrics as metrics
+import geb_telemetry as telemetry
 
 
 class MetricsTests(unittest.TestCase):
@@ -32,6 +38,7 @@ class MetricsTests(unittest.TestCase):
     def run_record(self, condition, total, run_id, session):
         return {"schema": "geb.metrics.v1", "run_id": run_id, "root": str(self.root),
                 "condition": condition, "task": "same-task", "status": "measured_interval",
+                "experiment": {"model": "model-a", "reasoning_effort": "low", "acceptance": "synthetic"},
                 "git": {"commit": "abc", "dirty": False}, "start": self.snapshot(session=session),
                 "usage": {"total_tokens": total}}
 
@@ -128,6 +135,121 @@ class MetricsTests(unittest.TestCase):
         result = metrics.session_snapshot(path)
         self.assertEqual(110, result["usage"]["total_tokens"])
         self.assertNotIn("DO NOT COPY", json.dumps(result))
+
+    def log(self, path, session_id, total=110, timestamp="2026-09-30T00:00:00Z"):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        events = [{"type": "session_meta", "payload": {"id": session_id, "cwd": str(self.root)}},
+                  {"type": "turn_context", "payload": {"model": "model-a", "effort": "low"}},
+                  {"type": "event_msg", "timestamp": timestamp, "payload": {"type": "token_count",
+                   "info": {"total_token_usage": self.snapshot(total)["usage"]}}}]
+        path.write_text("\n".join(json.dumps(e) for e in events) + "\n", encoding="utf-8")
+
+    def indexed_home(self):
+        session_id = str(uuid.uuid4())
+        home = self.root / "codex"
+        old = home / "sessions" / (session_id + ".jsonl")
+        current = home / "sessions" / (session_id + "_page2.jsonl")
+        self.log(old, session_id)
+        self.log(current, session_id, 210)
+        with closing(sqlite3.connect(str(home / "state_5.sqlite"))) as db:
+            db.execute("CREATE TABLE threads (id TEXT PRIMARY KEY, rollout_path TEXT)")
+            db.execute("INSERT INTO threads VALUES (?, ?)", (session_id, str(current)))
+            db.commit()
+        return home, session_id, old, current
+
+    def test_pagination_uses_readonly_index_not_ambiguous_glob(self):
+        home, session_id, _, current = self.indexed_home()
+        with patch.dict(os.environ, {"CODEX_HOME": str(home), "CODEX_THREAD_ID": session_id}):
+            binding, snapshot = telemetry.observe()
+        self.assertEqual("codex_index", binding["method"])
+        self.assertEqual(str(current.resolve()), binding["path"])
+        self.assertEqual(210, snapshot["usage"]["total_tokens"])
+
+    def test_multiple_pages_without_index_stay_unknown(self):
+        home, session_id, _, _ = self.indexed_home()
+        (home / "state_5.sqlite").unlink()
+        with patch.dict(os.environ, {"CODEX_HOME": str(home)}):
+            self.assertEqual("ambiguous_session_pages", telemetry.resolve_session(session_id=session_id)["status"])
+
+    def test_index_cannot_bind_another_session(self):
+        home, session_id, _, current = self.indexed_home()
+        self.log(current, str(uuid.uuid4()))
+        with patch.dict(os.environ, {"CODEX_HOME": str(home)}):
+            result = telemetry.resolve_session(session_id=session_id)
+        self.assertEqual("indexed_source_unavailable", result["status"])
+
+    def test_session_id_environment_fallback(self):
+        home, session_id, _, _ = self.indexed_home()
+        with patch.dict(os.environ, {"CODEX_HOME": str(home), "CODEX_SESSION_ID": session_id}, clear=True):
+            self.assertEqual("bound", telemetry.resolve_session()["status"])
+
+    def test_archived_session_is_discovered(self):
+        session_id = str(uuid.uuid4())
+        home = self.root / "codex"
+        path = home / "archived_sessions" / (session_id + ".jsonl")
+        self.log(path, session_id)
+        with patch.dict(os.environ, {"CODEX_HOME": str(home)}):
+            self.assertEqual(str(path.resolve()), telemetry.resolve_session(session_id=session_id)["path"])
+
+    def test_no_id_never_guesses_from_project(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual("missing_session_id", telemetry.resolve_session()["status"])
+
+    def test_invalid_id_is_diagnostic(self):
+        self.assertEqual("invalid_session_id", telemetry.resolve_session(session_id="bad")["status"])
+
+    def test_no_telemetry_still_binds_identity_and_prevents_overlap(self):
+        session_id = str(uuid.uuid4())
+        path = self.root / "empty.jsonl"
+        path.write_text(json.dumps({"type": "session_meta", "payload": {"id": session_id}}) + "\n")
+        record = metrics.start_run(self.root, "one", self.ledger, session=path)
+        self.assertFalse(record["measurement_ready"])
+        self.assertEqual("no_token_events", record["binding"]["status"])
+        self.assertEqual(record, metrics.start_run(self.root, "one", self.ledger, session=path))
+        with self.assertRaises(ValueError):
+            metrics.start_run(self.root, "two", self.ledger, session=path)
+
+    def test_rotation_is_not_silently_counted(self):
+        start, end = self.snapshot(), self.snapshot(210)
+        start["source"], end["source"] = "old.jsonl", "new.jsonl"
+        self.assertEqual((None, "source_rotated_unverified"), metrics.usage_delta(start, end))
+
+    def test_unchanged_snapshot_is_not_zero_usage(self):
+        start, end = self.snapshot(), self.snapshot()
+        start["timestamp"] = end["timestamp"] = "2026-09-30T00:00:00Z"
+        self.assertEqual((None, "no_new_telemetry"), metrics.usage_delta(start, end))
+
+    def test_checkpoint_and_receipt(self):
+        session_id = str(uuid.uuid4())
+        path = self.root / "session.jsonl"
+        self.log(path, session_id)
+        record = metrics.start_run(self.root, "receipt-test", self.ledger, session=path)
+        self.log(path, session_id, 210, "2026-09-30T00:01:00Z")
+        checkpoint = metrics.checkpoint_run(self.ledger, record["run_id"], "documentation")
+        self.assertEqual(100, checkpoint["usage"]["total_tokens"])
+        self.log(path, session_id, 310, "2026-09-30T00:02:00Z")
+        result = metrics.finish_run(self.ledger, record["run_id"])
+        self.assertEqual(200, result["usage"]["total_tokens"])
+        receipt = metrics.receipt(self.ledger, record["run_id"])
+        self.assertIn("文档维护阶段 token: 100", receipt)
+        self.assertIn("净节省: 未知", receipt)
+        self.assertNotIn("节省: 0", receipt)
+        self.assertEqual(1, metrics.summarize(self.ledger)["measurement_coverage"])
+
+    def test_acceptance_requires_evidence(self):
+        record = metrics.start_run(self.root, "test", self.ledger, session=self.root / "missing.jsonl")
+        with self.assertRaises(ValueError):
+            metrics.finish_run(self.ledger, record["run_id"], outcome="passed")
+        evidence = self.root / "validation.txt"
+        evidence.write_text("synthetic test evidence")
+        result = metrics.finish_run(self.ledger, record["run_id"], "passed", evidence)
+        self.assertEqual(64, len(result["validation"]["sha256"]))
+
+    def test_comparison_requires_shared_experiment_settings(self):
+        baseline, fugue, evidence = self.pair()
+        fugue["experiment"] = {"reasoning_effort": "high"}
+        with self.assertRaisesRegex(ValueError, "experiment_settings"):
+            metrics.compare_records(baseline, fugue, evidence)
 
 
 if __name__ == "__main__":

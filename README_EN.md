@@ -16,6 +16,10 @@ A toolkit that turns the *GEB Fractal Documentation Protocol* into an everyday w
 
 Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex, Cursor, Windsurf, Cline (with DeepSeek or any model), Copilot, even web chat — one command plugs them all into the same protocol and the same hard constraints. See [Works with any tool, any model](#works-with-any-tool-any-model).
 
+## v2.5: Task Receipts and Measurement Diagnostics
+
+Task receipts show observed tokens, wall-clock intervals, validation outcomes and comparison status. New diagnostics resolve paginated Codex logs through a read-only index and expose measurement coverage. Missing telemetry is not zero; without a reviewed baseline, savings remain unknown. See [accounting](references/token-accounting.md) and the [bounded pilot](evals/token-pilot.md).
+
 ## v2.4: Codex and Measured Usage
 
 Requires Python 3.9+. `geb_arch.py` generates architecture candidates from shared dependency facts, with file-level evidence and unresolved imports. Scores are heuristics, not calibrated probabilities. Sync preserves non-code ledger rows and handles empty directories and Unicode Git paths. Commit hooks validate the staged snapshot.
