@@ -18,6 +18,7 @@
 
 ## 数据文件
 - `token-pilot.md` — 真实仓库小任务的增量技能试点设计、预算与结论边界
+- `results/2026-09-30-v2.5-regression.json` — v2.5 干净提交上的 6 组集成与 55 项回归证据
 - `evals.json` — 3 个测试用例(提示词 + 断言)
 - `REGRESSION_RESULTS.md` — 多轮确定性回归测试的公开结果摘要与复跑说明
 - `comprehension.md` — 理解测验(度量"理解成本"这一真目标的方法与 fixture-b 标准题组)
