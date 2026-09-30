@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 argparse, hashlib, io, json, os, pathlib, random, shutil, signal, statistics, subprocess, sys, tarfile, time
+[INPUT]: 依赖 argparse, hashlib, io, json, os, pathlib, random, shutil, signal, statistics, subprocess, sys, tarfile, time, geb_telemetry
 [OUTPUT]: 提供预算受限、隔离配置、重复配对的 Codex 增量 token 试点
 [POS]: fugue-docs 评测包-真实仓库小任务试验;不宣称普遍节省
 [PROTOCOL]: 改任务与验收时更新 token-pilot.md 并保留失败运行
@@ -22,6 +22,9 @@ import tarfile
 import time
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from geb_telemetry import session_identity, session_snapshot
+
 TASKS = {
     "session-fallback": (
         "In scripts/geb_metrics.py start_run, when CODEX_THREAD_ID is absent or empty, use "
@@ -150,6 +153,22 @@ def cli_usage(events):
     return result
 
 
+def partial_usage(home, events):
+    ids = {e.get("thread_id") for e in events if e.get("type") == "thread.started" and e.get("thread_id")}
+    if len(ids) != 1:
+        return None
+    session_id = ids.pop()
+    candidates = [p for p in (home / "sessions").glob("**/*.jsonl")
+                  if (session_identity(p) or {}).get("session_id") == session_id]
+    if len(candidates) != 1:
+        return None
+    try:
+        snapshot = session_snapshot(candidates[0])
+    except (OSError, ValueError):
+        return None
+    return snapshot["usage"] if snapshot else None
+
+
 def validate(workspace, task, evidence_dir):
     preamble = ("import sys, tempfile\nfrom pathlib import Path\n"
                 "sys.path.insert(0, str(Path.cwd() / 'scripts'))\nimport geb_metrics as m\n"
@@ -215,7 +234,7 @@ def trial(args, archive, skill_dir, task, repeat, condition, parent):
                                             "-c", "commit.gpgsign=false", "commit", "-qm", "Fixed pilot snapshot"]):
         subprocess.run(command, cwd=workspace, env=git_env, check=True, capture_output=True)
     base_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=workspace, env=git_env, text=True).strip()
-    command = [args.codex, "exec", "--json", "--ephemeral", "--ignore-user-config",
+    command = [args.codex, "exec", "--json", "--ignore-user-config",
                "--skip-git-repo-check", "--sandbox", "workspace-write", "--color", "never",
                "-m", args.model, "-c", 'model_reasoning_effort="' + args.effort + '"',
                "-c", 'approval_policy="never"', "-C", str(workspace), "-"]
@@ -245,6 +264,7 @@ def trial(args, archive, skill_dir, task, repeat, condition, parent):
         except ValueError:
             continue
     usage = cli_usage(events)
+    partial = partial_usage(codex_home, events) if usage is None else None
     checks = validate(workspace, task, directory) if status == "completed" else []
     if checks:
         checks.append({"check": "original_tests_preserved", "passed": all(
@@ -255,6 +275,8 @@ def trial(args, archive, skill_dir, task, repeat, condition, parent):
     return {"task": task, "repeat": repeat, "condition": condition, "status": status,
             "base_commit": base_commit, "changes_sha256": hashlib.sha256(diff).hexdigest(),
             "usage": usage, "elapsed_seconds": elapsed, "validation": checks,
+            "partial_usage": partial,
+            "usage_coverage": "complete_cli_turn" if usage else "incomplete_do_not_use_for_savings",
             "accepted": status == "completed" and bool(checks) and all(c["passed"] for c in checks),
             "events_sha256": hashlib.sha256((directory / "events.jsonl").read_bytes()).hexdigest()}
 
@@ -281,6 +303,8 @@ def main():
                 for condition in ("baseline", "fugue")]
     random.Random(args.seed).shuffle(schedule)
     report = {"schema": "geb.token-pilot.v1", "source_commit": revision, "model": args.model,
+              "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+              "session_persistence": "isolated_codex_home",
               "effort": args.effort, "seed": args.seed, "planned_trials": len(schedule),
               "scope": "warm existing indexes; incremental skill workflow on four small repository tasks",
               "initialization_cost": None, "initialization_note": "not measured; both arms start with existing indexes",

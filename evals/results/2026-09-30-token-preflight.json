@@ -1,0 +1,71 @@
+{
+  "schema": "geb.token-pilot.v1",
+  "source_commit": "fdf481065cf7b0b3668786261e27ffbccdabc95d",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "seed": 730,
+  "planned_trials": 2,
+  "scope": "warm existing indexes; incremental skill workflow on four small repository tasks",
+  "initialization_cost": null,
+  "initialization_note": "not measured; both arms start with existing indexes",
+  "token_budget": 60000,
+  "timeout_per_trial": 150,
+  "budget_note": "token ceiling checked between trials, may overshoot once; timeout enforced per trial",
+  "quality_note": "same deterministic acceptance and regression tests; not independent semantic review",
+  "trials": [
+    {
+      "task": "session-fallback",
+      "repeat": 1,
+      "condition": "baseline",
+      "status": "completed",
+      "usage": {
+        "input_tokens": 121379,
+        "cached_input_tokens": 104064,
+        "output_tokens": 1979,
+        "total_tokens": 123358,
+        "uncached_input_tokens": 17315
+      },
+      "elapsed_seconds": 119.203,
+      "validation": [
+        {
+          "check": "task_acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "existing_and_added_tests",
+          "passed": true,
+          "sha256": "77835f4d97b26deb46e023d60857327d6f0eaa6883950358b1c1061147528b41"
+        }
+      ],
+      "accepted": true,
+      "events_sha256": "8b03d3a17f871c3ee70c981db04782c195ce23a51d14495d01c3c35e3143c3c1"
+    }
+  ],
+  "source_archive_sha256": "a1e22e4a0e8057f2a4d74983a5b7e7b85ee6d58a547864f203d85a8136059245",
+  "skill_sha256": "90ac6c2fe24f9452a2342ba4e68d7c49d52039fe2b5e9fcdcbc1cba230215eac",
+  "summary": {
+    "attempted": 1,
+    "accepted": 1,
+    "unknown_usage_trials": 0,
+    "qualified_pairs": 0,
+    "experiment_total_tokens": 123358,
+    "paired_difference": null,
+    "median_pair_saving_rate": null,
+    "pair_saving_rate_range": null,
+    "by_condition": {
+      "baseline": {
+        "attempted": 1,
+        "accepted": 1,
+        "measured_tokens": 123358
+      },
+      "fugue": {
+        "attempted": 0,
+        "accepted": 0,
+        "measured_tokens": 0
+      }
+    },
+    "pairs": []
+  },
+  "stop_reason": "token_budget"
+}

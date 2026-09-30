@@ -1,0 +1,58 @@
+{
+  "schema": "geb.token-pilot.v1",
+  "source_commit": "fdf481065cf7b0b3668786261e27ffbccdabc95d",
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "seed": 730,
+  "planned_trials": 2,
+  "scope": "warm existing indexes; incremental skill workflow on four small repository tasks",
+  "initialization_cost": null,
+  "initialization_note": "not measured; both arms start with existing indexes",
+  "token_budget": 500000,
+  "timeout_per_trial": 300,
+  "budget_note": "token ceiling checked between trials, may overshoot once; timeout enforced per trial",
+  "quality_note": "same deterministic acceptance and regression tests; not independent semantic review",
+  "evidence_level": "test_passed_pairs_only_pending_independent_semantic_review",
+  "trials": [
+    {
+      "task": "session-fallback",
+      "repeat": 1,
+      "condition": "baseline",
+      "status": "timeout",
+      "base_commit": "1f4ae26acc727e2eea82c3b2c0fdb267c222b408",
+      "changes_sha256": "17e7379a9bf96647ef3169a367b9815b0aa7c6234f0d824347a4405caa275ea2",
+      "usage": null,
+      "elapsed_seconds": 300.021,
+      "validation": [],
+      "accepted": false,
+      "events_sha256": "27b8bd2694cb35b005fc46f5aff6057a9e80257ed75f25964e8e497094ce9355"
+    }
+  ],
+  "source_archive_sha256": "a1e22e4a0e8057f2a4d74983a5b7e7b85ee6d58a547864f203d85a8136059245",
+  "skill_sha256": "bbbb66b761d949a9431f5890f94ce7587097ee5b6a2331df2a08cd1e9ef4926a",
+  "summary": {
+    "attempted": 1,
+    "accepted": 0,
+    "unknown_usage_trials": 1,
+    "qualified_pairs": 0,
+    "experiment_total_tokens": null,
+    "known_total_tokens": null,
+    "paired_difference": null,
+    "median_pair_saving_rate": null,
+    "pair_saving_rate_range": null,
+    "by_condition": {
+      "baseline": {
+        "attempted": 1,
+        "accepted": 0,
+        "measured_tokens": null
+      },
+      "fugue": {
+        "attempted": 0,
+        "accepted": 0,
+        "measured_tokens": null
+      }
+    },
+    "pairs": []
+  },
+  "stop_reason": "unknown_usage"
+}

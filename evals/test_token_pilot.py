@@ -95,8 +95,26 @@ class PilotTests(unittest.TestCase):
             probe = json.loads(events[0])
             self.assertIsNone(probe["thread"])
             self.assertIn("model_reasoning_effort=\"xhigh\"", probe["args"])
+            self.assertNotIn("--ephemeral", probe["args"])
             self.assertFalse((Path(probe["home"]) / ".codex" / "AGENTS.md").exists())
             self.assertTrue((root / "session-fallback-1-fugue" / "home" / ".codex" / "AGENTS.md").exists())
+
+    def test_partial_usage_does_not_become_complete(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            sessions = home / "sessions"
+            sessions.mkdir()
+            path = sessions / "one.jsonl"
+            events = [{"type":"session_meta", "payload":{"id":"one"}},
+                      {"type":"turn_context", "payload":{"model":"fake-model"}},
+                      {"type":"event_msg", "payload":{"type":"token_count", "info":{
+                          "total_token_usage":{"input_tokens":100,"cached_input_tokens":80,
+                                               "output_tokens":20,"total_tokens":120}}}}]
+            path.write_text("\n".join(json.dumps(e) for e in events))
+            cli = [{"type":"thread.started", "thread_id":"one"}]
+            self.assertEqual(120, pilot.partial_usage(home, cli)["total_tokens"])
+            self.assertIsNone(pilot.cli_usage(cli))
+            self.assertIsNone(pilot.partial_usage(home, [{"type":"thread.started","thread_id":"other"}]))
 
 
 if __name__ == "__main__":

@@ -11,12 +11,15 @@
 | grade_comprehension.py | 理解成本评分器:按 rubric 给 docs-only/code-only 答案打分,计算分数比与 token 比 | WS, DEFAULT_SPEC, read_json(), normalize(), answer_map(), has_any(), has_all(), point_passed(), grade_question(), grade_run(), condition_key(), compare_runs(), load_runs(), main() |
 | grade_iteration.py | 自动评分器:对每个运行目录逐断言打分,生成 grading.json | WS, GEB_CHECK, INDEX_NAMES, L3_TAGS, read(), head_lines(), first_docstring(), find_index(), run_geb_check(), run_app(), expectation(), grade_eval0(), grade_eval1(), grade_eval2(), GRADERS, main() |
 | run_regression_suite.py | 确定性回归测试套件:多轮验证架构候选、增量同步、路径级检查、适配器复制、理解评分与仓库自检 | WS, ROOT, run(), fail(), ok(), require(), copy_fixture(), test_arch_fixture_b(), test_sync_changed_delete(), test_check_l1_path_ghost(), test_adapt_copy_tools(), test_comprehension_grader(), test_self_checks(), TESTS, run_round(), git_commit(), source_digest(), run_boundaries(), main() |
-| run_token_pilot.py | 隔离配置与固定任务的预算受限配对试点;保留失败、不自动声称节省 | ROOT, TASKS, summarize_trials(), cli_usage(), validate(), trial(), main() |
+| run_token_pilot.py | 隔离配置与固定任务的预算受限配对试点;保留失败、不自动声称节省 | ROOT, TASKS, summarize_trials(), cli_usage(), partial_usage(), validate(), trial(), main() |
 | test_boundaries.py | 同步写盘、路径、依赖、有向环、暂存区与评分负对照 | ROOT, header(), BoundaryTests |
 | test_metrics.py | token 用量、缺失值、重置、对照证据与重复计量回归 | MetricsTests |
 | test_token_pilot.py | 不调用模型的试点汇总测试:负收益、失败、未知与缓存重复计数 | PilotTests |
 
 ## 数据文件
+- `TOKEN_PILOT_RESULTS.md` — 已发生的模型预检、限时失败与暂无节省结论
+- `results/2026-09-30-token-preflight.json` — medium 基线预检原始数值;无赋格配对
+- `results/2026-09-30-token-pair-incomplete.json` — xhigh 基线超时记录;完整用量未知
 - `token-pilot.md` — 真实仓库小任务的增量技能试点设计、预算与结论边界
 - `results/2026-09-30-v2.5-regression.json` — v2.5 干净提交上的 6 组集成与 55 项回归证据
 - `evals.json` — 3 个测试用例(提示词 + 断言)
