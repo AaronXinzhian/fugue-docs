@@ -20,7 +20,9 @@ Claude Code スキルとしての利用が最良の体験ですが、設計上**
 
 Python 3.9 以上が必要です。`geb_arch.py` は共有の依存解析からアーキテクチャ候補を生成し、ファイル単位の根拠と未解決の import を出力します。スコアはヒューリスティックであり、正解確率ではありません。同期時の非コード説明の保持、空ディレクトリと Unicode パスの処理を修正し、コミットフックはステージ済みスナップショットを検査します。
 
-Codex では本リポジトリを `~/.codex/skills/fugue-docs` にインストールし、`~/.codex/AGENTS.md` で今後の開発タスクに適用できます。既存のプロジェクト規則を維持し、過去の全プロジェクトを一括変更しません。
+Codex の個人用スキルは `~/.agents/skills/fugue-docs` に配置します。`SKILL.md`、`scripts/`、`references/`、`adapters/`、`agents/`、`LICENSE` をコピーし、`.claude-plugin/` は含めないでください。ローカル検証では、このメタデータが単独スキルの検出を妨げました。インストーラーが `~/.codex/skills/fugue-docs` を使う場合は、`~/.agents/skills/` から同名リンクを作成し、インストールしたコピーの `.claude-plugin/` を別の場所に移します。ファイルの存在だけでなく、スキル一覧で `fugue-docs` が有効であることを確認してください。
+
+`~/.codex/AGENTS.md` に既定のルールを追加し、今後の開発タスクに適用できます。既存のプロジェクト規則を維持し、過去の全プロジェクトを一括変更しません。コマンドには実際のインストール先を使用します。
 
 `scripts/geb_metrics.py` は実測 token 使用量を `~/.codex/fugue/metrics/` に記録します。同じタスク・モデル・コミットで、品質を確認した独立した対照実験がない場合、削減量は不明のままです。負の差分も保持します。[計量説明](references/token-accounting.md) と [テスト](evals/README.md) を参照してください。CI は macOS/Linux、Python 3.9/3.14 で境界テストと自己検査を実行します。
 

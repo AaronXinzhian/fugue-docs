@@ -20,7 +20,9 @@
 
 需要 Python 3.9+。本版修复同步内容保留、空目录和中文路径漏检,统一完整依赖事实,并以暂存快照校验提交。架构候选分数是启发式权重,不是正确概率;未解析导入会单独列出。
 
-Codex 可把本仓库安装到 `~/.codex/skills/fugue-docs`,并在 `~/.codex/AGENTS.md` 加入开发任务使用赋格的默认规则。项目既有规则仍保留,全局默认不会自动改写所有历史项目。工具以实际安装目录为准。
+Codex 的个人技能目录为 `~/.agents/skills/fugue-docs`。从本仓库复制 `SKILL.md`、`scripts/`、`references/`、`adapters/`、`agents/` 和 `LICENSE` 即可;不要把 `.claude-plugin/` 一并复制为独立 Codex 技能,本机实测该元数据会影响技能发现。如果安装器把文件放在 `~/.codex/skills/fugue-docs`,可在 `~/.agents/skills/` 创建指向它的同名目录链接,并移开安装副本中的 `.claude-plugin/`。完成后确认技能列表中 `fugue-docs` 已启用,不能只以文件存在作为安装成功依据。
+
+在 `~/.codex/AGENTS.md` 加入开发任务使用赋格的默认规则,即可覆盖今后的开发。项目既有规则仍保留,全局默认不会自动改写所有历史项目。工具以实际安装目录为准。
 
 新增 `scripts/geb_metrics.py` 记录任务起止时的实际 token 用量,账本默认在 `~/.codex/fugue/metrics/`。只有同任务、同模型、同提交且质量经过复核的独立对照,才计算 token 差值;无基线保持未知,负值如实记录。用法见 [计量说明](references/token-accounting.md)。
 

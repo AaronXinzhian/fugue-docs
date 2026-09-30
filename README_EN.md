@@ -20,7 +20,9 @@ Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex
 
 Requires Python 3.9+. `geb_arch.py` generates architecture candidates from shared dependency facts, with file-level evidence and unresolved imports. Scores are heuristics, not calibrated probabilities. Sync preserves non-code ledger rows and handles empty directories and Unicode Git paths. Commit hooks validate the staged snapshot.
 
-Install this repository as `~/.codex/skills/fugue-docs` for Codex. An explicit default in `~/.codex/AGENTS.md` can enable Fugue for future development tasks while preserving project-specific rules. Existing projects are adopted when worked on, not rewritten in bulk.
+For a standalone Codex skill, copy `SKILL.md`, `scripts/`, `references/`, `adapters/`, `agents/` and `LICENSE` into `~/.agents/skills/fugue-docs`. Exclude `.claude-plugin/`: local installation testing found that its presence prevented standalone skill discovery. If an installer uses `~/.codex/skills/fugue-docs`, link that directory from `~/.agents/skills/` and move `.claude-plugin/` out of the installed copy. Verify that `fugue-docs` is listed and enabled, not merely present on disk.
+
+An explicit default in `~/.codex/AGENTS.md` can enable Fugue for future development tasks while preserving project-specific rules. Existing projects are adopted when worked on, not rewritten in bulk. Resolve commands relative to the actual skill directory.
 
 `scripts/geb_metrics.py` records observed task token intervals in `~/.codex/fugue/metrics/`. Savings stay unknown without an independent, quality-reviewed comparison on the same task, model and revision. Negative differences remain negative. See [accounting details](references/token-accounting.md) and [tests](evals/README.md). CI runs boundary tests and self-checks on macOS/Linux with Python 3.9/3.14.
 
