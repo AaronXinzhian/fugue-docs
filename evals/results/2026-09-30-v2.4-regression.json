@@ -1,0 +1,70 @@
+{
+  "suite": "fugue-docs deterministic regression suite",
+  "rounds_requested": 1,
+  "repo": "/Users/austinwj/Desktop/辛止庵的个人项目/赋格",
+  "commit": "5ef599b7580448f78504163a0b1141a5e080c372",
+  "git_dirty": false,
+  "source_sha256": "1512353396b065ba95c1a7dca86ccc42e6316eb40db9160842dd374924694979",
+  "python": "3.14.6",
+  "tests": [
+    "arch_fixture_b",
+    "sync_changed_delete",
+    "check_l1_path_ghost",
+    "adapt_copy_tools",
+    "comprehension_grader",
+    "self_checks"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "passed": 6,
+      "failed": 0,
+      "results": [
+        {
+          "name": "arch_fixture_b",
+          "passed": true,
+          "detail": "entrypoint=app.py modules=root/services/storage"
+        },
+        {
+          "name": "sync_changed_delete",
+          "passed": true,
+          "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+        },
+        {
+          "name": "check_l1_path_ghost",
+          "passed": true,
+          "detail": "detected services/ghost.py"
+        },
+        {
+          "name": "adapt_copy_tools",
+          "passed": true,
+          "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_facts.py, geb_metrics.py, geb_scaffold.py, geb_staged.py, geb_sync.py"
+        },
+        {
+          "name": "comprehension_grader",
+          "passed": true,
+          "detail": "score_ratio=1.0 token_ratio=0.25"
+        },
+        {
+          "name": "self_checks",
+          "passed": true,
+          "detail": "geb_check strict complete + geb_sync dry-run"
+        }
+      ]
+    }
+  ],
+  "boundary_tests": {
+    "tests": 34,
+    "passed": 34,
+    "failures": [],
+    "skipped": [],
+    "successful": true,
+    "log": "test_adapter_without_copy_has_no_invalid_command (test_boundaries.BoundaryTests.test_adapter_without_copy_has_no_invalid_command) ... ok\ntest_all_imports_and_exports_retained (test_boundaries.BoundaryTests.test_all_imports_and_exports_retained) ... ok\ntest_copied_tools_can_run (test_boundaries.BoundaryTests.test_copied_tools_can_run) ... ok\ntest_cycles_preserve_direction (test_boundaries.BoundaryTests.test_cycles_preserve_direction) ... ok\ntest_delete_last_file_detect_and_sync (test_boundaries.BoundaryTests.test_delete_last_file_detect_and_sync) ... ok\ntest_dense_acyclic_graph (test_boundaries.BoundaryTests.test_dense_acyclic_graph) ... ok\ntest_git_rename_tracks_both_directories (test_boundaries.BoundaryTests.test_git_rename_tracks_both_directories) ... ok\ntest_invalid_token_counts_rejected (test_boundaries.BoundaryTests.test_invalid_token_counts_rejected) ... ok\ntest_js_relative_shared_edges (test_boundaries.BoundaryTests.test_js_relative_shared_edges) ... ok\ntest_last_root_file_sync (test_boundaries.BoundaryTests.test_last_root_file_sync) ... ok\ntest_linked_code_row_preserves_duty (test_boundaries.BoundaryTests.test_linked_code_row_preserves_duty) ... ok\ntest_missing_token_counts_stay_unknown (test_boundaries.BoundaryTests.test_missing_token_counts_stay_unknown) ... ok\ntest_no_fabricated_relative_target (test_boundaries.BoundaryTests.test_no_fabricated_relative_target) ... ok\ntest_preserve_non_code_rows_and_semantics (test_boundaries.BoundaryTests.test_preserve_non_code_rows_and_semantics) ... ok\ntest_root_ghost_detected (test_boundaries.BoundaryTests.test_root_ghost_detected) ... ok\ntest_same_basename_not_coverage (test_boundaries.BoundaryTests.test_same_basename_not_coverage) ... ok\ntest_staged_bad_worktree_good_is_blocked (test_boundaries.BoundaryTests.test_staged_bad_worktree_good_is_blocked) ... ok\ntest_staged_good_worktree_bad_is_allowed (test_boundaries.BoundaryTests.test_staged_good_worktree_bad_is_allowed) ... ok\ntest_strict_detects_eleventh_dependency (test_boundaries.BoundaryTests.test_strict_detects_eleventh_dependency) ... ok\ntest_unicode_and_control_paths_in_git_scope (test_boundaries.BoundaryTests.test_unicode_and_control_paths_in_git_scope) ... ok\ntest_unreviewed_keywords_cannot_prove_quality (test_boundaries.BoundaryTests.test_unreviewed_keywords_cannot_prove_quality) ... ok\ntest_comparison_keeps_negative_savings (test_metrics.MetricsTests.test_comparison_keeps_negative_savings) ... ok\ntest_comparison_rejects_unmatched_experiments (test_metrics.MetricsTests.test_comparison_rejects_unmatched_experiments) ... ok\ntest_counter_reset_is_unknown (test_metrics.MetricsTests.test_counter_reset_is_unknown) ... ok\ntest_delta_does_not_double_count_cache (test_metrics.MetricsTests.test_delta_does_not_double_count_cache) ... ok\ntest_finish_is_idempotent (test_metrics.MetricsTests.test_finish_is_idempotent) ... ok\ntest_missing_quality_review_rejected (test_metrics.MetricsTests.test_missing_quality_review_rejected) ... ok\ntest_missing_usage_is_unknown (test_metrics.MetricsTests.test_missing_usage_is_unknown) ... ok\ntest_model_switch_then_back_is_unknown (test_metrics.MetricsTests.test_model_switch_then_back_is_unknown) ... ok\ntest_positive_comparison_and_evidence_hash (test_metrics.MetricsTests.test_positive_comparison_and_evidence_hash) ... ok\ntest_session_mismatch_rejected (test_metrics.MetricsTests.test_session_mismatch_rejected) ... ok\ntest_session_parser_ignores_prompt_content (test_metrics.MetricsTests.test_session_parser_ignores_prompt_content) ... ok\ntest_unknown_savings_not_zero_in_summary (test_metrics.MetricsTests.test_unknown_savings_not_zero_in_summary) ... ok\ntest_wrong_evidence_binding_rejected (test_metrics.MetricsTests.test_wrong_evidence_binding_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 34 tests in 0.779s\n\nOK\n"
+  },
+  "summary": {
+    "total_assertion_groups": 6,
+    "passed": 6,
+    "failed": 0,
+    "pass_rate": 1.0
+  }
+}

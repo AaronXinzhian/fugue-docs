@@ -20,5 +20,6 @@
 - `comprehension.md` — 理解测验(度量"理解成本"这一真目标的方法与 fixture-b 标准题组)
 - `comprehension_fixture_b.json` — fixture-b 理解测验的确定性关键词 rubric 与健康阈值
 - `results/2026-07-08-v2.3-regression.json` — v2.3 回归套件 5 轮原始机器结果
+- `results/2026-09-30-v2.4-regression.json` — v2.4 集成与边界/计量回归结果,绑定提交和源码摘要
 - `fixtures/fixture-a` — 无文档的 JS 样例项目(测"初始化"场景)
 - `fixtures/fixture-b` — 已有完整 GEB 结构的 Python 样例项目(测"变更回环"与"删除重构"场景)
