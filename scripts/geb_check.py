@@ -62,8 +62,8 @@ def is_code_file(path):
     return not any(p.search(rel) for p in EXCLUDED_FILE_PATTERNS)
 
 
-def walk_project(root, subprojects=None):
-    """返回 {相对目录路径: [代码文件名]},仅含至少有一个代码文件的目录。
+def walk_project(root, subprojects=None, include_indexes=False):
+    """返回 {相对目录路径: [代码文件名]}。include_indexes 也保留有索引的空目录。
 
     递归分形:子目录若含 PROJECT_INDEX.md,即是一个子项目(它的 L1 同时充当
     父项目视角下的 L2)。父项目的遍历在子项目边界剪枝——子项目内部文件不计入
@@ -81,7 +81,7 @@ def walk_project(root, subprojects=None):
             d for d in dirnames if d not in EXCLUDED_DIRS and not d.startswith(".")
         )
         code_files = sorted(f for f in filenames if is_code_file(f))
-        if code_files:
+        if code_files or (include_indexes and find_index_file(dirpath, L1_NAMES if rel == "." else L2_NAMES)):
             result[rel] = code_files
     return result
 
@@ -182,7 +182,7 @@ def run_l1_table_ghost_checks(root, dir_map, l1_path):
 
     小项目 profile 会把全部文件清单并入 L1;没有这一步时,L1 表格里的
     services/old.py 这类幽灵项不会被自有 L2 检查覆盖。为避免误报,这里只
-    检查表格中的代码引用,并且只硬判路径型引用或根目录代码文件名。
+    检查表格中的代码引用;根目录的裸文件名也必须对应实际文件。
     """
     if not l1_path:
         return []
@@ -192,11 +192,9 @@ def run_l1_table_ghost_checks(root, dir_map, l1_path):
         rel_code_path(d, f_name)
         for d, files in dir_map.items() for f_name in files
     }
-    root_files = set(dir_map.get(".", []))
     violations = []
     for ref in sorted(refs["table_paths"]):
-        should_check = "/" in ref or ref in root_files
-        if should_check and ref not in actual:
+        if ref not in actual and not os.path.exists(os.path.join(root, ref)):
             violations.append({
                 "level": "L1",
                 "path": ref,
@@ -274,7 +272,7 @@ def run_strict_checks(root, dir_map, l1_path):
 def run_checks(root, strict=False, complete=False, recursive=True):
     violations = []  # 每项: {"level", "path", "problem"}
     subprojects = []
-    dir_map = walk_project(root, subprojects)
+    dir_map = walk_project(root, subprojects, include_indexes=True)
     all_code_files = [
         (d, f) for d, files in dir_map.items() for f in files
     ]
@@ -317,8 +315,8 @@ def run_checks(root, strict=False, complete=False, recursive=True):
         # 缺漏:实际存在但索引未提及
         for f_name in code_files:
             rel_path = rel_code_path(rel_dir, f_name)
-            if (rel_path not in refs["anywhere_paths"]
-                    and f_name not in refs["anywhere_names"]):
+            valid_refs = {f_name, rel_path} if own_l2 else {rel_path}
+            if not valid_refs.intersection(refs["anywhere_paths"]):
                 violations.append({
                     "level": "L2",
                     "path": rel_path,
@@ -403,7 +401,7 @@ def run_checks(root, strict=False, complete=False, recursive=True):
 
     stats = {
         "code_files": len(all_code_files) + n_sub_files,
-        "code_dirs": len(dir_map) + n_sub_dirs,
+        "code_dirs": sum(bool(files) for files in dir_map.values()) + n_sub_dirs,
         "subprojects": len(subprojects),
         "violations": len(violations),
         "l2_waived_small_project": small,

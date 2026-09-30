@@ -1,5 +1,13 @@
 # 评测复跑指南
 
+v2.4 新增边界与 token 计量回归,并纳入 macOS/Linux、Python 3.9/3.14 CI:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s evals -p 'test_*.py' -v
+```
+
+此命令在仓库根目录运行。覆盖实际同步后的非代码内容保留、幂等、空目录、中文路径、同名文件、完整依赖、暂存快照、循环方向和计量负对照。重复同一确定性用例只检验重复性,不增加独立场景数。人工预置的答案和 token 数仅用于测试评分器,不构成模型效果实测。
+
 README 中的实测数据由以下流程产生,本目录包含完整复现材料。
 
 ## 流程
@@ -64,7 +72,7 @@ python3 grade_iteration.py /tmp/geb-eval/iteration-1
 python3 grade_comprehension.py answers.json
 ```
 
-默认 rubric 是 `comprehension_fixture_b.json`;输出会包含每题得分、总分、docs-only/code-only 分数比和 token 比。
+默认 rubric 是 `comprehension_fixture_b.json`;输出会包含每题得分、总分、docs-only/code-only 分数比和 token 比。缺失 token 时比值为 `null`;关键词阈值状态为 `proxy_healthy`,两侧质量未经复核时 `healthy` 保持 `null`。计量和质量复核格式见 [token-accounting.md](../references/token-accounting.md)。
 
 ## 确定性回归套件
 

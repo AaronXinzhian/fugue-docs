@@ -6,13 +6,14 @@
 GEB 分形文档协议的工具集仓库:以 Claude Code skill 为最佳体验、万模通用的协议实现,包含协议文本、架构候选生成器、检查器、脚手架、适配器与硬约束钩子。本仓库自身遵循本协议(吃自己的狗粮),CI 会对自身做同构检查。
 
 ## 技术栈
-Python 3(≥3.6,零第三方依赖)+ POSIX shell + Markdown。Claude Code skill / 插件市场分发;`gh`/git 用于发布。
+Python 3(≥3.9,零第三方依赖)+ POSIX shell + Markdown。Codex/Claude Code skill 与插件市场分发;`gh`/git 用于发布。Codex 用量账本保存在用户目录,不进入项目仓库。
 
 ## 目录结构
 ```text
 fugue-docs/
 ├── SKILL.md           # 协议本体(Claude Code skill 入口)
 ├── adapters/          # 协议可移植核心(中/英),万模通用的单一事实来源
+├── agents/            # Codex 技能展示与隐式调用策略
 ├── assets/            # logo 等静态资源
 ├── evals/             # 评测包:用例、夹具、评分器、理解成本测验 → evals/FOLDER_INDEX.md
 ├── references/        # L1/L2/L3 多语言模板库
@@ -25,12 +26,17 @@ graph TD
     geb_scaffold --> geb_check
     geb_arch --> geb_check
     geb_arch --> geb_scaffold
+    geb_arch --> geb_facts
+    geb_scaffold --> geb_facts
     geb_sync --> geb_check
     geb_sync --> geb_scaffold
     geb_stop_hook --> geb_check
     geb_adapt --> geb_check
     geb_adapt --> adapters_PROTOCOL
     pre_commit_hook --> geb_check
+    pre_commit_hook --> geb_staged
+    geb_staged --> geb_check
+    geb_metrics --> Codex_local_usage
     evals_grader --> geb_check
 ```
 
@@ -43,6 +49,6 @@ graph TD
 | LICENSE | MIT,含思想来源致谢 |
 
 ## 全局约定
-- 所有脚本仅用 Python 3 标准库,保持 3.6+ 兼容(用户环境可能很旧)。
+- 所有脚本仅用 Python 3 标准库,最低 Python 3.9;CI 覆盖 macOS/Linux 与 3.9/3.14。
 - adapters/PROTOCOL.md 是协议核心的单一事实来源;改协议先改它,再同步 SKILL.md。
 - 本仓库自身必须通过 `python3 scripts/geb_check.py . --strict`。

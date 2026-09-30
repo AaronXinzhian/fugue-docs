@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 argparse, ast, os, re, sys, geb_check
+[INPUT]: 依赖 argparse, ast, os, re, sys, geb_check, geb_facts
 [OUTPUT]: 提供确定性脚手架命令——为缺失处生成 L3 头骨架、L2/L1 索引草稿(语义留 TODO)
 [POS]: fugue-docs 工具层-确定性脚手架(静态分析填 INPUT/OUTPUT,语义相留给 AI/人)
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本脚本的描述
 
 设计哲学:机器只填机器擅长的(依赖、导出——可静态分析),绝不假装理解语义。
 [POS]、模块定位、项目定位一律留语义 TODO 占位,由 AI 真读代码后补全。
-这样大项目初始化从"逐文件精读"降为"补语义",省时省 token,且不产生假文档。
+脚手架减少事实转录;语义仍需读代码验证,净 token 收益需要独立对照测量。
 
 幂等:已有完整 L3 头的文件、已存在的索引文件一律跳过,绝不覆盖。
 """
@@ -21,13 +21,13 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geb_check import (L1_NAMES, L2_NAMES, check_l3, find_index_file,  # noqa: E402
                        is_small_project, walk_project)
+from geb_facts import dependency_facts  # noqa: E402
 
 # 占位前缀拆开拼接,避免本文件头部的源码字面量被 geb_check --complete 误判为残留占位
 _TODO = "TODO(" + "语义)"
 TODO_POS = _TODO + ":本文件在系统中的定位与职责"
 TODO_MODULE = _TODO + ":本模块在整体架构中的角色、被谁调用、调用谁"
 TODO_PROJECT = _TODO + ":这个项目是什么、给谁用、解决什么问题"
-MAX_ITEMS = 10
 
 
 # ---------------- 静态分析(各语言) ----------------
@@ -42,7 +42,10 @@ def analyze_python(text):
         if isinstance(node, ast.Import):
             inputs += [a.name for a in node.names]
         elif isinstance(node, ast.ImportFrom):
-            inputs.append("." * node.level + (node.module or ""))
+            if node.module:
+                inputs.append("." * node.level + node.module)
+            else:
+                inputs += ["." * node.level + a.name for a in node.names]
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             if not node.name.startswith("_"):
                 suffix = "" if isinstance(node, ast.ClassDef) else "()"
@@ -191,7 +194,7 @@ def dedupe(items):
         if x and x not in seen:
             seen.add(x)
             out.append(x)
-    return out[:MAX_ITEMS]
+    return out
 
 
 def analyze_file(path):
@@ -286,33 +289,8 @@ def render_l2(rel_dir, files, analyses, root, abs_dir):
 
 
 def mermaid_edges(root, dir_map, analyses_by_file):
-    """从 import 关系推顶级目录间依赖边(best-effort)。"""
-    top = lambda rel: "root" if rel == "." else rel.replace(os.sep, "/").split("/")[0]  # noqa: E731
-    top_dirs = {top(d) for d in dir_map}
-    edges = set()
-    for (rel_dir, fname), (inputs, _o) in analyses_by_file.items():
-        src = top(rel_dir)
-        for imp in inputs:
-            dst = None
-            if imp.startswith("./") or imp.startswith("../"):
-                # JS 风格相对路径导入
-                base = os.path.normpath(os.path.join(rel_dir, imp))
-                dst = top(base)
-            elif imp.startswith("."):
-                # Python 风格相对导入:.mod / ..pkg.mod(点数=层级)
-                n = len(imp) - len(imp.lstrip("."))
-                rest = imp.lstrip(".").replace(".", "/")
-                base = rel_dir
-                for _ in range(n - 1):
-                    base = os.path.dirname(base) or "."
-                dst = top(os.path.normpath(os.path.join(base, rest)))
-            else:  # 绝对导入:首段命中顶级目录名即记边
-                first = re.split(r"[./:]", imp)[0]
-                if first in top_dirs:
-                    dst = first
-            if dst and dst in top_dirs and dst != src:
-                edges.add((src, dst))
-    return sorted(edges)
+    """共享事实解析,与 geb_arch 的顶层依赖边一致。"""
+    return dependency_facts(dir_map, analyses_by_file)["edges"]
 
 
 def render_l1(root, dir_map, analyses_by_file, small=False):

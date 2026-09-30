@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 argparse, collections, json, os, re, sys, geb_check, geb_scaffold
+[INPUT]: 依赖 argparse, collections, json, os, re, sys, geb_check, geb_scaffold, geb_facts
 [OUTPUT]: 提供程序化架构候选生成命令——从代码事实生成模块角色、入口、依赖边、风险提示与 AI handoff brief
 [POS]: fugue-docs 工具层-架构事实与候选生成器(先由程序给出可验证事实,再交给 AI 做语义归纳)
 [PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md 与 README/SKILL 中对本脚本的描述
@@ -19,6 +19,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geb_check import is_small_project, walk_project  # noqa: E402
 from geb_scaffold import analyze_file  # noqa: E402
+from geb_facts import dependency_facts  # noqa: E402
 
 
 ROLE_RULES = [
@@ -85,48 +86,10 @@ def load_project(root):
     return dir_map, subprojects, analyses_by_file, files
 
 
-def import_index(files):
-    index = {}
-    for rel, meta in files.items():
-        stem = os.path.splitext(os.path.basename(rel))[0]
-        dotted = os.path.splitext(rel)[0].replace("/", ".")
-        index.setdefault(stem, set()).add(meta["module"])
-        index.setdefault(dotted, set()).add(meta["module"])
-    return index
-
-
-def resolve_internal_import(imp, rel_dir, import_map, top_dirs):
-    if not imp:
-        return None
-    if imp.startswith("."):
-        dots = len(imp) - len(imp.lstrip("."))
-        rest = imp.lstrip(".").replace(".", "/")
-        base = rel_dir
-        for _i in range(max(dots - 1, 0)):
-            base = os.path.dirname(base) or "."
-        return top_module(norm(os.path.join(base, rest)) or ".")
-    cleaned = imp.strip()
-    first = re.split(r"[./:]", cleaned)[0]
-    if first in top_dirs:
-        return first
-    if cleaned in import_map and len(import_map[cleaned]) == 1:
-        return next(iter(import_map[cleaned]))
-    if first in import_map and len(import_map[first]) == 1:
-        return next(iter(import_map[first]))
-    return None
-
-
 def dependency_edges(dir_map, files):
-    top_dirs = {top_module(d) for d in dir_map}
-    idx = import_index(files)
-    edges = set()
-    for rel, meta in files.items():
-        src = meta["module"]
-        for imp in meta["imports"]:
-            dst = resolve_internal_import(imp, meta["dir"], idx, top_dirs)
-            if dst and dst != src:
-                edges.add((src, dst))
-    return sorted(edges)
+    analyses = {(meta["dir"], os.path.basename(rel)): (meta["imports"], meta["exports"])
+                for rel, meta in files.items()}
+    return dependency_facts(dir_map, analyses)["edges"]
 
 
 def manifests(root):
@@ -247,23 +210,31 @@ def find_cycles(edges):
     def canonical(cycle):
         body = cycle[:-1]
         rotations = [tuple(body[i:] + body[:i]) for i in range(len(body))]
-        rev = list(reversed(body))
-        rotations += [tuple(rev[i:] + rev[:i]) for i in range(len(rev))]
         best = min(rotations)
         return best + (best[0],)
 
-    def visit(node, stack):
-        if node in stack:
-            cycle = stack[stack.index(node):] + [node]
-            cycles.add(canonical(cycle))
-            return
-        if len(stack) > 20:
-            return
-        for nxt in graph.get(node, []):
-            visit(nxt, stack + [node])
-
-    for node in sorted(graph):
-        visit(node, [])
+    # A directed DFS witness per back edge bounds work; this is not all-cycle enumeration.
+    done, active, path = set(), {}, []
+    for start in sorted(graph):
+        if start in done:
+            continue
+        active[start] = 0
+        path.append(start)
+        stack = [(start, iter(sorted(graph[start])))]
+        while stack:
+            node, neighbors = stack[-1]
+            nxt = next(neighbors, None)
+            if nxt is None:
+                stack.pop()
+                done.add(node)
+                active.pop(node)
+                path.pop()
+            elif nxt in active:
+                cycles.add(canonical(path[active[nxt]:] + [nxt]))
+            elif nxt not in done:
+                active[nxt] = len(path)
+                path.append(nxt)
+                stack.append((nxt, iter(sorted(graph.get(nxt, [])))))
     return [list(c) for c in sorted(cycles)]
 
 
@@ -283,7 +254,8 @@ def project_warnings(modules, cycles):
 def build_report(root):
     root = os.path.abspath(root)
     dir_map, subprojects, analyses_by_file, files = load_project(root)
-    edges = dependency_edges(dir_map, files)
+    facts = dependency_facts(dir_map, analyses_by_file)
+    edges = facts["edges"]
     modules = build_modules(dir_map, files, edges)
     cycles = find_cycles(edges)
     languages = defaultdict(int)
@@ -302,6 +274,10 @@ def build_report(root):
         },
         "files": files,
         "edges": [{"from": src, "to": dst} for src, dst in edges],
+        "dependency_evidence": facts["resolved"],
+        "unresolved_imports": facts["unresolved"],
+        "confidence_kind": "heuristic_score_not_probability",
+        "cycle_kind": "directed_dfs_witnesses_not_exhaustive",
         "entrypoint_candidates": find_entrypoints(files),
         "module_candidates": modules,
         "cycles": cycles,
@@ -337,11 +313,11 @@ def render_markdown(report):
     ]
     if report["entrypoint_candidates"]:
         for item in report["entrypoint_candidates"]:
-            lines.append("- `%s` 置信度 %.2f;%s" % (
+            lines.append("- `%s` 启发式分数 %.2f;%s" % (
                 item["file"], item["confidence"], "；".join(item["evidence"])))
     else:
         lines.append("- 未识别强入口候选")
-    lines += ["", "## 模块候选", "", "| 模块 | 候选角色 | 置信度 | fan-in | fan-out | 证据 |", "|------|----------|--------|--------|---------|------|"]
+    lines += ["", "## 模块候选", "", "分数来自规则权重,不是正确概率。循环列出有向证据,不穷举所有环。", "", "| 模块 | 候选角色 | 分数 | fan-in | fan-out | 证据 |", "|------|----------|--------|--------|---------|------|"]
     for module in report["module_candidates"]:
         lines.append("| %s | %s | %.2f | %d | %d | %s |" % (
             module["name"], module["role_candidate"], module["confidence"],

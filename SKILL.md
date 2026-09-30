@@ -1,118 +1,36 @@
 ---
 name: fugue-docs
-description: 赋格文档(fugue-docs),GEB 分形文档协议的实现——让代码(机器相)与文档(语义相)严格同构同步,解决"代码越写越乱、文档永远滞后"的项目熵增。三级分形:L1 项目索引 / L2 文件夹索引 / L3 文件头注释;任何代码变更后执行 L3→L2→L1 回环检查,否则任务视为未完成。Use this skill whenever code files are created, modified, renamed, moved, or deleted in a project — even if the user never mentions documentation. Also use when starting or handing over a project ("初始化文档"、"交接"、"让 AI 看懂项目"), when refactoring, when entering an unfamiliar codebase (read the indexes first), or when the user mentions GEB、分形文档、索引、PROJECT_INDEX、FOLDER_INDEX、文档同步、文档滞后。
+description: Maintain project, folder, and file indexes when developing code, initializing a repository, or checking documentation drift. Use indexes to locate relevant code, generate dependency facts, synchronize L1/L2/L3, and record task token usage in Codex. Also applies when the user mentions 赋格, GEB, PROJECT_INDEX, or FOLDER_INDEX.
 ---
 
-# fugue-docs — 赋格文档
+# 赋格文档
 
-> "The map IS the terrain. The terrain IS the map."
+程序提取依赖和清单,AI 阅读相关代码后补充职责。L1 是项目入口 `PROJECT_INDEX.md`,L2 是模块 `FOLDER_INDEX.md`,L3 是代码文件头的 `[INPUT]`、`[OUTPUT]`、`[POS]` 与 `[PROTOCOL]`。
 
-协议思想源自赵纯想的「GEB 分形文档系统协议」(灵感来自侯世达《哥德尔、埃舍尔、巴赫》);本 skill 是该协议的独立实现与扩展。
+下列命令中的 `<skill-dir>` 是本 SKILL.md 所在目录,`<root>` 是当前项目根目录。优先调用技能内的工具,不假定用户项目已经复制了 `scripts/geb/`。
 
-## 教义(为什么要这样做)
+## 开始开发
 
-代码是实体的**机器相**(供计算机执行),文档是实体的**语义相**(供人类与 AI 理解)。两相必须**同构**:一个从未见过这个项目的人(或一个新开的 AI 会话),只读文档就能定位任何职责、理解任何依赖,不需要通读代码。
+1. 读取项目自身规则,再读 L1、目标目录 L2 和相关文件头定位代码。索引不能替代修改前对相关实现的阅读。
+2. Codex 代码开发任务开始时运行 `python3 <skill-dir>/scripts/geb_metrics.py start <root> --task <本次任务短标识>`。保留返回的 `run_id`;同一任务重复调用会复用活动记录。只读审查不初始化项目文档,不因本技能扩大用户编辑范围。
+3. 项目尚无索引且当前任务允许编辑代码时,按下方初始化;已有索引按下方维护。已有 AGENTS.md、CLAUDE.md 和其他文档保留原有要求,协议段采用追加或托管块更新。
 
-项目熵增的根源只有一个:变更总是发生在机器相,而语义相无人照看。本协议的解法不是"提醒你写文档",而是**重新定义"完成"**——任一相的变化没有在另一相显现,任务就没有完成。
+## 初始化
 
-协议真正的不变量只有五条(L1/L2/L3 是它们的**默认 profile**,不是教条):**多尺度**——每个语义边界(项目/模块/文件)有一份可定位索引,尺度数量随复杂度伸缩;**覆盖声明**——每份索引列出它覆盖的下级实体;**可反链**——每个实体能链回上级索引;**机器可验证**——覆盖关系与引用漂移由脚本断言;**成本比例**——文档成本必须低于它消除的歧义。
+1. 运行 `python3 <skill-dir>/scripts/geb_arch.py <root>`。需要留档时用 `--out` 和 `--brief` 指向临时产物目录。事实中的未解析项需要核对,候选分数是启发式权重,不是正确概率。
+2. 运行 `python3 <skill-dir>/scripts/geb_scaffold.py <root> --dry-run` 查看范围,再去掉 `--dry-run` 生成骨架。对大型存量项目分模块迁移并如实报告覆盖范围,避免一次任务顺带改写全部代码。
+3. 阅读代码后补齐职责与语义占位,自底向上完成 L3、L2、L1。小项目自动采用 L1 + L3,已有 L2 继续维护。生成代码、依赖、构建产物和纯配置不加 L3。
+4. 完整初始化用 `python3 <skill-dir>/scripts/geb_check.py <root> --strict --complete --report` 验证。需要语言模板或协议细节时读 [references/templates.md](references/templates.md) 或 [adapters/PROTOCOL.md](adapters/PROTOCOL.md)。
 
-三个来自 GEB 的结构特性支撑这一点:
+## 维护与收尾
 
-- **自相似(分形)**:L1/L2/L3 每一层的结构相同——"这是什么、包含什么、和谁相连"。局部即整体的缩影。
-- **自指**:每份文档声明"我变化时更新我",文档自己携带维护协议。
-- **复调**:代码、文件夹索引、项目索引三个声部相互呼应,任何一个声部走音,回环检查都能听出来。
+1. 代码修改后运行 `python3 <skill-dir>/scripts/geb_sync.py <root> --changed`。非 Git 项目自动回退全量。首次接入或怀疑历史漂移时使用全量同步。清单职责与非代码条目由人维护;依赖和代码行集合由机器维护。
+2. 检查所改文件的 `[OUTPUT]`、`[POS]` 和模块职责,结构变化时更新 L1。`--graph` 显式重绘依赖图,使用前核对是否会替换人工图。
+3. 运行 `python3 <skill-dir>/scripts/geb_check.py <root> --strict --complete --report` 以及项目本身的相关测试。报告实际通过、遗留或无法验证的情况,不把结构检查当语义正确证明。
+4. Codex 中运行 `python3 <skill-dir>/scripts/geb_metrics.py finish <run_id>` 收尾计量。它读取本地会话计数,不上传提示词;无法获取时记录未知。工具运行后产生的回复及未汇总子代理用量不在已截取区间内。
 
-## 场景路由(先判断自己处于哪种场景)
+计量只记录实际用量。没有可比对照时,节省量保持 `null`,不能把缓存命中、字符压缩比或没读的文件数记成已节省 token。需要衡量收益或查看跨项目账本时读 [references/token-accounting.md](references/token-accounting.md)。
 
-| 场景 | 动作 |
-|------|------|
-| 进入陌生项目 / 陌生目录 | **逆向回环**:先读 L1 → 目标 L2 → 目标文件 L3 头,再读代码本体 |
-| 项目没有 GEB 结构 | **初始化流程**(见下):先程序化事实/候选,再 AI 补语义 |
-| 新增 / 修改 / 删除 / 重命名 / 移动代码 | 改完后执行**正向回环** |
-| 用户要求检查文档一致性 / 怀疑文档过期 | 运行 `scripts/geb_check.py` 并修复报告中的违规项 |
+## 可选提交约束
 
-## 三级分形结构
-
-### L1 — 项目索引(根目录 `PROJECT_INDEX.md`)
-
-内容:项目一句话定位、技术栈、目录结构树(每个目录一句话职责)、模块依赖关系(Mermaid 图)、全局约定、根目录代码文件清单、自指声明("架构变更后必须更新本文件")。
-
-若项目已有 `CLAUDE.md`,在其中加一段协议声明并链接 `PROJECT_INDEX.md`——这样每个 AI 会话都会自动加载协议入口。完整模板见 [references/templates.md](references/templates.md)。
-
-### L2 — 文件夹索引(每个含代码的文件夹一份 `FOLDER_INDEX.md`)
-
-内容:本模块在整体中的定位、文件清单表(文件名 | 职责 | 关键导出)、与父级/兄弟模块的关系、父级索引链接、自指声明("本文件夹变化时更新我")。
-
-### L3 — 文件头注释(每个代码文件顶部)
-
-```
-[INPUT]:    依赖什么(外部库、项目内模块)
-[OUTPUT]:   对外提供什么(导出的函数/类/路由/命令)
-[POS]:      在系统中的定位(哪一层、负责什么)
-[PROTOCOL]: 变更时更新此头部,然后检查上级 FOLDER_INDEX.md
-```
-
-各语言的具体注释语法模板见 [references/templates.md](references/templates.md),初始化或新建文件时读取它。
-
-### 度的把握(防止协议自身制造熵)
-
-文档的成本必须低于它消除的歧义,否则协议在制造垃圾而非秩序:
-
-- **不加 L3**:生成文件、vendored 依赖、`node_modules`、lock 文件、纯数据/配置文件(json/yaml/toml)、迁移脚本。
-- **不建 L2**:不含代码文件的文件夹(纯资源、纯配置目录)。
-- 小项目 profile(代码文件 ≤ 20、一级代码目录 ≤ 5 且无嵌套)自动降为 L1 + L3 两层:免 L2,全部文件清单并入 L1(脚手架与检查器自动识别;已有 L2 的项目不受影响)。
-- 索引描述用一句话说清职责即可,不要复述实现细节——细节属于 L3 和代码本身。
-- **递归分形(monorepo)**:子目录含 `PROJECT_INDEX.md` 即为子项目——它的 L1 同时充当父项目视角下的 L2,父项目把它当作一个模块(L1 提及即可),检查与同步会自动递归进入。
-
-## 正向回环(代码变更后,强制执行)
-
-机器字段与语义字段分工不同,先机器后语义:
-
-1. **机器字段**:运行 `python3 scripts/geb_sync.py <项目根目录>`——L3 的 `[INPUT]` 行、L2/L1 清单表的行集合与"关键导出"列由静态分析自动重写(衍生数据重新生成,不靠手抄);删除/重命名后清单幽灵项也由清单重建清理。无法执行脚本时退回手工核对这些字段。
-2. **语义字段(你的职责)**:所改文件的 `[OUTPUT]` 语义加注与 `[POS]` 是否仍准确;清单表"职责"列、新文件的 TODO 占位;新建文件必须带完整头部。
-3. **L1 语义**:模块结构、依赖关系或技术栈变化时,更新 `PROJECT_INDEX.md` 的定位/目录树/约定(图可用 `geb_sync --graph` 重绘)。只是内部实现变化则无需动,但必须**检查过**才能下这个结论。
-4. **验证**:运行 `python3 scripts/geb_check.py <项目根目录>`,违规清零。若环境不允许执行脚本,则按检查器的逻辑人工对账(L1 存在、L2 覆盖且清单与实际文件一致、L3 标签齐全),并在汇报中说明是人工核验。
-
-完成定义:同构验证通过,任务才算完成。向用户汇报时附一行回环结果,例如:
-`GEB 回环:L3 ✓(export_service.py)| L2 ✓(services)| L1 —(无结构变化)`
-
-## 逆向回环(动手之前)
-
-进入新目录或新文件前,先读对应的 L2 / L3。索引就是为这一刻存在的——跳过它等于宣告协议无用。如果阅读时发现文档与代码不符,那就是已经发生的熵:顺手修复,并在汇报中说明。
-
-## 初始化流程(给没有结构的项目搭建)
-
-1. 扫描目录树(排除 `.git`、`node_modules`、构建产物等),理解整体架构。
-2. 先运行 `python3 scripts/geb_arch.py <项目根目录> --out .geb-arch.json --brief .geb-arch.md` 生成机器事实包:入口候选、模块角色候选、依赖边、循环/孤立/legacy 风险。它不是最终文档,只是 AI/人补语义前的证据。
-3. 代码文件较多(约 >20 个)时,再运行 `python3 scripts/geb_scaffold.py <项目根目录>` 生成骨架:静态分析自动填好 `[INPUT]/[OUTPUT]` 和索引清单表,语义处留 `TODO(语义)` 占位。机器只填机器擅长的,语义判断留给你。小项目可跳过此步直接手写。
-4. **自底向上**补全语义:逐个**真读**代码文件、补全 L3 头的 TODO(禁止凭文件名编造)→ 再补每个文件夹 L2 的模块定位(L2 是该文件夹所有 L3 的汇总)→ 最后补 L1 的项目定位与依赖图(L1 是所有 L2 的汇总)。自底向上才能保证每一层都有事实依据;`geb_arch` 里的低置信候选必须读代码确认。
-5. 运行 `geb_check.py --complete` 验证全覆盖且 `TODO(语义)` 占位清零——占位残留就是"半成品同构",不算初始化完成。
-6. 若存在 `CLAUDE.md`,追加协议声明段(模板见 references/templates.md);若不存在,建议用户创建。
-
-## 守护者戒律(禁止行为)
-
-- 孤立修改代码而不更新文档 —— 任务未完成。
-- 新建代码文件不写 L3 头。
-- 删除 / 重命名文件后,L2、L1 中留下幽灵引用。
-- 不读代码、凭文件名编造文档内容 —— 假文档比没有文档更糟,它让人误信。
-- 把回环留给"以后"。以后不存在,熵增不等人。
-
-## 工具
-
-```bash
-python3 scripts/geb_sync.py <项目根目录>             # 机器字段同步:[INPUT] 行、清单表自动重写(--graph 重绘依赖图)
-python3 scripts/geb_check.py <项目根目录>            # 同构检查(结构层),人类可读报告
-python3 scripts/geb_check.py <项目根目录> --strict   # 加查语义漂移:L1 目录提及、L3 [INPUT] 与实际 import 对账
-python3 scripts/geb_check.py <项目根目录> --complete # 加查 TODO(语义) 占位清零(初始化收尾时必跑)
-python3 scripts/geb_check.py <项目根目录> --report   # 末尾输出机器生成的回环行(GEB 回环:L3 ✓ | L2 ✓ | L1 ✓),直接抄进汇报
-python3 scripts/geb_check.py <项目根目录> --emit-facts .geb-facts.json  # 机器事实源(文件/依赖/导出/边/技术栈),逆向回环前先读它省 token
-python3 scripts/geb_check.py <项目根目录> --json     # 机器可读,供脚本/CI 使用
-python3 scripts/geb_arch.py <项目根目录> --out .geb-arch.json --brief .geb-arch.md  # 架构事实包:入口/模块角色/依赖边/风险提示
-python3 scripts/geb_sync.py <项目根目录> --changed   # 只同步 git 有改动的文件/受影响目录,删除与重命名会重建对应清单
-python3 scripts/geb_scaffold.py <项目根目录>         # 确定性脚手架:生成 L3/L2/L1 骨架(幂等,绝不覆盖已有内容)
-python3 scripts/geb_scaffold.py <项目根目录> --dry-run  # 只预览将生成什么
-python3 scripts/geb_adapt.py <项目根目录> --tool <工具名> [--pre-commit] [--ci]  # 用户要求在 Cursor/Codex/Cline 等其他工具上使用协议时,用它注入规则文件并安装硬约束
-```
-
-检查项:L1 存在性、L2 覆盖率、L3 覆盖率、L2 清单与实际文件对账(缺漏条目 + 幽灵条目)。退出码非 0 = 两相不同构。
+用户要求安装提交检查或团队 CI 时运行 `python3 <skill-dir>/scripts/geb_adapt.py <root> --tool codex --pre-commit --ci`。提交钩子检查暂存快照;已有非托管钩子会保留并生成待合并旁路文件,安装输出须如实说明。普通开发不改全局 Git 配置或覆盖已有钩子。

@@ -16,6 +16,14 @@ A toolkit that turns the *GEB Fractal Documentation Protocol* into an everyday w
 
 Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex, Cursor, Windsurf, Cline (with DeepSeek or any model), Copilot, even web chat — one command plugs them all into the same protocol and the same hard constraints. See [Works with any tool, any model](#works-with-any-tool-any-model).
 
+## v2.4: Codex and Measured Usage
+
+Requires Python 3.9+. `geb_arch.py` generates architecture candidates from shared dependency facts, with file-level evidence and unresolved imports. Scores are heuristics, not calibrated probabilities. Sync preserves non-code ledger rows and handles empty directories and Unicode Git paths. Commit hooks validate the staged snapshot.
+
+Install this repository as `~/.codex/skills/fugue-docs` for Codex. An explicit default in `~/.codex/AGENTS.md` can enable Fugue for future development tasks while preserving project-specific rules. Existing projects are adopted when worked on, not rewritten in bulk.
+
+`scripts/geb_metrics.py` records observed task token intervals in `~/.codex/fugue/metrics/`. Savings stay unknown without an independent, quality-reviewed comparison on the same task, model and revision. Negative differences remain negative. See [accounting details](references/token-accounting.md) and [tests](evals/README.md). CI runs boundary tests and self-checks on macOS/Linux with Python 3.9/3.14.
+
 ## Origin & Credits
 
 The protocol's founding ideas come from **Zhao Chunxiang (chunxiang)**'s "GEB Fractal Documentation System Protocol" (the L1/L2/L3 index, self-referencing updates, the loop), inspired by Douglas Hofstadter's *Gödel, Escher, Bach*. The original official implementation (CLI + Claude Code plugin + VSCode extension) lives at [Claudate/project-multilevel-index](https://github.com/Claudate/project-multilevel-index) (MIT).
@@ -35,9 +43,9 @@ fugue-docs is an **independent implementation and an independent evolution**: it
 
 ### Six design principles
 
-1. **Isomorphism is verifiable, not a slogan**: `geb_check.py` checks in two layers — **structural** (default, zero false positives): L1 existence, L2 coverage, L3 tag completeness, ledger reconciliation (missing + ghost entries); **semantic drift** (`--strict`, conservative heuristics): does L1 mention every top-level code directory, does each L3 `[INPUT]` keep up with actual imports. Non-zero exit = phases out of sync; CI-ready. Deeper semantic sync is the AI loop's job — an explicit division of labor, not a gap. A CLAUDE.md only counts as an index when it carries GEB protocol markers, closing the "prose CLAUDE.md adopts the protocol in name only" loophole. This repo checks itself with `--strict` in CI.
+1. **Isomorphism is verifiable, not a slogan**: `geb_check.py` checks in two layers — **structural** (default): L1 existence, L2 coverage, L3 tag completeness, ledger reconciliation (missing + ghost entries); **semantic drift** (`--strict`, conservative heuristics): does L1 mention every top-level code directory, does each L3 `[INPUT]` keep up with actual imports. Non-zero exit = phases out of sync; CI-ready. Deeper semantic sync is the AI loop's job — an explicit division of labor, not a gap. A CLAUDE.md only counts as an index when it carries GEB protocol markers, closing the "prose CLAUDE.md adopts the protocol in name only" loophole. This repo checks itself with `--strict` in CI.
 2. **The loop is a hard constraint, not model goodwill**: three gates, enable as needed — Claude Code Stop hook (before finishing), git pre-commit hook (before committing), CI (before merging). See "Hard-constraint mode" below.
-3. **The machine phase is fully automated; only the semantic phase needs intelligence**: at initialization the scaffolder generates the skeleton statically (semantics left as `TODO`); during maintenance `geb_sync` treats `[INPUT]` lines and ledger tables as **views regenerated from code** — derived data is never hand-copied or reconciled, eliminating that half of drift at the root. The machine never pretends to understand semantics.
+3. **The machine phase is fully automated; only the semantic phase needs intelligence**: at initialization the scaffolder generates the skeleton statically (semantics left as `TODO`); during maintenance `geb_sync` treats `[INPUT]` lines and ledger tables as **views regenerated from code** — derived data is never hand-copied or reconciled, reducing machine-field drift within the parser's tested coverage. The machine never pretends to understand semantics.
 4. **Layer count scales with complexity — it is not dogma**: the protocol's invariants are "every semantic boundary has a locatable index, indexes declare coverage, entities backlink, machines verify, costs stay proportional"; L1/L2/L3 is just the default profile — small projects (≤20 files) automatically drop to two layers (ledger folded into L1), and the **recursive fractal** extends upward: a subdirectory with its own `PROJECT_INDEX.md` is a subproject (its L1 doubles as the parent's L2) with automatic recursive checking and syncing — native monorepo support. No headers for generated files / configs / vendored deps.
 5. **Bottom-up initialization**: L3 comes from reading code, L2 summarizes L3, L1 summarizes L2 — every level grounded in facts. Fabricated docs are worse than no docs.
 6. **Transparent and auditable**: every task ends with a loop report line `GEB loop: L3 ✓ | L2 ✓ | L1 —`; when sandboxes forbid script execution, fall back to manual reconciliation following the checker's logic, stated honestly.
@@ -98,7 +106,7 @@ It modifies the target project's rule files, `.git/hooks/`, and `.github/workflo
 
 Injection is **idempotent**: the protocol lives between `GEB-PROTOCOL BEGIN/END` markers, re-runs update in place, and the rest of your rule file is never touched. The `--pre-commit` hook is self-contained (the checker is copied alongside), with no dependency on this repository. For low-context models or tools with rule-size limits, add `--compact` to inject a ~300-word edition of the protocol.
 
-**Why can non-Claude models get close to the same results?** Because the protocol systematically moves the demand for "model discipline" into deterministic tooling: the scaffolder emits an explicit `TODO` worklist, the checker emits an itemized violation list, and pre-commit/CI turn that list into feedback that cannot be ignored. All a model needs is the ability to read an error message and fix accordingly — table stakes for every modern model. Stronger models produce richer semantics, but **structural integrity is guaranteed by the tools, independent of the model**.
+**Why can non-Claude models get close to the same results?** Because the protocol systematically moves the demand for "model discipline" into deterministic tooling: the scaffolder emits an explicit `TODO` worklist, the checker emits an itemized violation list, and pre-commit/CI turn that list into feedback that cannot be ignored. All a model needs is the ability to read an error message and fix accordingly — table stakes for every modern model. Stronger models produce richer semantics, but **structural rules are checked by deterministic tools within their documented coverage**.
 
 ## Components
 
@@ -123,7 +131,7 @@ python3 scripts/geb_scaffold.py /path/to/project           # generate skeleton (
 python3 scripts/geb_scaffold.py /path/to/project --dry-run # preview only
 ```
 
-`[INPUT]` comes from import analysis, `[OUTPUT]` from export analysis (AST for Python, pattern matching for the rest — C/C++/C#/Ruby/PHP/Swift/Shell/Scala/Lua/Objective-C and more; all 29 code extensions have a dedicated analyzer); the directory tree and a draft Mermaid dependency graph are generated alongside. Semantic spots — `[POS]`, module roles — are left as `TODO` placeholders. Initializing a large project drops from "deep-read every file" to "fill in the semantics": most tokens saved, no machine-fabricated fake semantics.
+`[INPUT]` comes from import analysis, `[OUTPUT]` from export analysis (AST for Python, pattern matching for the rest — C/C++/C#/Ruby/PHP/Swift/Shell/Scala/Lua/Objective-C and more; recognized code extensions use language-specific best-effort analyzers); the directory tree and a draft Mermaid dependency graph are generated alongside. Semantic spots — `[POS]`, module roles — are left as `TODO` placeholders. Initializing a large project drops from "deep-read every file" to "fill in the semantics": less manual fact transcription; net token savings still require controlled measurements.
 
 ### Hard-constraint mode (optional, recommended)
 
@@ -161,13 +169,9 @@ Method: 3 realistic scenarios × with/without the skill, each side executed by a
 | Maintain the loop after adding a feature | **5/5** | 5/5 | 140s / 139s | 24.4k / 21.8k |
 | Clean up ghost references after a refactor | **6/6** | 6/6 | 127s / 110s | 24.9k / 21.0k |
 
-Three findings worth unpacking:
+The table records one run per scenario. Initialization took 222s versus 367s in that run; this does not establish a general 40% speedup. All three skill runs used more tokens than their baselines. Benefits of the newer programmatic pipeline require separate controlled measurements.
 
-**① The gap is in "establishing structure from zero" — and the skill is 40% faster there.** Baseline AI writes decent docs (entry docs, folder notes, even invents its own check script) but never produces machine-readable L3 headers — exactly the structured semantic layer that lets the next AI session understand the project instantly. With-skill initialization took 222s vs 367s baseline: the protocol provides the recipe, so the AI doesn't reinvent a documentation system on the spot.
-
-**② Once established, the protocol sustains itself — self-reference works as designed.** On projects that already have the GEB structure, even the **skill-less** baseline updated the indexes by following the `[PROTOCOL]` self-reference lines (which is why both sides pass the latter two scenarios). In other words: the skill's job is to establish the structure correctly; the structure keeps itself alive. The skill also covers the no-cues case and supplies the hard guarantees.
-
-**③ The daily maintenance tax is tiny.** On structured projects, the skill costs only ~3k extra tokens (the fixed cost of reading the protocol) with near-identical time. With the scaffolder, large-project initialization drops further from "deep-read everything" to "fill in semantics". A small tax for "any AI or newcomer understands the project on arrival".
+The published v2.3 result of 30/30 represents six deterministic groups repeated five times, not 30 independent scenarios. It tests repeatability within that coverage, not semantic quality or token savings. The comprehension grader uses keyword proxies and requires separate quality review; missing token counts remain unknown.
 
 ## Project status & boundaries of applicability
 

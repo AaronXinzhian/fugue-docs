@@ -1,18 +1,21 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 argparse, json, os, shutil, subprocess, sys, tempfile
+[INPUT]: 依赖 argparse, hashlib, io, json, os, shutil, subprocess, sys, tempfile, unittest
 [OUTPUT]: 提供 fugue-docs 确定性回归套件:多轮验证架构候选、同步、检查器、适配器、理解评分器与仓库自检
 [POS]: fugue-docs 评测包-回归测试入口(面向发布前/外部复核的可复跑证据)
 [PROTOCOL]: 测试项或输出结构变更时同步更新 evals/README.md、evals/FOLDER_INDEX.md 与测试结果文档
 """
 
 import argparse
+import hashlib
+import io
 import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import unittest
 
 WS = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(WS, ".."))
@@ -166,7 +169,8 @@ def test_comprehension_grader(tmp):
     r = run([sys.executable, os.path.join(WS, "grade_comprehension.py"), path])
     require(r.returncode == 0, r.stderr)
     data = json.loads(r.stdout)
-    require(data["comparison"]["healthy"], "comparison should be healthy")
+    require(data["comparison"]["proxy_healthy"], "mechanical ratios should pass")
+    require(data["comparison"]["healthy"] is None, "unreviewed answers must remain unverified")
     return ok("comprehension_grader",
               "score_ratio=%s token_ratio=%s" % (
                   data["comparison"]["docs_vs_code_score_ratio"],
@@ -214,8 +218,33 @@ def run_round(round_no):
 
 
 def git_commit():
-    r = run(["git", "rev-parse", "--short", "HEAD"])
+    r = run(["git", "rev-parse", "HEAD"])
     return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def source_digest():
+    hashes = {}
+    for base in ("scripts", "evals"):
+        for directory, dirs, names in os.walk(os.path.join(ROOT, base)):
+            dirs[:] = sorted(d for d in dirs if d not in ("__pycache__", "results"))
+            for name in sorted(names):
+                if not name.endswith((".py", ".js", ".json", ".sh")):
+                    continue
+                path = os.path.join(directory, name)
+                with open(path, "rb") as stream:
+                    hashes[os.path.relpath(path, ROOT).replace(os.sep, "/")] = hashlib.sha256(stream.read()).hexdigest()
+    return hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
+
+
+def run_boundaries():
+    suite = unittest.defaultTestLoader.discover(WS, pattern="test_*.py")
+    output = io.StringIO()
+    result = unittest.TextTestRunner(stream=output, verbosity=2).run(suite)
+    return {"tests": result.testsRun,
+            "passed": result.testsRun - len(result.failures) - len(result.errors) - len(result.skipped),
+            "failures": [(test.id(), message) for test, message in result.failures + result.errors],
+            "skipped": [(test.id(), reason) for test, reason in result.skipped],
+            "successful": result.wasSuccessful(), "log": output.getvalue()}
 
 
 def main():
@@ -224,14 +253,20 @@ def main():
                         help="重复轮数,默认 5")
     parser.add_argument("--out", help="写出 JSON 报告")
     args = parser.parse_args()
+    if args.rounds < 1:
+        parser.error("--rounds must be positive")
 
     report = {
         "suite": "fugue-docs deterministic regression suite",
         "rounds_requested": args.rounds,
         "repo": ROOT,
         "commit": git_commit(),
+        "git_dirty": bool(run(["git", "status", "--porcelain"]).stdout.strip()),
+        "source_sha256": source_digest(),
+        "python": sys.version.split()[0],
         "tests": [fn.__name__.replace("test_", "") for fn in TESTS],
         "rounds": [run_round(i + 1) for i in range(args.rounds)],
+        "boundary_tests": run_boundaries(),
     }
     total = sum(len(r["results"]) for r in report["rounds"])
     failed = sum(r["failed"] for r in report["rounds"])
@@ -246,7 +281,7 @@ def main():
         with open(args.out, "w", encoding="utf-8") as f:
             f.write(text + "\n")
     print(text)
-    return 1 if failed else 0
+    return 1 if failed or not report["boundary_tests"]["successful"] else 0
 
 
 if __name__ == "__main__":

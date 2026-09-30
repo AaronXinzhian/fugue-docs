@@ -1,0 +1,6 @@
+interface:
+  display_name: "赋格文档"
+  short_description: "代码索引、文档同步与实际 token 用量记录"
+  default_prompt: "使用赋格维护当前项目索引,完成校验并记录实际 token 用量。"
+policy:
+  allow_implicit_invocation: true

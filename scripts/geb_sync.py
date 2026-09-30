@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geb_check import (L1_NAMES, L2_NAMES, find_index_file,  # noqa: E402
-                       is_small_project, walk_project)
+                       is_code_file, is_small_project, walk_project)
 from geb_scaffold import analyze_file, mermaid_edges  # noqa: E402
 
 _TODO = "TODO(" + "语义)"
@@ -72,6 +72,11 @@ def _split_row(line):
     return [c.strip() for c in _ROW.match(line).group(1).split("|")]
 
 
+def row_path(cell):
+    link = re.fullmatch(r"\[([^]]+)\]\(([^)]+)\)", cell.strip())
+    return (link.group(2) if link else cell).strip("`").removeprefix("./")
+
+
 def rebuild_table(index_path, files, analyses, dry=False, headings=None):
     """重建索引中清单表的数据行:行集合 = 实际文件(增列删清),
     '职责'列沿用旧值(没有则 TODO),'关键导出'列由分析结果重写。
@@ -98,12 +103,15 @@ def rebuild_table(index_path, files, analyses, dry=False, headings=None):
     while end < len(lines) and _ROW.match(lines[end]):
         cells = _split_row(lines[end])
         if cells and cells[0]:
-            old[cells[0].strip("`")] = cells
+            old[row_path(cells[0])] = cells
         end += 1
     # 生成新数据行
     export_col = next((j for j, h in enumerate(header) if "导出" in h), None)
     duty_col = next((j for j, h in enumerate(header) if "职责" in h), None)
     new_rows = []
+    # Only code rows belong to the generator. Keep human-maintained rows verbatim.
+    preserved = [lines[i] for i in range(tbl + 2, end)
+                 if not is_code_file(row_path(_split_row(lines[i])[0]))]
     for f in files:
         cells = list(old.get(f, [])) or [f] + [""] * (ncol - 1)
         cells += [""] * (ncol - len(cells))
@@ -115,7 +123,7 @@ def rebuild_table(index_path, files, analyses, dry=False, headings=None):
             exports = analyses.get(f, ([], []))[1]
             cells[export_col] = ", ".join(exports) if exports else "—"
         new_rows.append("| " + " | ".join(cells) + " |" + nl)
-    new_lines = lines[: tbl + 2] + new_rows + lines[end:]
+    new_lines = lines[: tbl + 2] + new_rows + preserved + lines[end:]
     new_text = "".join(new_lines)
     if new_text == text:
         return False
@@ -146,7 +154,7 @@ def rebuild_graph(l1_path, root, dir_map, analyses_by_file, dry=False):
 # ---------------- 主流程 ----------------
 
 def _norm_rel(path):
-    return os.path.normpath(path).replace("\\", "/")
+    return os.path.normpath(path).replace(os.sep, "/")
 
 
 def _rel_dir(path):
@@ -173,29 +181,32 @@ def git_changed(root):
     拿不到 git 信息则返回 None,由调用方退回全量同步。
     """
     try:
-        r = subprocess.run(["git", "-C", root, "diff", "--name-status", "HEAD"],
+        r = subprocess.run(["git", "-C", root, "diff", "--relative", "--name-status", "-z", "HEAD"],
                            capture_output=True, text=True, timeout=15)
         if r.returncode != 0:
             return None
-        u = subprocess.run(["git", "-C", root, "ls-files", "--others",
+        u = subprocess.run(["git", "-C", root, "ls-files", "-z", "--others",
                             "--exclude-standard"],
                            capture_output=True, text=True, timeout=15)
+        if u.returncode != 0:
+            return None
         files, dirs = set(), set()
-        for line in r.stdout.splitlines():
-            parts = line.split("\t")
-            if not parts or not parts[0]:
+        fields = iter(r.stdout.rstrip("\0").split("\0"))
+        for status in fields:
+            if not status:
                 continue
-            status = parts[0]
-            paths = parts[1:]
-            if status.startswith(("R", "C")) and len(paths) >= 2:
-                old, new = _norm_rel(paths[0]), _norm_rel(paths[1])
+            first = next(fields)
+            if status.startswith(("R", "C")):
+                old, new = _norm_rel(first), _norm_rel(next(fields))
                 files.add(new)
                 dirs.update({_rel_dir(old), _rel_dir(new)})
-            elif paths:
-                rel = _norm_rel(paths[-1])
+            else:
+                rel = _norm_rel(first)
                 files.add(rel)
                 dirs.add(_rel_dir(rel))
-        for line in u.stdout.splitlines():
+        for line in u.stdout.split("\0"):
+            if not line:
+                continue
             rel = _norm_rel(line)
             if rel:
                 files.add(rel)
@@ -207,7 +218,7 @@ def git_changed(root):
 
 def sync(root, graph=False, dry_run=False, prefix="", scope=None):
     subprojects = []
-    dir_map = walk_project(root, subprojects)
+    dir_map = walk_project(root, subprojects, include_indexes=True)
     analyses_by_file = {
         (d, f): analyze_file(os.path.join(root, d, f))
         for d, files in dir_map.items() for f in files
@@ -240,8 +251,8 @@ def sync(root, graph=False, dry_run=False, prefix="", scope=None):
                 if r:
                     changed.append("[L1] %s%s" % (prefix + os.path.relpath(l1, root), suffix))
     for d, files in sorted(dir_map.items()):
-        if handled_small:
-            break
+        if handled_small and (d == "." or not find_index_file(os.path.join(root, d), L2_NAMES)):
+            continue
         if scope is not None and not (
                 _scope_has_dir(scope, d) or _scope_has_file(scope, d, files)):
             continue

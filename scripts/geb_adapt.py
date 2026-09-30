@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-[INPUT]: 依赖 argparse, os, re, shutil, stat, sys
+[INPUT]: 依赖 argparse, os, re, shutil, stat, subprocess, sys
 [OUTPUT]: 提供一键适配命令——把 GEB 协议注入各 AI 工具的规则文件,并可安装 pre-commit / CI 硬约束
 [POS]: fugue-docs 工具层-通用性适配器(让 Codex/Cursor/Cline/Copilot/任意模型用户一条命令接入)
 [PROTOCOL]: 变更时更新此头部,然后检查 SKILL.md 与 README 中对本脚本的描述
@@ -20,6 +20,7 @@ import os
 import re
 import shutil
 import stat
+import subprocess
 import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -40,13 +41,13 @@ TOOLS = {
 }
 
 PRE_COMMIT_SH = """#!/bin/sh
-# GEB-MANAGED-HOOK v3(由 fugue-docs geb_adapt.py 安装;此标记用于安全更新,请勿删除)
+# GEB-MANAGED-HOOK v4(由 fugue-docs geb_adapt.py 安装;此标记用于安全更新,请勿删除)
 # 跳过一次检查:git commit --no-verify
 REPO_ROOT="$(git rev-parse --show-toplevel)" || exit 0
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
-CHECKER="${GEB_CHECK:-$HOOK_DIR/geb_check.py}"
-# 采纳判定由 geb_check --if-adopted 统一负责(单一事实源),未采纳项目零打扰
-if ! python3 "$CHECKER" "$REPO_ROOT" --if-adopted; then
+CHECKER="${GEB_STAGED:-$HOOK_DIR/geb_staged.py}"
+# 检查暂存快照,未采纳项目由 staged checker 放行。
+if ! python3 "$CHECKER" "$REPO_ROOT" --strict --complete; then
     echo "" >&2
     echo "GEB: 代码与文档两相不同构,提交被拒绝。请完成 L3->L2->L1 回环后再提交。" >&2
     exit 1
@@ -64,7 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run geb_check
-        run: python3 scripts/geb/geb_check.py .
+        run: python3 scripts/geb/geb_check.py . --strict --complete
 """
 
 
@@ -116,16 +117,22 @@ GEB 协议配套工具(由 fugue-docs geb_adapt.py 复制安装),供本项目的
 | 文件 | 职责 | 关键导出 |
 |------|------|----------|
 | geb_arch.py | 架构事实与候选生成器(入口/模块角色/依赖边/风险提示/AI handoff brief) | 命令行工具,--out JSON,--brief Markdown |
+| geb_facts.py | 共享依赖事实解析 | dependency_facts() |
+| geb_metrics.py | Codex token 用量与对照账本 | main() |
 | geb_check.py | 同构性检查器(L1/L2/L3 覆盖与台账对账) | 命令行工具,--json 供 CI |
 | geb_scaffold.py | 确定性脚手架(静态分析生成 L3/L2/L1 骨架) | 命令行工具,--dry-run 预览 |
 | geb_sync.py | 机器字段同步器(重写 [INPUT] 与索引清单表,语义列保留) | 命令行工具,--changed 增量同步 |
+| geb_staged.py | 暂存快照检查器 | check_staged() |
 """
+
+COPY_TOOLS = ("geb_arch.py", "geb_check.py", "geb_facts.py", "geb_metrics.py", "geb_scaffold.py",
+              "geb_sync.py", "geb_staged.py")
 
 
 def copy_tools(root):
     dest = os.path.join(root, "scripts", "geb")
     os.makedirs(dest, exist_ok=True)
-    for name in ("geb_arch.py", "geb_check.py", "geb_scaffold.py", "geb_sync.py"):
+    for name in COPY_TOOLS:
         shutil.copy(os.path.join(SCRIPT_DIR, name), os.path.join(dest, name))
     # 工具自带 L2 索引——安装工具这件事本身不能破坏同构
     l2 = os.path.join(dest, "FOLDER_INDEX.md")
@@ -136,12 +143,15 @@ def copy_tools(root):
 
 
 def install_pre_commit(root):
-    hooks_dir = os.path.join(root, ".git", "hooks")
-    if not os.path.isdir(hooks_dir):
+    result = subprocess.run(["git", "-C", root, "rev-parse", "--git-path", "hooks"],
+                            capture_output=True, text=True)
+    if result.returncode:
         return "跳过 pre-commit:%s 不是 git 仓库(先 git init)" % root
+    hooks_dir = os.path.abspath(os.path.join(root, result.stdout.strip()))
+    os.makedirs(hooks_dir, exist_ok=True)
     # 自包含:检查器随钩子一起放进 .git/hooks/
-    shutil.copy(os.path.join(SCRIPT_DIR, "geb_check.py"),
-                os.path.join(hooks_dir, "geb_check.py"))
+    for name in ("geb_staged.py", "geb_check.py", "geb_scaffold.py", "geb_facts.py"):
+        shutil.copy(os.path.join(SCRIPT_DIR, name), os.path.join(hooks_dir, name))
     target = os.path.join(hooks_dir, "pre-commit")
     if os.path.isfile(target):
         with open(target, encoding="utf-8", errors="replace") as f:
@@ -184,7 +194,7 @@ def main():
     parser.add_argument("--ci", action="store_true",
                         help="生成 GitHub Actions 检查工作流,并复制工具到项目 scripts/geb/")
     parser.add_argument("--copy-tools", action="store_true",
-                        help="把 geb_arch.py / geb_check.py / geb_scaffold.py / geb_sync.py 复制到项目 scripts/geb/")
+                        help="把架构、事实、检查、同步、暂存校验和计量工具复制到 scripts/geb/")
     parser.add_argument("--compact", action="store_true",
                         help="注入精简版协议(约 300 词,供低上下文模型/规则字数受限的工具)")
     parser.add_argument("--dry-run", action="store_true",
@@ -203,11 +213,11 @@ def main():
     # 写入位置预告:本工具会修改目标项目的以下位置,先亮牌
     planned = [TOOLS[t] for t in tools]
     if args.pre_commit:
-        planned.append(".git/hooks/pre-commit(+ geb_check.py 副本)")
+        planned.append("git hooks/pre-commit(+ 暂存检查器及依赖副本)")
     if args.ci:
         planned.append(".github/workflows/geb-check.yml")
     if args.ci or args.copy_tools:
-        planned.append("scripts/geb/(geb_arch.py、geb_check.py、geb_scaffold.py、geb_sync.py、FOLDER_INDEX.md)")
+        planned.append("scripts/geb/(%s、FOLDER_INDEX.md)" % "、".join(COPY_TOOLS))
     print("将写入 %s 下的:" % root)
     for p in planned:
         print("  - %s" % p)
@@ -230,7 +240,10 @@ def main():
         print(install_pre_commit(root))
     if args.ci:
         print(install_ci(root))
-    print("\n完成。建议初始化:python3 scripts/geb/geb_scaffold.py . && 让你的 AI 补全 TODO(语义)")
+    if args.ci or args.copy_tools:
+        print("\n完成。使用项目 scripts/geb/ 中的 geb_arch.py、geb_scaffold.py 初始化,再补全语义并检查。")
+    else:
+        print("\n完成。工具尚未复制;用 --copy-tools 安装后,再运行 scripts/geb/geb_arch.py。")
     return 0
 
 
