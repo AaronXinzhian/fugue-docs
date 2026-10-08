@@ -21,6 +21,16 @@ python3 <skill-dir>/scripts/geb_metrics.py report --root <project-root>
 
 记录覆盖的是快照区间，可能受遥测写入延迟影响；结束后发送的回复及未合并的子代理会话不在该区间内。任务中途才开始计量时，只能称后续区间用量。跨任务总数包含基线试验成本，不能当作账单或余额。
 
+## Claude Code 钩子计量
+
+装了插件钩子的 Claude Code 不需要模型调用 `start`/`finish`。会话开始钩子记下对话记录中已有的用量作为起点;每轮结束和会话结束时,钩子重新累计对话记录,写入 `~/.claude/fugue/metrics/` 中以会话为单位的记录(`agent: claude-code`,`task: claude-session`),可用 `geb_metrics.py --ledger ~/.claude/fugue/metrics report` 汇总。`FUGUE_DATA_DIR` 可改账本位置。
+
+- 同一条助手消息在对话记录中可能分多行写入,按消息 ID 去重并取各字段最大值。
+- 口径与 Codex 账本一致:`input_tokens` 含缓存读取和缓存写入,`cached_input_tokens` 是缓存读取(输入的子集),`uncached_input_tokens` 是普通输入加缓存写入。缓存写入单列为 `cache_creation_input_tokens`,其计费通常高于普通输入。
+- 对话记录格式是 Claude Code 的内部格式,可能随版本变化。读不到、没有新消息时记为未知;计数比起点小(对话记录被截断或换文件)记为 `counter_reset`,都不记成零。
+- 写在其他文件里的子代理对话不计入;同一文件中标记为 `isSidechain` 的消息计入并单独计数。
+- 记录同时保存钩子介入次数(`maintenance.blocks`)和回灌给模型的提示字数,便于分离维护开销。
+
 ## 每次任务的收益单
 
 `finish --receipt` 或 `receipt <run-id>` 输出实际输入/缓存/输出、耗时、验收、文档阶段和对照差值。`elapsed_seconds` 是 start 到 finish 的墙钟时间,含等待,不是模型运行时间。`--outcome passed|failed|partial --evidence <测试日志>` 只表示调用方记录的验收,保存文件路径和 SHA-256,不能替代独立质量审查。不提供时显示 `unreviewed`。

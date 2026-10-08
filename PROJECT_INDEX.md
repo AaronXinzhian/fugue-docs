@@ -15,6 +15,7 @@ fugue-docs/
 ├── adapters/          # 协议可移植核心(中/英),万模通用的单一事实来源
 ├── agents/            # Codex 技能展示与隐式调用策略
 ├── assets/            # logo 等静态资源
+├── hooks/             # Claude Code 插件钩子登记(无代码)
 ├── evals/             # 评测包:用例、夹具、评分器、三组试点与安全启动入口 → evals/FOLDER_INDEX.md
 ├── references/        # L1/L2/L3 多语言模板库
 └── scripts/           # 全部可执行工具 → scripts/FOLDER_INDEX.md
@@ -31,6 +32,11 @@ graph TD
     geb_sync --> geb_check
     geb_sync --> geb_scaffold
     geb_stop_hook --> geb_check
+    geb_hook --> geb_check
+    geb_hook --> geb_scaffold
+    geb_hook --> geb_sync
+    geb_hook --> geb_metrics
+    geb_hook --> Claude_transcript
     geb_adapt --> geb_check
     geb_adapt --> adapters_PROTOCOL
     pre_commit_hook --> geb_check

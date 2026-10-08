@@ -16,6 +16,17 @@
 
 Claude Code スキルとしての利用が最良の体験ですが、設計上**モデル非依存**です:Codex、Cursor、Windsurf、Cline(DeepSeek など任意のモデル)、Copilot、さらには Web チャットまで、コマンド一発で同じプロトコルと同じハード制約に接続できます。詳細は「あらゆるツール・モデルで使える」の節を参照してください。
 
+## v2.7: Claude Code フックでモデルは意味だけを担当
+
+最初の三群試験では、小さな変更に対して完全な Fugue フローが索引のみより非キャッシュ入力と出力の合計を 44%–82% 多く使いました。主な原因は、モデルがスキル文書を読み直し、計量・同期・検査スクリプトを自分で実行していたことです。v2.7 ではこれをプログラムに任せます。
+
+- **モデル自身が書いたファイルだけ**:モデルが編集・書き込みツールを使う前に対象ファイルを記録し、シェルコマンドの前後で未コミット変更を比較して、そのコマンドが変えたコードファイルを記録します。checkout・pull・merge・stash pop などの git コマンドで入ったファイル、ユーザー自身の変更、同じリポジトリの別セッションが書いたファイルは含めません。コミット済み、元に戻ったもの、ターンの合間にユーザーが再び変更したものは記録から外します。セッション開始時はコンテキストに 1 行の案内だけを追加します。
+- **各ターン終了**:このセッションが書き、まだ差分があり、未コミットのコードファイルだけを扱います。merge や rebase の途中は何も書き込みません。競合や構文エラーのあるファイル、UTF-8 以外のファイル、生成コード、プロジェクト外を指すシンボリックリンクは個別に飛ばし、一覧の既存の機械フィールドはそのまま残します。新規ファイルには L3 ヘッダーの骨格を入れ、依存と一覧は `geb_sync` が差分同期します。関数本体だけの変更は何も出力しません。新規ファイルの `[POS]`、一覧の役割、export 変更後の `[OUTPUT]`、新ディレクトリの位置付けといった意味の欠落だけを短い指示でモデルに渡し、内容が変わらない限り同じ欠落は一度しか伝えません。
+- **計量**:Claude Code の会話記録からメッセージ単位で重複を除いて実使用量を集計し、Codex と互換の形式で `~/.claude/fugue/metrics` に記録します。会話記録の形式は公開インターフェースではないため、読めない場合はゼロではなく不明とします。
+- **SKILL.md** 本文は約 4 割小さくなりました。フック導入後は通常のコーディングでスキルを呼ぶ必要がなく、Codex など向けの手動手順は [references/manual-workflow.md](references/manual-workflow.md) に移しました。
+
+プラグインマーケットからインストールするとフック(`hooks/hooks.json`)が有効になり、索引のないプロジェクトには干渉しません。`settings.json` に `geb_stop_hook.py` を手動登録していた場合は、Stop フックが二重に動かないよう削除してください。本リリースはまだ実モデルでの対照測定をしていないため、削減効果は今後の試験で確認が必要です。
+
 ## v2.5: タスク別レポートと計量診断
 
 実測 token、経過時間、検証結果、対照状態をタスクごとに表示します。読み取り専用インデックスで Codex の分割ログを検出し、計量カバー率と欠測理由を示します。欠測はゼロではなく、品質確認済みの対照がなければ削減量は不明です。[計量説明](references/token-accounting.md) と [予算制限付き試験](evals/token-pilot.md) を参照してください。
@@ -126,7 +137,10 @@ fugue-docs/
 ├── scripts/geb_check.py           # 同型性チェッカー(単体利用可、CI 対応)
 ├── scripts/geb_scaffold.py        # 決定論的スキャフォールド(静的解析)
 ├── scripts/geb_adapt.py           # 汎用アダプタ:任意ツールへ注入 + ハード制約導入
-├── scripts/geb_stop_hook.py       # Claude Code Stop フック:ループ未完なら終了不可
+├── scripts/geb_hook.py            # Claude Code フック:セッション基準、自動同期、意味の欠落の指示、会話記録の計量
+├── scripts/geb_stop_hook.py       # 旧版 Stop フック:全体検査、違反があれば終了不可
+├── hooks/hooks.json               # プラグイン同梱のフック登録
+├── references/manual-workflow.md  # フックのないツール(Codex など)の手動手順
 ├── scripts/git-pre-commit-hook.sh # git pre-commit フック:ツール非依存のハード制約
 ├── .claude-plugin/                # マーケットプレイス配布マニフェスト
 └── evals/evals.json               # テストケースとアサーション(再実行可能)
@@ -143,25 +157,28 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # プレビューの�
 
 ### ハード制約モード(任意、推奨)
 
-**Claude Code ユーザー**:ループ検査を Stop フックとして登録——ルートに `PROJECT_INDEX.md` があるプロジェクト(=プロトコル採用済み)では、両相が不一致の間 Claude は**ターンを終了できません**。違反一覧がフィードバックされ、ループ完了まで作業が続きます。未採用プロジェクトには一切干渉しません。`~/.claude/settings.json` に追加:
+**Claude Code ユーザー**:プラグインを入れるとフックが自動で有効になります。ルートに `PROJECT_INDEX.md` があるプロジェクト(=プロトコル採用済み)では、各ターン終了時に機械フィールドを同期し、このセッションで生じた意味の欠落だけをモデルに渡します。未採用プロジェクトには一切干渉しません。スキルを手動で入れた場合は `~/.claude/settings.json` に追加:
 
 ```json
 {
   "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_stop_hook.py\"",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
+    "SessionStart": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-start"}]}],
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" prompt"}]}],
+    "PreToolUse": [{"matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" pre-tool"}]}],
+    "PostToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" post-tool"}]}],
+    "Stop": [{"hooks": [{"type": "command", "timeout": 60,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" stop"}]}],
+    "SessionEnd": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-end"}]}]
   }
 }
 ```
+
+フックはこのセッションで変更し、まだコミットしていないファイルだけを扱うため、以前からのずれでモデルが止められることはありません。それは pre-commit と CI に任せます。小規模プロジェクトの上限を超えたときは、L1 に書かれた役割を新しく作る FOLDER_INDEX.md に移し、失いません。`FUGUE_HOOK_QUIET=1` でセッション開始時の案内を無効にできます。旧版 `geb_stop_hook.py` も残しています。プロジェクト全体を検査し、違反があれば終了を止める最も厳しい設定です。`geb_hook.py stop` と同時に登録しないでください。
 
 **他ツールのユーザー**:上記「あらゆるツール・モデルで使える」を参照——`geb_adapt.py --pre-commit` 一発で同じコミットゲートを導入できます(自己完結型、本リポジトリへの依存なし)。両相不一致のコミットは、書いたのが人間でもどの AI でも拒否されます。
 
