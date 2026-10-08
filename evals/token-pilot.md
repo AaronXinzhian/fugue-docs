@@ -1,6 +1,6 @@
 # Token 增量试点
 
-当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。尚未取得完整可比配对,没有节省率结论。
+当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。首轮完成两个三组块后预算停止,有自动验收通过的负差值配对,仍没有普遍节省率或已复核净节省结论。
 
 ## 要回答的问题
 
