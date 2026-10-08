@@ -197,15 +197,38 @@ def dedupe(items):
     return out
 
 
-def analyze_file(path):
-    ext = os.path.splitext(path)[1].lower()
+def analyze_text(text, ext):
+    """按扩展名分析源码文本;供钩子分析 git 历史版本等不在磁盘上的内容。"""
+    inputs, outputs = ANALYZERS.get(ext.lower(), analyze_generic)(text)
+    return dedupe(inputs), dedupe(outputs)
+
+
+def analysis_ok(text, ext):
+    """静态分析是否可靠:有冲突标记,或 Python 文件不能被当前解释器解析(含更新版本的语法)时不可靠。"""
+    if text is None or re.search(r"^(<<<<<<< |>>>>>>> )", text, re.M):
+        return False
+    if ext.lower() == ".py":
+        try:
+            ast.parse(text.lstrip("\ufeff"))
+        except (SyntaxError, ValueError):
+            return False
+    return True
+
+
+def analyze_file_checked(path):
+    """返回 (依赖, 导出, 是否可靠)。不可靠时调用方应保留原有机器字段,而不是写成空。"""
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
             text = f.read()
     except OSError:
-        return [], []
-    inputs, outputs = ANALYZERS.get(ext, analyze_generic)(text)
-    return dedupe(inputs), dedupe(outputs)
+        return [], [], False
+    ext = os.path.splitext(path)[1]
+    inputs, outputs = analyze_text(text, ext)
+    return inputs, outputs, analysis_ok(text, ext)
+
+
+def analyze_file(path):
+    return analyze_file_checked(path)[:2]
 
 
 # ---------------- L3 头生成与插入 ----------------
@@ -237,9 +260,15 @@ def render_header(ext, lines, has_docstring):
 
 
 def insert_header(path, header_text):
+    """插入 L3 头;非 UTF-8 文件返回 False 并保持原样。BOM 保留在文件最前面。"""
     # newline="" 读写,保持文件原有行尾(CRLF 文件不被静默改为 LF)
-    with open(path, encoding="utf-8", errors="replace", newline="") as f:
-        src = f.read()
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            src = f.read()
+    except UnicodeDecodeError:
+        return False
+    bom = "\ufeff" if src.startswith("\ufeff") else ""
+    src = src[len(bom):]
     if "\r\n" in src:
         header_text = header_text.replace("\n", "\r\n")
     src_lines = src.splitlines(keepends=True)
@@ -253,12 +282,13 @@ def insert_header(path, header_text):
         idx += 1
     new = src_lines[:idx] + [header_text] + src_lines[idx:]
     with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write("".join(new))
+        f.write(bom + "".join(new))
+    return True
 
 
 def has_module_docstring(path):
     try:
-        with open(path, encoding="utf-8", errors="replace") as f:
+        with open(path, encoding="utf-8-sig", errors="replace") as f:
             tree = ast.parse(f.read())
         return ast.get_docstring(tree) is not None
     except Exception:  # noqa: BLE001
@@ -384,9 +414,11 @@ def main():
             inputs, outputs = analyses_by_file[(rel_dir, f)]
             text = render_header(ext, header_lines(inputs, outputs),
                                  has_module_docstring(fpath) if ext == ".py" else False)
+            if not args.dry_run and not insert_header(fpath, text):
+                print("[跳过] %s:不是 UTF-8 文本,未插入文件头" % os.path.join(rel_dir, f))
+                skipped += 1
+                continue
             print("[L3] %s" % os.path.join(rel_dir, f))
-            if not args.dry_run:
-                insert_header(fpath, text)
             n_l3 += 1
     # L2(小项目 profile 下整体跳过)
     for rel_dir, files in sorted(dir_map.items()):

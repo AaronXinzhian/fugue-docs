@@ -16,6 +16,17 @@
 
 以 Claude Code skill 为最佳体验,同时**万模通用**:Codex、Cursor、Windsurf、Cline(可接 DeepSeek 等任意模型)、Copilot 乃至网页聊天,一条命令即可接入同一协议与同一套硬约束,详见[「万模通用」](#万模通用任何工具任何模型)一节。
 
+## v2.7: Claude Code 钩子,模型只做语义
+
+首轮三组试点显示,完整赋格流程在小改动上比只有索引多花 44%–82% 的未缓存输入加输出,主要花在模型反复阅读技能文档、亲手执行计量、同步和检查脚本上。v2.7 把这些交给程序:
+
+- **只认模型自己写的文件**:模型用编辑或写文件工具之前,钩子记下目标文件;模型运行命令前后各对比一次,命令改了哪些代码文件就记哪些。切分支、拉取、合并、暂存恢复等 git 命令带来的文件,你自己改的文件,同一仓库里另一个会话写的文件,都不算本会话的。已提交、改回原样、或在两轮之间被你再改过的文件会移出记录。会话开始时只向上下文注入一行导航提示。
+- **每轮结束**:只处理本会话写过、仍有净改动、仍未提交的代码文件。合并或变基进行中本轮不写任何文件;有冲突或语法错误的文件、非 UTF-8 文件、生成代码和指向项目外的符号链接逐个跳过,清单里保留它们原有的机器字段。新文件补 L3 头骨架,依赖与清单由 `geb_sync` 增量同步;只改函数体时完全静默。只有新文件的 `[POS]`、清单职责、导出变化后的 `[OUTPUT]`、新目录定位这几类语义缺口,才以一条简短提示交给模型,同一缺口内容不变时只提示一次。
+- **计量**:从 Claude Code 对话记录按消息去重累计实际用量,写入 `~/.claude/fugue/metrics`,与 Codex 账本格式兼容。对话记录格式不是公开接口,读不到时记为未知,不记成零。
+- **SKILL.md** 正文缩减约四成;装了钩子后,日常写代码不再需要调用技能,手动流程移到 [references/manual-workflow.md](references/manual-workflow.md) 供 Codex 等工具使用。
+
+通过插件市场安装即自动启用钩子(`hooks/hooks.json`),未采用协议的项目零打扰。曾在 `settings.json` 手动登记 `geb_stop_hook.py` 的用户请删除那条配置,避免两个 Stop 钩子同时运行。这一版尚未做真实模型对照,节省效果需要后续试点测量。
+
 ## v2.5: 任务收益单与计量诊断
 
 每次任务可输出实际 token、记录区间耗时、验收结果和对照状态。新增 `doctor` 会话诊断、分页日志发现、有效计量覆盖率与显式阶段记录。无新遥测不记成零,无合格对照不声称节省。使用方式见 [计量说明](references/token-accounting.md),预算受限的重复试点见 [试点设计](evals/token-pilot.md)。
@@ -48,13 +59,13 @@ fugue-docs 是**独立实现与独立演化**:未使用原仓库任何代码,以
 |------|------|
 | 进入陌生项目 | 逆向回环:先读 L1 → L2 → L3,再读代码 |
 | 项目没有文档结构 | 程序生成架构候选与骨架 + 自底向上补语义(真读代码,禁止编造) |
-| 任何代码增删改 | 正向回环:L3 文件头 → L2 文件夹索引 → L1 项目索引,更新完才算完成 |
+| 任何代码增删改 | 正向回环:L3 文件头 → L2 文件夹索引 → L1 项目索引。Claude Code 钩子自动同步机器字段,只把语义缺口交给模型 |
 | 怀疑文档过期 | 跑 `geb_check.py`,违规清单一目了然 |
 
 ### 六个设计要点
 
 1. **同构性是可验证的,不是口号**:`geb_check.py` 分两层检查——**结构层**(默认):L1 存在性、L2 覆盖率、L3 标签齐全度、索引清单与实际文件对账(缺漏 + 幽灵条目,小项目 L1 清单按路径对账);**语义漂移层**(`--strict`,保守启发式):L1 是否提及全部顶级代码目录、L3 `[INPUT]` 是否跟上实际 import。退出码非 0 即两相不同构,可直接挂 CI;更深的语义同步由 AI 回环负责——这是明确分工,不是检查的缺口。CLAUDE.md 仅在包含 GEB 协议标识时才被认作索引,堵住"散文 CLAUDE.md 形式采纳"的漏洞。本仓库自身在 CI 中以 `--strict` 自检。
-2. **回环是硬约束,不靠模型自觉**:三层闸门按需启用——Claude Code 的 Stop 钩子(收工前拦)、git pre-commit 钩(入库前拦)、CI(合并前拦)。详见下文"硬约束模式"。
+2. **回环是硬约束,不靠模型自觉**:三层闸门按需启用——Claude Code 的 Stop 钩子(收工前自动同步并只拦语义缺口)、git pre-commit 钩(入库前拦)、CI(合并前拦)。详见下文"硬约束模式"。
 3. **机器相全程自动化,语义相才需要智能**:初始化时 `geb_arch` 先生成入口/模块角色/依赖边/风险提示的候选事实包,脚手架再静态生成骨架(语义留 `TODO`);维护期 `geb_sync` 把 `[INPUT]` 行与清单表当作**视图**从代码重新生成,`--changed` 能识别删除/重命名的受影响目录——衍生数据不靠手抄、不搞对账,减少机器字段漂移,解析覆盖仍需通过测试验证。机器绝不假装理解语义。
 4. **层数随复杂度伸缩,不是教条**:协议的不变量是"每个语义边界有可定位索引、索引声明覆盖、实体可反链、机器可验证、成本比例",L1/L2/L3 只是默认 profile——小项目(≤20 文件)自动降为 L1+L3 两层(清单并入 L1);**递归分形**向上扩展:子目录含 `PROJECT_INDEX.md` 即子项目(它的 L1 就是父级视角的 L2),检查与同步自动递归——monorepo 原生支持。生成文件、配置、vendored 依赖不加头。
 5. **自底向上初始化**:L3 来自真读代码,L2 是 L3 的汇总,L1 是 L2 的汇总——每一层都有事实依据,杜绝凭文件名编造的假文档(假文档比没有文档更糟)。
@@ -75,6 +86,8 @@ fugue-docs 是**独立实现与独立演化**:未使用原仓库任何代码,以
 git clone https://github.com/AaronXinzhian/fugue-docs.git
 cp -r fugue-docs ~/.claude/skills/fugue-docs
 ```
+
+手动安装不会自动登记钩子,需要按下文[「硬约束模式」](#硬约束模式可选推荐)把 `geb_hook.py` 加入 `~/.claude/settings.json`。
 
 ## 使用方法
 
@@ -133,7 +146,10 @@ fugue-docs/
 ├── scripts/geb_scaffold.py        # 确定性脚手架(静态分析生成骨架)
 ├── scripts/geb_sync.py            # 机器字段同步器([INPUT]、清单、依赖图视图化)
 ├── scripts/geb_adapt.py           # 通用适配器:注入任意工具规则文件 + 装硬约束
-├── scripts/geb_stop_hook.py       # Claude Code Stop 钩子:回环不完成不许收工
+├── scripts/geb_hook.py            # Claude Code 钩子:会话基线、自动同步、语义缺口提示、对话记录计量
+├── scripts/geb_stop_hook.py       # 旧版 Stop 钩子:全量检查,有违规就不许收工
+├── hooks/hooks.json               # 插件自带的钩子登记(SessionStart / Stop / SessionEnd)
+├── references/manual-workflow.md  # 没有钩子的工具(Codex 等)的手动维护流程
 ├── scripts/git-pre-commit-hook.sh # git 提交钩:跨工具硬约束
 ├── .claude-plugin/                # 插件市场分发清单
 └── evals/evals.json               # 测试用例与断言(可复跑)
@@ -158,25 +174,28 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # 只预览
 
 ### 硬约束模式(可选,推荐)
 
-**Claude Code 用户**:把回环检查注册为 Stop 钩子——只要项目根目录有 `PROJECT_INDEX.md`(即已采用协议),Claude 在两相不同构时**无法结束任务**,违规清单会被回灌迫使它完成回环;未采用协议的项目零打扰。加入 `~/.claude/settings.json`:
+**Claude Code 用户**:插件安装后钩子自动生效。只要项目根目录有 `PROJECT_INDEX.md`(即已采用协议),每轮结束时钩子先自动同步机器字段,再把本会话产生的语义缺口回灌给模型补写;未采用协议的项目零打扰。手动安装 skill 的用户在 `~/.claude/settings.json` 加入:
 
 ```json
 {
   "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_stop_hook.py\"",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
+    "SessionStart": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-start"}]}],
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" prompt"}]}],
+    "PreToolUse": [{"matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" pre-tool"}]}],
+    "PostToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" post-tool"}]}],
+    "Stop": [{"hooks": [{"type": "command", "timeout": 60,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" stop"}]}],
+    "SessionEnd": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-end"}]}]
   }
 }
 ```
+
+钩子只处理本会话改过、仍未提交的文件,不会因为项目里早已存在的漂移拦住模型;历史漂移交给 pre-commit 和 CI。项目越过小项目阈值时,钩子会把写在 L1 里的职责迁移到新建的 FOLDER_INDEX.md,不会丢失。设置环境变量 `FUGUE_HOOK_QUIET=1` 可关闭会话开始时的导航提示。旧版 `geb_stop_hook.py` 仍保留:它对全项目做检查,有任何违规就阻止收工,适合想要最严格约束的场景,不要与 `geb_hook.py stop` 同时登记。
 
 **其他工具用户**:见上文[「万模通用」](#万模通用任何工具任何模型)——`geb_adapt.py --pre-commit` 一条命令即可装上同样的提交闸门(自包含,不依赖本仓库),两相不同构时提交直接被拒,无论代码是人写的还是哪家 AI 写的。
 

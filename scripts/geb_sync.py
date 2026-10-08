@@ -24,15 +24,19 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from geb_check import (L1_NAMES, L2_NAMES, find_index_file,  # noqa: E402
                        is_code_file, is_small_project, walk_project)
-from geb_scaffold import analyze_file, mermaid_edges  # noqa: E402
+from geb_scaffold import analyze_file_checked, mermaid_edges  # noqa: E402
 
 _TODO = "TODO(" + "语义)"
 INPUT_TAG = "[INPUT]"
 
 
 def read_keepnl(path):
-    with open(path, encoding="utf-8", errors="replace", newline="") as f:
-        text = f.read()
+    """严格按 UTF-8 读取;解码失败返回 (None, None),调用方跳过,绝不带替换字符写回。"""
+    try:
+        with open(path, encoding="utf-8", newline="") as f:
+            text = f.read()
+    except UnicodeDecodeError:
+        return None, None
     return text, ("\r\n" if "\r\n" in text else "\n")
 
 
@@ -46,6 +50,8 @@ def write_keepnl(path, text):
 def sync_l3_input(filepath, imports, dry=False):
     """把文件头第一条 [INPUT] 行重写为静态分析结果;无 [INPUT] 行则不动(那是脚手架的事)。"""
     text, nl = read_keepnl(filepath)
+    if text is None:
+        return False
     lines = text.splitlines(keepends=True)
     payload = ", ".join(imports) if imports else "(未检出外部依赖)"
     for i, line in enumerate(lines[:60]):
@@ -77,11 +83,13 @@ def row_path(cell):
     return (link.group(2) if link else cell).strip("`").removeprefix("./")
 
 
-def rebuild_table(index_path, files, analyses, dry=False, headings=None):
+def rebuild_table(index_path, files, analyses, dry=False, headings=None, keep_row=None, failed=(), only=None):
     """重建索引中清单表的数据行:行集合 = 实际文件(增列删清),
     '职责'列沿用旧值(没有则 TODO),'关键导出'列由分析结果重写。
     表不存在或表头不含'文件'列时跳过,不强行改造人家的格式。"""
     text, nl = read_keepnl(index_path)
+    if text is None:
+        return None
     lines = text.splitlines(keepends=True)
     # 定位清单表:标题行 → 其后第一个表头行
     heads = headings or TABLE_HEADINGS
@@ -110,16 +118,24 @@ def rebuild_table(index_path, files, analyses, dry=False, headings=None):
     duty_col = next((j for j, h in enumerate(header) if "职责" in h), None)
     new_rows = []
     # Only code rows belong to the generator. Keep human-maintained rows verbatim.
-    preserved = [lines[i] for i in range(tbl + 2, end)
-                 if not is_code_file(row_path(_split_row(lines[i])[0]))]
+    # 根目录表在非小项目模式下只管根目录文件;带目录的行(例如项目刚越过小项目阈值时
+    # 原 L1 清单里的 pkg/x.py)可能写着人工职责:文件仍在、所在目录还没有自己的 L2 时保留,
+    # 交给 L2 迁移;文件已删除或已迁入 L2 后照常清理,不留幽灵行。
+    def keep(line):
+        path = row_path(_split_row(line)[0])
+        return not is_code_file(path) or bool(keep_row and "/" in path and keep_row(path))
+    preserved = [lines[i] for i in range(tbl + 2, end) if keep(lines[i])]
     for f in files:
+        if only is not None and f not in only and f not in old:
+            continue  # 只补本次范围内的新行;范围外缺的行留给检查器报告
         cells = list(old.get(f, [])) or [f] + [""] * (ncol - 1)
         cells += [""] * (ncol - len(cells))
         cells = cells[:ncol]
         cells[0] = f
         if duty_col is not None and not cells[duty_col]:
             cells[duty_col] = _TODO + ":职责"
-        if export_col is not None:
+        if export_col is not None and not (f in failed and f in old) and (only is None or f in only or f not in old):
+            # 解析不可靠(冲突、语法错误、更新版本的语法)时保留原导出列,不写成空
             exports = analyses.get(f, ([], []))[1]
             cells[export_col] = ", ".join(exports) if exports else "—"
         new_rows.append("| " + " | ".join(cells) + " |" + nl)
@@ -139,6 +155,8 @@ def rebuild_graph(l1_path, root, dir_map, analyses_by_file, dry=False):
     if not edges:
         return None  # 算不出边就不动手,绝不拿空图覆盖人写的图
     text, nl = read_keepnl(l1_path)
+    if text is None:
+        return None
     m = re.search(r"(```mermaid\s*?%s)(.*?)(```)" % re.escape(nl), text, re.S)
     if not m:
         return None
@@ -216,20 +234,38 @@ def git_changed(root):
         return None
 
 
-def sync(root, graph=False, dry_run=False, prefix="", scope=None):
+class _LazyAnalyses(dict):
+    """按需解析:增量同步只解析变更文件和受影响目录,大仓库里钩子每轮也能快速返回。
+    解析不可靠的文件记入 failed:不重写其 [INPUT],清单表保留其原导出列。"""
+
+    def __init__(self, root):
+        super().__init__()
+        self.root = root
+        self.failed = set()
+
+    def __missing__(self, key):
+        inputs, outputs, ok = analyze_file_checked(os.path.join(self.root, key[0], key[1]))
+        if not ok:
+            self.failed.add(key)
+        self[key] = (inputs, outputs)
+        return self[key]
+
+
+def sync(root, graph=False, dry_run=False, prefix="", scope=None, scope_rows_only=False):
+    """scope_rows_only:只新增、刷新范围内文件的行(钩子用),范围外的行原样保留,文件已删除的行照常清理。"""
     subprojects = []
     dir_map = walk_project(root, subprojects, include_indexes=True)
-    analyses_by_file = {
-        (d, f): analyze_file(os.path.join(root, d, f))
-        for d, files in dir_map.items() for f in files
-    }
+    analyses_by_file = _LazyAnalyses(root)
     changed = []
     suffix = "(dry-run)" if dry_run else ""
 
-    for (d, f), (imports, _o) in sorted(analyses_by_file.items()):
+    for d, f in sorted((d, f) for d, files in dir_map.items() for f in files):
         rel = _norm_rel(os.path.join(d, f))
         if scope is not None and rel not in scope["files"]:
-            continue  # --changed 增量:未动过的文件不碰
+            continue  # --changed 增量:未动过的文件不碰,也不解析
+        imports = analyses_by_file[(d, f)][0]
+        if (d, f) in analyses_by_file.failed:
+            continue
         if sync_l3_input(os.path.join(root, rel), imports, dry=dry_run):
             changed.append("[L3] %s%s" % (prefix + rel, suffix))
 
@@ -238,14 +274,18 @@ def sync(root, graph=False, dry_run=False, prefix="", scope=None):
     if is_small_project(dir_map):
         l1 = find_index_file(root, L1_NAMES)
         if l1 and (scope is None or scope["files"] or scope["dirs"]):
-            names, analyses = [], {}
+            names, analyses, failed = [], {}, set()
             for d, files in sorted(dir_map.items()):
                 for f in sorted(files):
                     name = _norm_rel(os.path.join(d, f))
                     names.append(name)
                     analyses[name] = analyses_by_file[(d, f)]
+                    if (d, f) in analyses_by_file.failed:
+                        failed.add(name)
+            only = ({n for n in names if n in scope["files"]}
+                    if scope is not None and scope_rows_only else None)
             r = rebuild_table(l1, names, analyses, dry=dry_run,
-                              headings=("## 文件清单",))
+                              headings=("## 文件清单",), failed=failed, only=only)
             if r is not None:  # L1 没有该标题时回落到默认逐目录处理
                 handled_small = True
                 if r:
@@ -261,10 +301,21 @@ def sync(root, graph=False, dry_run=False, prefix="", scope=None):
         if not idx:
             continue
         analyses = {f: analyses_by_file[(d, f)] for f in files}
-        if rebuild_table(idx, files, analyses, dry=dry_run):
+        failed = {f for f in files if (d, f) in analyses_by_file.failed}
+        keep_row = None
+        if d == ".":
+            def keep_row(path):
+                return (os.path.isfile(os.path.join(root, path))
+                        and not find_index_file(os.path.join(root, os.path.dirname(path)), L2_NAMES))
+        only = ({f for f in files if _norm_rel(os.path.join(d, f)) in scope["files"]}
+                if scope is not None and scope_rows_only else None)
+        if rebuild_table(idx, files, analyses, dry=dry_run, keep_row=keep_row, failed=failed, only=only):
             changed.append("[%s] %s%s" % ("L1" if d == "." else "L2",
                                           prefix + os.path.relpath(idx, root), suffix))
     if graph:
+        for d, files in dir_map.items():  # 依赖图要遍历全部解析结果,先补齐惰性缓存
+            for f in files:
+                analyses_by_file[(d, f)]
         l1 = find_index_file(root, L1_NAMES)
         if l1 and rebuild_graph(l1, root, dir_map, analyses_by_file, dry=dry_run):
             changed.append("[图] %s%s" % (prefix + os.path.relpath(l1, root), suffix))
@@ -285,7 +336,7 @@ def sync(root, graph=False, dry_run=False, prefix="", scope=None):
                 continue
             sub_scope = {"files": sub_files, "dirs": sub_dirs}
         changed += sync(os.path.join(root, sp), graph=graph, dry_run=dry_run,
-                        prefix=prefix + sp + os.sep, scope=sub_scope)
+                        prefix=prefix + sp + os.sep, scope=sub_scope, scope_rows_only=scope_rows_only)
     return changed
 
 

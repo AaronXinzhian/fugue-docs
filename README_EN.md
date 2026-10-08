@@ -16,6 +16,17 @@ A toolkit that turns the *GEB Fractal Documentation Protocol* into an everyday w
 
 Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex, Cursor, Windsurf, Cline (with DeepSeek or any model), Copilot, even web chat — one command plugs them all into the same protocol and the same hard constraints. See [Works with any tool, any model](#works-with-any-tool-any-model).
 
+## v2.7: Claude Code hooks, model only for semantics
+
+The first three-arm pilot showed the full Fugue workflow costing 44%–82% more uncached input plus output than indexes alone on small changes, mostly because the model re-read skill docs and ran the metering, sync and check scripts itself. v2.7 hands that work to programs:
+
+- **Only files the model wrote**: before the model uses an edit or write tool, a hook records the target file; around each shell command it compares uncommitted changes, so the files that command changed are recorded. Files brought in by git commands such as checkout, pull, merge or stash pop, files you edit yourself, and files written by another session in the same repository are not attributed. Files that are committed, reverted, or edited again by you between turns drop out. Session start adds only a one-line navigation hint to context.
+- **End of each turn**: only code files the session wrote, that still differ and are uncommitted, are handled. Nothing is written during a merge or rebase; files with conflicts or syntax errors, non-UTF-8 files, generated code and symlinks leaving the project are skipped one by one, keeping their existing machine fields in the ledgers. New files get an L3 header skeleton; dependencies and ledgers are synced incrementally by `geb_sync`; body-only edits are silent. Only semantic gaps (a new file's `[POS]`, a ledger duty, `[OUTPUT]` after an export change, a new directory's role) reach the model as one short prompt, and the same gap is raised once while its content is unchanged.
+- **Metering**: actual usage is summed from the Claude Code transcript, de-duplicated by message, into `~/.claude/fugue/metrics` in the Codex-compatible ledger format. The transcript format is not a public interface; unreadable usage stays unknown, never zero.
+- **SKILL.md** body is about 40% smaller. With hooks installed, routine coding no longer needs the skill; the manual workflow for Codex and other tools moved to [references/manual-workflow.md](references/manual-workflow.md).
+
+Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`); projects without indexes are untouched. If you registered `geb_stop_hook.py` in `settings.json` by hand, remove that entry so two Stop hooks do not run. No real-model comparison has been run for this release yet; savings still need to be measured.
+
 ## v2.5: Task Receipts and Measurement Diagnostics
 
 Task receipts show observed tokens, wall-clock intervals, validation outcomes and comparison status. New diagnostics resolve paginated Codex logs through a read-only index and expose measurement coverage. Missing telemetry is not zero; without a reviewed baseline, savings remain unknown. See [accounting](references/token-accounting.md) and the [bounded pilot](evals/token-pilot.md).
@@ -124,7 +135,10 @@ fugue-docs/
 ├── scripts/geb_check.py           # Isomorphism checker (standalone, CI-friendly)
 ├── scripts/geb_scaffold.py        # Deterministic scaffolder (static analysis)
 ├── scripts/geb_adapt.py           # Universal adapter: inject rules into any tool + install constraints
-├── scripts/geb_stop_hook.py       # Claude Code Stop hook: no loop, no finish
+├── scripts/geb_hook.py            # Claude Code hooks: session baseline, auto sync, semantic-gap prompts, transcript metering
+├── scripts/geb_stop_hook.py       # Legacy Stop hook: whole-project check, blocks on any violation
+├── hooks/hooks.json               # Hook registration shipped with the plugin
+├── references/manual-workflow.md  # Manual maintenance for tools without hooks (Codex etc.)
 ├── scripts/git-pre-commit-hook.sh # git pre-commit hook: tool-agnostic hard constraint
 ├── .claude-plugin/                # marketplace distribution manifests
 └── evals/evals.json               # Test cases & assertions (replayable)
@@ -141,25 +155,28 @@ python3 scripts/geb_scaffold.py /path/to/project --dry-run # preview only
 
 ### Hard-constraint mode (optional, recommended)
 
-**Claude Code users**: register the loop check as a Stop hook — in any project whose root has a `PROJECT_INDEX.md` (i.e. it adopted the protocol), Claude **cannot finish its turn** while the phases are out of sync; the violation list is fed back until the loop completes. Non-adopting projects are never disturbed. Add to `~/.claude/settings.json`:
+**Claude Code users**: the plugin enables the hooks automatically. In projects with a root `PROJECT_INDEX.md` (protocol adopted), each turn ends with machine fields synced and only this session's semantic gaps fed back to the model; projects without the protocol are untouched. If you installed the skill by hand, add to `~/.claude/settings.json`:
 
 ```json
 {
   "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_stop_hook.py\"",
-            "timeout": 30
-          }
-        ]
-      }
-    ]
+    "SessionStart": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-start"}]}],
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" prompt"}]}],
+    "PreToolUse": [{"matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" pre-tool"}]}],
+    "PostToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" post-tool"}]}],
+    "Stop": [{"hooks": [{"type": "command", "timeout": 60,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" stop"}]}],
+    "SessionEnd": [{"hooks": [{"type": "command", "timeout": 30,
+      "command": "python3 \"$HOME/.claude/skills/fugue-docs/scripts/geb_hook.py\" session-end"}]}]
   }
 }
 ```
+
+The hook only handles files changed in this session and still uncommitted, so pre-existing drift never blocks the model; leave that to pre-commit and CI. When a project crosses the small-project limit, duties written in the L1 move into newly created FOLDER_INDEX.md files instead of being dropped. Set `FUGUE_HOOK_QUIET=1` to drop the session-start hint. The older `geb_stop_hook.py` is still shipped: it checks the whole project and blocks on any violation, for the strictest setup. Do not register it together with `geb_hook.py stop`.
 
 **Users of other tools**: see [Works with any tool, any model](#works-with-any-tool-any-model) above — `geb_adapt.py --pre-commit` installs the same commit gate with one command (self-contained, no dependency on this repo). Out-of-sync commits are rejected, no matter who (human or which AI) wrote the code.
 
