@@ -310,6 +310,7 @@ def analyze_events(events):
     schema = "type" if any(item.get("type") for item in items) else ("item_type" if items else None)
     total, before = empty_bucket(), empty_bucket()
     first_edit, degraded_commands, reasoning, messages, other_items, incomplete = None, 0, 0, 0, 0, 0
+    uncertain_boundary, uncertain_edits = False, 0
     for position, item in enumerate(items):
         kind_name = item_type(item)
         if not item.get("_completed"):
@@ -324,8 +325,14 @@ def analyze_events(events):
             changes = [str(c.get("path")) for c in item.get("changes") or []
                        if isinstance(c, dict) and c.get("path")]
             total["file_changes"] += 1
-            if first_edit is None and not (changes and all(is_scratch(p) for p in changes)):
-                first_edit = position
+            if not (changes and all(is_scratch(p) for p in changes)):
+                if item.get("_completed") and item.get("status") not in ("failed", "in_progress"):
+                    if first_edit is None:
+                        first_edit = position
+                else:
+                    uncertain_edits += 1
+                    if first_edit is None:
+                        uncertain_boundary = True
             continue
         if kind_name != "command_execution":
             other_items += 1
@@ -351,8 +358,15 @@ def analyze_events(events):
         if "edit" in kinds and writes and all(is_scratch(w) for w in writes):
             kinds = [k for k in kinds if k != "edit"] or ["other"]
         primary = next((k for k in KIND_PRIORITY if k in kinds), "other")
-        if primary == "edit" and first_edit is None:
-            first_edit = position
+        if primary == "edit":
+            if (item.get("_completed") and item.get("exit_code") in (None, 0)
+                    and item.get("status") not in ("failed", "in_progress")):
+                if first_edit is None:
+                    first_edit = position
+            else:
+                uncertain_edits += 1
+                if first_edit is None:
+                    uncertain_boundary = True
         # 首次修改本身不计入"修改前"区间
         buckets = [total] if first_edit is not None else [total, before]
         output = item.get("aggregated_output") or ""
@@ -379,8 +393,10 @@ def analyze_events(events):
     return {"schema": "geb.navigation.v1", "item_schema": schema, "items": len(items),
             "incomplete_items": incomplete, "reasoning_items": reasoning, "agent_messages": messages,
             "other_items": other_items, "degraded_command_parses": degraded_commands,
-            "first_edit_item": first_edit, "first_edit_found": first_edit is not None,
-            "before_first_edit": export(before) if first_edit is not None else None,
+            "first_edit_item": first_edit if not uncertain_boundary else None,
+            "first_edit_found": first_edit is not None and not uncertain_boundary,
+            "first_edit_boundary_uncertain": uncertain_boundary, "uncertain_edit_items": uncertain_edits,
+            "before_first_edit": export(before) if first_edit is not None and not uncertain_boundary else None,
             "total": export(total),
             "note": "heuristic shell classification; output_chars is tool output before model-side truncation"}
 

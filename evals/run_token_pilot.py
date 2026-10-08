@@ -680,8 +680,8 @@ def main():
               "scope": "warm existing indexes; tasks from the tasks file only",
               "initialization_cost": None, "initialization_note": "not measured; indexed arms start with existing indexes",
               "token_budget": args.max_total_tokens, "timeout_per_trial": args.timeout,
-              "budget_note": ("budget checked after each complete block against complete or partial usage, may "
-                              "overshoot by one block; a trial with neither complete nor partial usage stops at once"),
+              "budget_note": ("budget checked after each complete block using complete usage; may overshoot "
+                              "by one block. Incomplete usage stops immediately; partial usage is only a lower bound"),
               "quality_note": "same hidden acceptance and regression commands; not independent semantic review",
               "evidence_level": "test_passed_pairs_only_pending_independent_semantic_review",
               "trials": []}
@@ -709,8 +709,8 @@ def main():
             report["summary"] = summarize_trials(report["trials"], chosen["comparisons"], weights)
             (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
             print(json.dumps({k: result[k] for k in ("trial_id", "status", "accepted", "usage")}), flush=True)
-            if result["usage"] is None and not result["partial_usage"]:
-                stop = "unknown_usage"
+            if result["usage"] is None:
+                stop = "incomplete_usage" if result["partial_usage"] else "unknown_usage"
                 break
         if stop:
             break
