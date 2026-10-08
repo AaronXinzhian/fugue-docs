@@ -31,6 +31,8 @@ Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`)
 
 Task receipts show observed tokens, wall-clock intervals, validation outcomes and comparison status. New diagnostics resolve paginated Codex logs through a read-only index and expose measurement coverage. Missing telemetry is not zero; without a reviewed baseline, savings remain unknown. See [accounting](references/token-accounting.md) and the [bounded pilot](evals/token-pilot.md).
 
+The [first three-arm pilot](evals/TOKEN_PILOT_RESULTS.md) stopped at the soft budget after six calls across two task blocks; five passed acceptance. In the two eligible workflow pairs, Fugue used 44.2% and 82.0% more uncached input plus output than indexes alone. This limited self-hosted sample does not establish general savings or costs.
+
 ## v2.4: Codex and Measured Usage
 
 Requires Python 3.9+. `geb_arch.py` generates architecture candidates from shared dependency facts, with file-level evidence and unresolved imports. Scores are heuristics, not calibrated probabilities. Sync preserves non-code ledger rows and handles empty directories and Unicode Git paths. Commit hooks validate the staged snapshot.

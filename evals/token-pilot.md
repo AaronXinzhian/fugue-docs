@@ -1,6 +1,6 @@
 # Token 增量试点
 
-当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。尚未取得完整可比配对,没有节省率结论。
+当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。首轮完成两个三组块后预算停止,有自动验收通过的负差值配对,仍没有普遍节省率或已复核净节省结论。
 
 ## 要回答的问题
 
@@ -79,7 +79,7 @@ python3 -B evals/run_token_pilot.py --verify-tasks
 ## 调度与预算
 
 - **配对块**:同一任务、同一重复编号的所有组连续执行,块内顺序随机,块与块之间也按 seed 随机。预算中途停止时,已完成的块都是完整配对,不会留下大量单侧结果。
-- **预算**:每个完整块结束后检查,最多超出一个块。超时等情况拿不到完整用量时,用隔离会话日志中已上报的部分用量作为预算下限并继续;完整用量和部分用量都没有时立即停止。软上限不是服务端硬限额。
+- **预算**:每个完整块结束后用完整用量检查,最多超出一个完整块。拿不到完整用量时立即停止后续调用,即使已有部分用量也不继续:部分用量只能给出下限,无法确定尚未上报的请求消耗。保留不完整块及部分用量,供诊断使用。软上限不是服务端硬限额。
 - **块内位置**:每次试验记录 `block_position`,汇总给出各位置的主指标中位数,用于检查相邻试验之间是否有顺序或服务端缓存效应。
 - **重复次数**:上限放宽到 20,真正的约束是预算。需要多少次由 A/A 噪声决定(见下)。
 
@@ -117,9 +117,25 @@ python3 -B evals/analyze_navigation.py /private/tmp/<试验输出目录> --outpu
 
 命令分类是启发式的:展开 `bash -lc` 包装,按管道和 `&&` 拆分;先判修改(`apply_patch`、`sed -i`、`tee`、重定向写入、内联 Python 写文件、`file_change` 事件;写入临时目录或未展开的 shell 变量路径不算首次修改),再判运行测试(`pytest`、`python -m unittest`、直接运行 `test_*.py`),然后是 `cat`/`sed`/`head` 等读取和 `rg`/`grep` 搜索;读到 `test_*.py` 仍记为读取。以 Python 运行 `geb_*.py` 记为赋格流程。只支持 Codex `exec --json` 事件流,兼容 `type` 与旧 `item_type` 字段;其他代理需要另写适配。
 
+首次修改边界要求事件已完成且没有失败状态。边界之前出现失败或未完成的修改时,可能已有部分写入,因此 `first_edit_boundary_uncertain` 为 true,首次修改前的定位指标保持未知;全程命令与输出统计仍保留。该保护避免把失败的修改尝试当成定位完成。
+
 ## 运行
 
 需要已登录的 Codex CLI。没有 `--execute` 只输出计划和配对块顺序,不调用模型。
+
+首次运行入口已纳入仓库,不依赖下载附件:
+
+```bash
+# 默认只校验并保存计划,不调用模型
+bash evals/run-first-round.sh
+
+# 核对计划和预算后再执行;结束时自动生成 navigation.json
+bash evals/run-first-round.sh --execute
+```
+
+入口默认 `gpt-6.1-sol`、`xhigh`、单任务 `session-fallback`、三组各 1 次、600 秒限时与 500,000 total token 软上限。它只是流程冒烟测试,不是节省结论。原先的单任务两组预算不自动扩展为四任务三组试验;软上限仍可能超出一个完整块。默认私有结果在 `~/fugue-pilot/first-round-<时间>-<进程号>/`,相邻的 `.plan.json` 和 `.preflight.json` 保留计划与无模型校验。已有输出不会覆盖。
+
+可通过 `MODEL`、`EFFORT`、`BUDGET`、`TIMEOUT`、`REPEATS`、`TASKS`、`DESIGN`、`PILOT_CODEX` 与 `PILOT_OUTPUT` 显式修改设置。例如 `TASKS="session-fallback coverage-summary"` 选择多个任务;可用任务名以任务 JSON 为准。`PILOT_CODEX` 可指向桌面 App 内置客户端,不自动切换客户端或模型。执行模式在 macOS 有 `caffeinate` 时阻止空闲休眠,其他系统直接运行。无模型校验失败时不启动任何模型调用。
 
 ```bash
 # 0. 零成本校验任务

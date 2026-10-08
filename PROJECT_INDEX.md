@@ -16,7 +16,7 @@ fugue-docs/
 ├── agents/            # Codex 技能展示与隐式调用策略
 ├── assets/            # logo 等静态资源
 ├── hooks/             # Claude Code 插件钩子登记(无代码)
-├── evals/             # 评测包:用例、夹具、评分器、理解成本测验 → evals/FOLDER_INDEX.md
+├── evals/             # 评测包:用例、夹具、评分器、三组试点与安全启动入口 → evals/FOLDER_INDEX.md
 ├── references/        # L1/L2/L3 多语言模板库
 └── scripts/           # 全部可执行工具 → scripts/FOLDER_INDEX.md
 ```

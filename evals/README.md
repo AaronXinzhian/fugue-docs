@@ -2,6 +2,8 @@
 
 v2.5 增加分页会话绑定、收益单与试点汇总测试。模型效果试验单独运行,不混入确定性 CI;范围、预算和复跑方法见 [token-pilot.md](token-pilot.md)。试点任务可用 `python3 -B evals/run_token_pilot.py --verify-tasks` 在不调用模型的情况下校验;已有试验日志可用 `evals/analyze_navigation.py` 离线统计定位成本。
 
+首次试点可运行 `bash evals/run-first-round.sh`:默认只做无模型任务校验并保存计划。只有显式追加 `--execute` 才会启动模型,默认是单任务三组、`gpt-6.1-sol/xhigh`、500,000 total token 软上限;完整设置和边界见上述设计文档。
+
 v2.4 新增边界与 token 计量回归,并纳入 macOS/Linux、Python 3.9/3.14 CI:
 
 ```bash
