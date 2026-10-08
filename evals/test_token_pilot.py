@@ -315,12 +315,13 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(1, len(report["trials"]))
             self.assertIsNone(report["summary"]["experiment_total_tokens"])
 
-    def test_partial_usage_continues_as_budget_lower_bound(self):
+    def test_partial_usage_stops_before_spending_an_unknown_remainder(self):
         with tempfile.TemporaryDirectory() as directory:
             report = self.run_pilot(Path(directory), "--repeats", "1", mode="partial")
-            self.assertEqual("schedule_complete", report["stop_reason"])
-            self.assertEqual(3, report["summary"]["partial_usage_trials"])
-            self.assertEqual(300, report["summary"]["budget_tokens_lower_bound"])
+            self.assertEqual("incomplete_usage", report["stop_reason"])
+            self.assertEqual(1, len(report["trials"]))
+            self.assertEqual(1, report["summary"]["partial_usage_trials"])
+            self.assertEqual(100, report["summary"]["budget_tokens_lower_bound"])
             self.assertIsNone(report["summary"]["experiment_total_tokens"])
             self.assertEqual(0, report["summary"]["comparisons"]["index_effect"]["qualified_pairs"])
 

@@ -1,0 +1,1784 @@
+{
+  "schema": "geb.token-pilot.v2",
+  "source_commit": "fdf481065cf7b0b3668786261e27ffbccdabc95d",
+  "source_index_files": 6,
+  "model": "gpt-6.1-sol",
+  "effort": "xhigh",
+  "design": "three-arm",
+  "arms": [
+    [
+      "noindex",
+      "noindex"
+    ],
+    [
+      "index",
+      "index"
+    ],
+    [
+      "fugue",
+      "fugue"
+    ]
+  ],
+  "comparisons": [
+    [
+      "noindex",
+      "index",
+      "index_effect"
+    ],
+    [
+      "index",
+      "fugue",
+      "workflow_effect"
+    ],
+    [
+      "noindex",
+      "fugue",
+      "total_effect"
+    ]
+  ],
+  "prompt_style": "symptom",
+  "tasks_sha256": "93db364a5bd8401e28637da687482faad3ec40a6eccaae7ffbb1fd363adbd330",
+  "skill_commit": "fdf481065cf7b0b3668786261e27ffbccdabc95d",
+  "self_hosted": true,
+  "self_hosted_note": "source is fugue-docs itself: SKILL.md and docs describing indexes stay in every workspace, and its own index self-check fails in the noindex arm; treat index_effect here as confounded",
+  "runner_sha256": "ace34ecdc3d634b5bbb997040e14af27673b8e2f2eabd3a8738f9b09b34b6409",
+  "source_archive_sha256": "a1e22e4a0e8057f2a4d74983a5b7e7b85ee6d58a547864f203d85a8136059245",
+  "skill_sha256": "a2719bb8801915f74912ad4e4be57b6bf492791441c1c955758e96ed994f1b19",
+  "seed": 730,
+  "planned_blocks": 4,
+  "planned_trials": 12,
+  "schedule": [
+    {
+      "task": "session-fallback",
+      "repeat": 1,
+      "order": [
+        "noindex",
+        "index",
+        "fugue"
+      ]
+    },
+    {
+      "task": "coverage-summary",
+      "repeat": 1,
+      "order": [
+        "index",
+        "fugue",
+        "noindex"
+      ]
+    },
+    {
+      "task": "comparison-rate",
+      "repeat": 1,
+      "order": [
+        "noindex",
+        "fugue",
+        "index"
+      ]
+    },
+    {
+      "task": "finish-duration",
+      "repeat": 1,
+      "order": [
+        "index",
+        "noindex",
+        "fugue"
+      ]
+    }
+  ],
+  "primary_metric": "uncached_plus_output",
+  "cost_weights": null,
+  "scope": "warm existing indexes; tasks from the tasks file only",
+  "initialization_cost": null,
+  "initialization_note": "not measured; indexed arms start with existing indexes",
+  "token_budget": 1600000,
+  "timeout_per_trial": 600,
+  "budget_note": "budget checked after each complete block using complete usage; may overshoot by one block. Incomplete usage stops immediately; partial usage is only a lower bound",
+  "quality_note": "same hidden acceptance and regression commands; not independent semantic review",
+  "evidence_level": "test_passed_pairs_only_pending_independent_semantic_review",
+  "stop_reason": "token_budget",
+  "summary": {
+    "attempted": 6,
+    "accepted": 5,
+    "unknown_usage_trials": 0,
+    "partial_usage_trials": 0,
+    "budget_tokens_lower_bound": 1745624,
+    "trials_with_outside_workspace_reads": [],
+    "primary_metric_median_by_block_position": {
+      "0": 28077,
+      "1": 40976,
+      "2": 45158
+    },
+    "experiment_total_tokens": 1745624,
+    "known_total_tokens": 1745624,
+    "primary_metric": "uncached_plus_output",
+    "by_condition": {
+      "noindex": {
+        "attempted": 2,
+        "accepted": 1,
+        "acceptance_rate": 0.5,
+        "measured_tokens": 427296,
+        "measured_uncached_plus_output": 56224
+      },
+      "index": {
+        "attempted": 2,
+        "accepted": 2,
+        "acceptance_rate": 1,
+        "measured_tokens": 499718,
+        "measured_uncached_plus_output": 59142
+      },
+      "fugue": {
+        "attempted": 2,
+        "accepted": 2,
+        "acceptance_rate": 1,
+        "measured_tokens": 818610,
+        "measured_uncached_plus_output": 95794
+      }
+    },
+    "comparisons": {
+      "index_effect": {
+        "reference": "noindex",
+        "treatment": "index",
+        "qualified_pairs": 1,
+        "difference_sign": "reference minus treatment; positive means treatment used less",
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 1,
+            "reference_median": 28328,
+            "treatment_median": 31316,
+            "sum_difference": -2988,
+            "mean_difference": -2988,
+            "median_difference": -2988,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.1002784342360652,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.10547867833945213,
+            "median_saving_rate": -0.10547867833945213,
+            "saving_rate_range": [
+              -0.10547867833945213,
+              -0.10547867833945213
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "total_tokens": {
+            "n": 1,
+            "reference_median": 234920,
+            "treatment_median": 237908,
+            "sum_difference": -2988,
+            "mean_difference": -2988,
+            "median_difference": -2988,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.012639013663810192,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.012719223565468951,
+            "median_saving_rate": -0.012719223565469095,
+            "saving_rate_range": [
+              -0.012719223565469095,
+              -0.012719223565469095
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "uncached_input_tokens": {
+            "n": 1,
+            "reference_median": 24328,
+            "treatment_median": 26798,
+            "sum_difference": -2470,
+            "mean_difference": -2470,
+            "median_difference": -2470,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.09669930749135276,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.10152910226899059,
+            "median_saving_rate": -0.10152910226899046,
+            "saving_rate_range": [
+              -0.10152910226899046,
+              -0.10152910226899046
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "cached_input_tokens": {
+            "n": 1,
+            "reference_median": 206592,
+            "treatment_median": 206592,
+            "sum_difference": 0,
+            "mean_difference": 0,
+            "median_difference": 0,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": 0,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": 0,
+            "median_saving_rate": 0,
+            "saving_rate_range": [
+              0,
+              0
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 0,
+            "ties": 1,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 1,
+            "reference_median": 4000,
+            "treatment_median": 4518,
+            "sum_difference": -518,
+            "mean_difference": -518,
+            "median_difference": -518,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.12177505692592087,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.12949999999999995,
+            "median_saving_rate": -0.1295,
+            "saving_rate_range": [
+              -0.1295,
+              -0.1295
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_before_edit": {
+            "n": 1,
+            "reference_median": 9,
+            "treatment_median": 11,
+            "sum_difference": -2,
+            "mean_difference": -2,
+            "median_difference": -2,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.2006706954621511,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.2222222222222221,
+            "median_saving_rate": -0.2222222222222222,
+            "saving_rate_range": [
+              -0.2222222222222222,
+              -0.2222222222222222
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_before_edit": {
+            "n": 1,
+            "reference_median": 35618,
+            "treatment_median": 43702,
+            "sum_difference": -8084,
+            "mean_difference": -8084,
+            "median_difference": -8084,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.20454273959086108,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.22696389466000344,
+            "median_saving_rate": -0.22696389466000336,
+            "saving_rate_range": [
+              -0.22696389466000336,
+              -0.22696389466000336
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_files_read_before_edit": {
+            "n": 1,
+            "reference_median": 6,
+            "treatment_median": 11,
+            "sum_difference": -5,
+            "mean_difference": -5,
+            "median_difference": -5,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.6061358035703156,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.8333333333333335,
+            "median_saving_rate": -0.8333333333333334,
+            "saving_rate_range": [
+              -0.8333333333333334,
+              -0.8333333333333334
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 1,
+            "reference_median": 20,
+            "treatment_median": 17,
+            "sum_difference": 3,
+            "mean_difference": 3,
+            "median_difference": 3,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": 0.16251892949777494,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": 0.15000000000000002,
+            "median_saving_rate": 0.15,
+            "saving_rate_range": [
+              0.15,
+              0.15
+            ],
+            "treatment_lower": 1,
+            "treatment_higher": 0,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_total": {
+            "n": 1,
+            "reference_median": 42142,
+            "treatment_median": 51257,
+            "sum_difference": -9115,
+            "mean_difference": -9115,
+            "median_difference": -9115,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.19580732596282371,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.21629253476341903,
+            "median_saving_rate": -0.21629253476341892,
+            "saving_rate_range": [
+              -0.21629253476341892,
+              -0.21629253476341892
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          }
+        },
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 1,
+          "treatment_worse": 1,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "sign_test_p": 1
+        },
+        "pairs": [
+          {
+            "task": "session-fallback",
+            "repeat": 1,
+            "values": {
+              "uncached_plus_output": [
+                28328,
+                31316
+              ],
+              "total_tokens": [
+                234920,
+                237908
+              ],
+              "uncached_input_tokens": [
+                24328,
+                26798
+              ],
+              "cached_input_tokens": [
+                206592,
+                206592
+              ],
+              "output_tokens": [
+                4000,
+                4518
+              ],
+              "nav_commands_before_edit": [
+                9,
+                11
+              ],
+              "nav_output_chars_before_edit": [
+                35618,
+                43702
+              ],
+              "nav_files_read_before_edit": [
+                6,
+                11
+              ],
+              "nav_commands_total": [
+                20,
+                17
+              ],
+              "nav_output_chars_total": [
+                42142,
+                51257
+              ]
+            },
+            "elapsed_difference_seconds": -2.246
+          }
+        ]
+      },
+      "workflow_effect": {
+        "reference": "index",
+        "treatment": "fugue",
+        "qualified_pairs": 2,
+        "difference_sign": "reference minus treatment; positive means treatment used less",
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 2,
+            "reference_median": 29571,
+            "treatment_median": 47897,
+            "sum_difference": -36652,
+            "mean_difference": -18326,
+            "median_difference": -18326,
+            "sd_difference": 6341.3336136809585,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.4823651263151826,
+            "sd_log_ratio": 0.16451097222475256,
+            "geometric_saving_rate": -0.6199011458710566,
+            "median_saving_rate": -0.6308737052785471,
+            "saving_rate_range": [
+              -0.8197369366779271,
+              -0.4420104738791672
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "total_tokens": {
+            "n": 2,
+            "reference_median": 249859,
+            "treatment_median": 409305,
+            "sum_difference": -318892,
+            "mean_difference": -159446,
+            "median_difference": -159446,
+            "sd_difference": 8230.722933011413,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.4945968537666929,
+            "sd_log_ratio": 0.04650971160391945,
+            "geometric_saving_rate": -0.639837011665843,
+            "median_saving_rate": -0.6407238962976014,
+            "saving_rate_range": [
+              -0.694663483363317,
+              -0.5867843092318857
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "uncached_input_tokens": {
+            "n": 2,
+            "reference_median": 24863,
+            "treatment_median": 41410,
+            "sum_difference": -33094,
+            "mean_difference": -16547,
+            "median_difference": -16547,
+            "sd_difference": 6134.858433574486,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.5114927826244412,
+            "sd_log_ratio": 0.1924446588664809,
+            "geometric_saving_rate": -0.6677789690973703,
+            "median_saving_rate": -0.6832443382990898,
+            "saving_rate_range": [
+              -0.9108949755757153,
+              -0.4555937010224644
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "cached_input_tokens": {
+            "n": 2,
+            "reference_median": 220288,
+            "treatment_median": 361408,
+            "sum_difference": -282240,
+            "mean_difference": -141120,
+            "median_difference": -141120,
+            "sd_difference": 14572.05654669237,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.49696418281033317,
+            "sd_log_ratio": 0.07476616399155267,
+            "geometric_saving_rate": -0.6437236441041851,
+            "median_saving_rate": -0.6460212744611564,
+            "saving_rate_range": [
+              -0.7329615861214375,
+              -0.5590809628008753
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 2,
+            "reference_median": 4708,
+            "treatment_median": 6487,
+            "sum_difference": -3558,
+            "mean_difference": -1779,
+            "median_difference": -1779,
+            "sd_difference": 206.47518010647187,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.3200087757418651,
+            "sd_log_ratio": 0.01621187049317972,
+            "geometric_saving_rate": -0.37713984970676107,
+            "median_saving_rate": -0.3772303373051056,
+            "saving_rate_range": [
+              -0.3930175581870151,
+              -0.3614431164231961
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_before_edit": {
+            "n": 2,
+            "reference_median": 10,
+            "treatment_median": 14.5,
+            "sum_difference": -9,
+            "mean_difference": -4.5,
+            "median_difference": -4.5,
+            "sd_difference": 0.7071067811865476,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.37120911478336405,
+            "sd_log_ratio": 0.004927593329256194,
+            "geometric_saving_rate": -0.44948615067895736,
+            "median_saving_rate": -0.4494949494949495,
+            "saving_rate_range": [
+              -0.45454545454545453,
+              -0.4444444444444444
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_before_edit": {
+            "n": 2,
+            "reference_median": 38261,
+            "treatment_median": 70852.5,
+            "sum_difference": -65183,
+            "mean_difference": -32591.5,
+            "median_difference": -32591.5,
+            "sd_difference": 7469.168929673501,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.6147998871121209,
+            "sd_log_ratio": 0.013193322381852755,
+            "geometric_saving_rate": -0.849286496467039,
+            "median_saving_rate": -0.8493669704888165,
+            "saving_rate_range": [
+              -0.8666193766875658,
+              -0.832114564290067
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_files_read_before_edit": {
+            "n": 2,
+            "reference_median": 11,
+            "treatment_median": 15,
+            "sum_difference": -8,
+            "mean_difference": -4,
+            "median_difference": -4,
+            "sd_difference": 2.8284271247461903,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.30118607796050584,
+            "sd_log_ratio": 0.1896912840692348,
+            "geometric_saving_rate": -0.3514607952107731,
+            "median_saving_rate": -0.36363636363636365,
+            "saving_rate_range": [
+              -0.5454545454545454,
+              -0.18181818181818182
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 2,
+            "reference_median": 15.5,
+            "treatment_median": 24,
+            "sum_difference": -17,
+            "mean_difference": -8.5,
+            "median_difference": -8.5,
+            "sd_difference": 0.7071067811865476,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.44104968356293783,
+            "sd_log_ratio": 0.07832933331230639,
+            "geometric_saving_rate": -0.5543379254700767,
+            "median_saving_rate": -0.5567226890756303,
+            "saving_rate_range": [
+              -0.6428571428571429,
+              -0.47058823529411764
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_total": {
+            "n": 2,
+            "reference_median": 46557,
+            "treatment_median": 86291,
+            "sum_difference": -79468,
+            "mean_difference": -39734,
+            "median_difference": -39734,
+            "sd_difference": 8155.769614205639,
+            "n_ratio": 2,
+            "mean_log_ratio": -0.6147583200055647,
+            "sd_log_ratio": 0.029136337417677165,
+            "geometric_saving_rate": -0.8492096285757866,
+            "median_saving_rate": -0.8496021030644543,
+            "saving_rate_range": [
+              -0.8877031429853484,
+              -0.8115010631435602
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 2,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          }
+        },
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 0,
+          "treatment_worse": 2,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "sign_test_p": 0.5
+        },
+        "pairs": [
+          {
+            "task": "coverage-summary",
+            "repeat": 1,
+            "values": {
+              "uncached_plus_output": [
+                27826,
+                50636
+              ],
+              "total_tokens": [
+                261810,
+                415436
+              ],
+              "uncached_input_tokens": [
+                22928,
+                43813
+              ],
+              "cached_input_tokens": [
+                233984,
+                364800
+              ],
+              "output_tokens": [
+                4898,
+                6823
+              ],
+              "nav_commands_before_edit": [
+                9,
+                13
+              ],
+              "nav_output_chars_before_edit": [
+                32820,
+                60130
+              ],
+              "nav_files_read_before_edit": [
+                11,
+                17
+              ],
+              "nav_commands_total": [
+                14,
+                23
+              ],
+              "nav_output_chars_total": [
+                41857,
+                75824
+              ]
+            },
+            "elapsed_difference_seconds": -55.315
+          },
+          {
+            "task": "session-fallback",
+            "repeat": 1,
+            "values": {
+              "uncached_plus_output": [
+                31316,
+                45158
+              ],
+              "total_tokens": [
+                237908,
+                403174
+              ],
+              "uncached_input_tokens": [
+                26798,
+                39007
+              ],
+              "cached_input_tokens": [
+                206592,
+                358016
+              ],
+              "output_tokens": [
+                4518,
+                6151
+              ],
+              "nav_commands_before_edit": [
+                11,
+                16
+              ],
+              "nav_output_chars_before_edit": [
+                43702,
+                81575
+              ],
+              "nav_files_read_before_edit": [
+                11,
+                13
+              ],
+              "nav_commands_total": [
+                17,
+                25
+              ],
+              "nav_output_chars_total": [
+                51257,
+                96758
+              ]
+            },
+            "elapsed_difference_seconds": -54.249
+          }
+        ]
+      },
+      "total_effect": {
+        "reference": "noindex",
+        "treatment": "fugue",
+        "qualified_pairs": 1,
+        "difference_sign": "reference minus treatment; positive means treatment used less",
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 1,
+            "reference_median": 28328,
+            "treatment_median": 45158,
+            "sum_difference": -16830,
+            "mean_difference": -16830,
+            "median_difference": -16830,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.4663167365115334,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.5941118328155888,
+            "median_saving_rate": -0.5941118328155888,
+            "saving_rate_range": [
+              -0.5941118328155888,
+              -0.5941118328155888
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "total_tokens": {
+            "n": 1,
+            "reference_median": 234920,
+            "treatment_median": 403174,
+            "sum_difference": -168254,
+            "mean_difference": -168254,
+            "median_difference": -168254,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.5401231998966654,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.7162182870764517,
+            "median_saving_rate": -0.7162182870764515,
+            "saving_rate_range": [
+              -0.7162182870764515,
+              -0.7162182870764515
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "uncached_input_tokens": {
+            "n": 1,
+            "reference_median": 24328,
+            "treatment_median": 39007,
+            "sum_difference": -14679,
+            "mean_difference": -14679,
+            "median_difference": -14679,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.47211316682817345,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.6033788227556725,
+            "median_saving_rate": -0.6033788227556725,
+            "saving_rate_range": [
+              -0.6033788227556725,
+              -0.6033788227556725
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "cached_input_tokens": {
+            "n": 1,
+            "reference_median": 206592,
+            "treatment_median": 358016,
+            "sum_difference": -151424,
+            "mean_difference": -151424,
+            "median_difference": -151424,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.5498318443720656,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.7329615861214374,
+            "median_saving_rate": -0.7329615861214375,
+            "saving_rate_range": [
+              -0.7329615861214375,
+              -0.7329615861214375
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 1,
+            "reference_median": 4000,
+            "treatment_median": 6151,
+            "sum_difference": -2151,
+            "mean_difference": -2151,
+            "median_difference": -2151,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.4303203091063405,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.53775,
+            "median_saving_rate": -0.53775,
+            "saving_rate_range": [
+              -0.53775,
+              -0.53775
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_before_edit": {
+            "n": 1,
+            "reference_median": 9,
+            "treatment_median": 16,
+            "sum_difference": -7,
+            "mean_difference": -7,
+            "median_difference": -7,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.5753641449035618,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.7777777777777777,
+            "median_saving_rate": -0.7777777777777778,
+            "saving_rate_range": [
+              -0.7777777777777778,
+              -0.7777777777777778
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_before_edit": {
+            "n": 1,
+            "reference_median": 35618,
+            "treatment_median": 81575,
+            "sum_difference": -45957,
+            "mean_difference": -45957,
+            "median_difference": -45957,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.8286717144255703,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -1.2902745802684032,
+            "median_saving_rate": -1.2902745802684037,
+            "saving_rate_range": [
+              -1.2902745802684037,
+              -1.2902745802684037
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_files_read_before_edit": {
+            "n": 1,
+            "reference_median": 6,
+            "treatment_median": 13,
+            "sum_difference": -7,
+            "mean_difference": -7,
+            "median_difference": -7,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.7731898882334817,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -1.1666666666666665,
+            "median_saving_rate": -1.1666666666666667,
+            "saving_rate_range": [
+              -1.1666666666666667,
+              -1.1666666666666667
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 1,
+            "reference_median": 20,
+            "treatment_median": 25,
+            "sum_difference": -5,
+            "mean_difference": -5,
+            "median_difference": -5,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.2231435513142097,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -0.25,
+            "median_saving_rate": -0.25,
+            "saving_rate_range": [
+              -0.25,
+              -0.25
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_output_chars_total": {
+            "n": 1,
+            "reference_median": 42142,
+            "treatment_median": 96758,
+            "sum_difference": -54616,
+            "mean_difference": -54616,
+            "median_difference": -54616,
+            "sd_difference": null,
+            "n_ratio": 1,
+            "mean_log_ratio": -0.8311681477353672,
+            "sd_log_ratio": null,
+            "geometric_saving_rate": -1.295999240662522,
+            "median_saving_rate": -1.295999240662522,
+            "saving_rate_range": [
+              -1.295999240662522,
+              -1.295999240662522
+            ],
+            "treatment_lower": 0,
+            "treatment_higher": 1,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          }
+        },
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 1,
+          "treatment_worse": 1,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "sign_test_p": 1
+        },
+        "pairs": [
+          {
+            "task": "session-fallback",
+            "repeat": 1,
+            "values": {
+              "uncached_plus_output": [
+                28328,
+                45158
+              ],
+              "total_tokens": [
+                234920,
+                403174
+              ],
+              "uncached_input_tokens": [
+                24328,
+                39007
+              ],
+              "cached_input_tokens": [
+                206592,
+                358016
+              ],
+              "output_tokens": [
+                4000,
+                6151
+              ],
+              "nav_commands_before_edit": [
+                9,
+                16
+              ],
+              "nav_output_chars_before_edit": [
+                35618,
+                81575
+              ],
+              "nav_files_read_before_edit": [
+                6,
+                13
+              ],
+              "nav_commands_total": [
+                20,
+                25
+              ],
+              "nav_output_chars_total": [
+                42142,
+                96758
+              ]
+            },
+            "elapsed_difference_seconds": -56.495
+          }
+        ]
+      }
+    }
+  },
+  "date": "2026-10-08",
+  "redaction_note": "Local repository paths, session IDs, read-path lists, prompts, responses and credentials are omitted. Raw logs remain private.",
+  "runtime_audit": {
+    "cli_version": "0.162.0-alpha.2",
+    "client_selection": "explicit desktop-app bundled CLI",
+    "checked_session_contexts": 6,
+    "observed_model": "gpt-6.1-sol",
+    "observed_reasoning_effort": "xhigh"
+  },
+  "setup_attempts": [
+    {
+      "client_version": "0.144.3",
+      "task": "session-fallback",
+      "arm": "noindex",
+      "status": "runner_failed",
+      "http_status": 400,
+      "reason": "ChatGPT-authenticated endpoint rejected the requested gpt-6.1-sol model",
+      "elapsed_seconds": 17.088,
+      "usage": null,
+      "partial_usage": null,
+      "included_in_paired_comparisons": false
+    }
+  ],
+  "total_spend_including_setup_attempts": null,
+  "unrun_tasks": [
+    "comparison-rate",
+    "finish-duration"
+  ],
+  "trials": [
+    {
+      "trial_id": "session-fallback-1-noindex",
+      "task": "session-fallback",
+      "repeat": 1,
+      "condition": "noindex",
+      "arm": "noindex",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "usage": {
+        "input_tokens": 230920,
+        "cached_input_tokens": 206592,
+        "output_tokens": 4000,
+        "total_tokens": 234920,
+        "uncached_input_tokens": 24328,
+        "uncached_plus_output": 28328,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 117.044,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": true,
+          "sha256": "df7d764d7def55de8b70ea6cc5dd4655505865af6a73d02cf33be6e85bae17aa"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "9bdb57dd0fdca0953b9e1f729aa1333946789a341967a759ed8896f04c368153",
+      "events_sha256": "567a7bd05c6a0b2b867adf3d3b8721f943335ac5fbaf327e9ee72a4c7a182199",
+      "strip": {
+        "index_files_removed": 3,
+        "header_files_stripped": 15,
+        "header_lines_removed": 60,
+        "empty_header_blocks_removed": 9,
+        "managed_blocks_removed": 0
+      },
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 9,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 3,
+            "read": 4,
+            "list": 1,
+            "vcs": 1,
+            "other": 0
+          },
+          "output_chars": 35618,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 2168,
+            "read": 33370,
+            "list": 80,
+            "vcs": 0,
+            "other": 0
+          },
+          "files_read": 6,
+          "index_reads": 0,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 20,
+          "by_kind": {
+            "edit": 0,
+            "test": 2,
+            "workflow": 0,
+            "search": 4,
+            "read": 4,
+            "list": 1,
+            "vcs": 5,
+            "other": 4
+          },
+          "output_chars": 42142,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 3990,
+            "workflow": 0,
+            "search": 2195,
+            "read": 33370,
+            "list": 80,
+            "vcs": 2461,
+            "other": 46
+          },
+          "files_read": 6,
+          "index_reads": 0,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 2,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      }
+    },
+    {
+      "trial_id": "session-fallback-1-index",
+      "task": "session-fallback",
+      "repeat": 1,
+      "condition": "index",
+      "arm": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "usage": {
+        "input_tokens": 233390,
+        "cached_input_tokens": 206592,
+        "output_tokens": 4518,
+        "total_tokens": 237908,
+        "uncached_input_tokens": 26798,
+        "uncached_plus_output": 31316,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 119.29,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": true,
+          "sha256": "c0855e7bcadd2b9ba1548482882947aa2e76abb7113131f0d5fdef6575e2051f"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "aba29a4a284945d6dc65c8f1daabe18fce4cfc7a60bbb0aa3bbc9859f8e6f6e8",
+      "events_sha256": "4fed55ee9f653655f18347981074093053635a9a5c16fe7ffb2c1fa024147a3d",
+      "strip": null,
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 11,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 3,
+            "read": 7,
+            "list": 0,
+            "vcs": 1,
+            "other": 0
+          },
+          "output_chars": 43702,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 2342,
+            "read": 41360,
+            "list": 0,
+            "vcs": 0,
+            "other": 0
+          },
+          "files_read": 11,
+          "index_reads": 3,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 17,
+          "by_kind": {
+            "edit": 0,
+            "test": 2,
+            "workflow": 0,
+            "search": 3,
+            "read": 7,
+            "list": 0,
+            "vcs": 5,
+            "other": 0
+          },
+          "output_chars": 51257,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 4248,
+            "workflow": 0,
+            "search": 2342,
+            "read": 41360,
+            "list": 0,
+            "vcs": 3307,
+            "other": 0
+          },
+          "files_read": 11,
+          "index_reads": 3,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 3,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      }
+    },
+    {
+      "trial_id": "session-fallback-1-fugue",
+      "task": "session-fallback",
+      "repeat": 1,
+      "condition": "fugue",
+      "arm": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "usage": {
+        "input_tokens": 397023,
+        "cached_input_tokens": 358016,
+        "output_tokens": 6151,
+        "total_tokens": 403174,
+        "uncached_input_tokens": 39007,
+        "uncached_plus_output": 45158,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 173.539,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": true,
+          "sha256": "9cf2eced5fd6d9ffb586ba4c679239ab282a8b627d6e94752f3c374881025a7e"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "533ce1ee13911fbdf17ea268d475d33cedeeebb0ba9c07e04a776db6c4ff6b1e",
+      "events_sha256": "2a0f678a3230c4ffd62ada8011c56cfa413f276a62fad306ce45ff31907dca24",
+      "strip": null,
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 16,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 1,
+            "search": 3,
+            "read": 11,
+            "list": 0,
+            "vcs": 0,
+            "other": 1
+          },
+          "output_chars": 81575,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 1310,
+            "search": 5561,
+            "read": 74415,
+            "list": 0,
+            "vcs": 0,
+            "other": 289
+          },
+          "files_read": 13,
+          "index_reads": 4,
+          "skill_reads": 5,
+          "workflow_runs": 1,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 25,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 4,
+            "search": 3,
+            "read": 12,
+            "list": 0,
+            "vcs": 3,
+            "other": 3
+          },
+          "output_chars": 96758,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 3830,
+            "search": 5561,
+            "read": 79496,
+            "list": 0,
+            "vcs": 3140,
+            "other": 4731
+          },
+          "files_read": 14,
+          "index_reads": 4,
+          "skill_reads": 5,
+          "workflow_runs": 4,
+          "file_changes": 2,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      }
+    },
+    {
+      "trial_id": "coverage-summary-1-index",
+      "task": "coverage-summary",
+      "repeat": 1,
+      "condition": "index",
+      "arm": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "usage": {
+        "input_tokens": 256912,
+        "cached_input_tokens": 233984,
+        "output_tokens": 4898,
+        "total_tokens": 261810,
+        "uncached_input_tokens": 22928,
+        "uncached_plus_output": 27826,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 141.871,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": true,
+          "sha256": "b2bcc0b2671eafe807cc85153e488dd175c7f2f9bdbb69c06eccb082fd4a86c5"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "b72f8855777a934818eff21497a86702d204ba6f593a441dc2dc00bf7284bce6",
+      "events_sha256": "7dd2d65e351ecc8a53358c8b2bdabcd5004f158baa2ae9c1ee2125c17c6151f6",
+      "strip": null,
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 9,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 5,
+            "read": 4,
+            "list": 0,
+            "vcs": 0,
+            "other": 0
+          },
+          "output_chars": 32820,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 3129,
+            "read": 29691,
+            "list": 0,
+            "vcs": 0,
+            "other": 0
+          },
+          "files_read": 11,
+          "index_reads": 3,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 14,
+          "by_kind": {
+            "edit": 0,
+            "test": 2,
+            "workflow": 0,
+            "search": 5,
+            "read": 4,
+            "list": 0,
+            "vcs": 3,
+            "other": 0
+          },
+          "output_chars": 41857,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 6152,
+            "workflow": 0,
+            "search": 3129,
+            "read": 29691,
+            "list": 0,
+            "vcs": 2885,
+            "other": 0
+          },
+          "files_read": 11,
+          "index_reads": 3,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 2,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      }
+    },
+    {
+      "trial_id": "coverage-summary-1-fugue",
+      "task": "coverage-summary",
+      "repeat": 1,
+      "condition": "fugue",
+      "arm": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "usage": {
+        "input_tokens": 408613,
+        "cached_input_tokens": 364800,
+        "output_tokens": 6823,
+        "total_tokens": 415436,
+        "uncached_input_tokens": 43813,
+        "uncached_plus_output": 50636,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 197.186,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": true,
+          "sha256": "4cf7f7b71e0af7e34e392b780decd7d808d7e3210c126c33ec7d9c53773e7071"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "f0f9993f00f6cce82a84aadd5047c74b97683e2a4beeddfe9028f398d4feb0f5",
+      "events_sha256": "7a3751529ed7a13abe85c862543df4f0df33248880d12ca31a1e548e085350a0",
+      "strip": null,
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 13,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 1,
+            "search": 3,
+            "read": 7,
+            "list": 0,
+            "vcs": 1,
+            "other": 1
+          },
+          "output_chars": 60130,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 1313,
+            "search": 5120,
+            "read": 53552,
+            "list": 0,
+            "vcs": 0,
+            "other": 145
+          },
+          "files_read": 17,
+          "index_reads": 3,
+          "skill_reads": 4,
+          "workflow_runs": 1,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 23,
+          "by_kind": {
+            "edit": 0,
+            "test": 2,
+            "workflow": 5,
+            "search": 3,
+            "read": 7,
+            "list": 0,
+            "vcs": 5,
+            "other": 1
+          },
+          "output_chars": 75824,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 7430,
+            "workflow": 3856,
+            "search": 5120,
+            "read": 53552,
+            "list": 0,
+            "vcs": 5721,
+            "other": 145
+          },
+          "files_read": 17,
+          "index_reads": 3,
+          "skill_reads": 4,
+          "workflow_runs": 5,
+          "file_changes": 2,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      }
+    },
+    {
+      "trial_id": "coverage-summary-1-noindex",
+      "task": "coverage-summary",
+      "repeat": 1,
+      "condition": "noindex",
+      "arm": "noindex",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": false,
+      "usage": {
+        "input_tokens": 187796,
+        "cached_input_tokens": 164480,
+        "output_tokens": 4580,
+        "total_tokens": 192376,
+        "uncached_input_tokens": 23316,
+        "uncached_plus_output": 27896,
+        "turns": 1
+      },
+      "usage_coverage": "complete_cli_turn",
+      "partial_usage": null,
+      "elapsed_seconds": 129.441,
+      "validation": [
+        {
+          "check": "acceptance:0",
+          "kind": "acceptance",
+          "passed": true,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "check": "regression:1",
+          "kind": "regression",
+          "passed": false,
+          "sha256": "f82a424f10d201c387dbcc60b0fe75bce033eea470d1a83ff1bead606d98e2d8"
+        },
+        {
+          "check": "protected_files_unchanged",
+          "kind": "protection",
+          "passed": true
+        }
+      ],
+      "changes_sha256": "31bf63ee55606b268a81633b21b6758bb1116f06b09c579da73a3c6c9840e36f",
+      "events_sha256": "40a2d0c6d6334877e91952b8efe1eee838dd500adbe93cb152e00cbbdbc70229",
+      "strip": {
+        "index_files_removed": 3,
+        "header_files_stripped": 15,
+        "header_lines_removed": 60,
+        "empty_header_blocks_removed": 9,
+        "managed_blocks_removed": 0
+      },
+      "navigation": {
+        "first_edit_found": true,
+        "first_edit_boundary_uncertain": false,
+        "uncertain_edit_items": 0,
+        "before_first_edit": {
+          "commands": 7,
+          "by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 3,
+            "read": 3,
+            "list": 0,
+            "vcs": 1,
+            "other": 0
+          },
+          "output_chars": 27872,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 0,
+            "workflow": 0,
+            "search": 4783,
+            "read": 23089,
+            "list": 0,
+            "vcs": 0,
+            "other": 0
+          },
+          "files_read": 8,
+          "index_reads": 0,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 0,
+          "outside_workspace_reads": 0
+        },
+        "total": {
+          "commands": 11,
+          "by_kind": {
+            "edit": 0,
+            "test": 1,
+            "workflow": 0,
+            "search": 4,
+            "read": 3,
+            "list": 0,
+            "vcs": 3,
+            "other": 0
+          },
+          "output_chars": 36576,
+          "output_chars_by_kind": {
+            "edit": 0,
+            "test": 1771,
+            "workflow": 0,
+            "search": 10306,
+            "read": 23089,
+            "list": 0,
+            "vcs": 1410,
+            "other": 0
+          },
+          "files_read": 9,
+          "index_reads": 0,
+          "skill_reads": 0,
+          "workflow_runs": 0,
+          "file_changes": 1,
+          "outside_workspace_reads": 0
+        }
+      },
+      "patch_review": {
+        "status": "manual_spot_check_not_blinded",
+        "functional_change_matches_task": true,
+        "formal_independent_quality_review": "pending"
+      },
+      "failure_diagnosis": {
+        "kind": "new_test_fixture_path_alias_mismatch",
+        "test": "test_root_filter_applies_to_all_summary_fields",
+        "functional_acceptance_passed": true,
+        "original_tests_protected": true,
+        "note": "The new fixture stores an unresolved macOS /var path while the root filter resolves it to /private/var; original outcome is retained, not repaired after the run."
+      }
+    }
+  ],
+  "observed_totals": {
+    "input_tokens": 1714654,
+    "cached_input_tokens": 1534464,
+    "output_tokens": 30970,
+    "uncached_input_tokens": 180190,
+    "uncached_plus_output": 211160,
+    "total_tokens": 1745624,
+    "trial_elapsed_seconds": 878.371
+  }
+}

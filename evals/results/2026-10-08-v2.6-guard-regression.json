@@ -1,0 +1,196 @@
+{
+  "schema": "geb.pilot-guard-validation.v1",
+  "date": "2026-10-08",
+  "deterministic": {
+    "suite": "fugue-docs deterministic regression suite",
+    "commit": "ddf15f9e7fa6600156fdf5b8bf23b0550a33a8d7",
+    "git_dirty": false,
+    "source_sha256": "9b7d520cbcffe3ff1466c29a135c711e292b357f38abe58ec537a00159672168",
+    "python": "3.14.6",
+    "summary": {
+      "total_assertion_groups": 6,
+      "passed": 6,
+      "failed": 0,
+      "pass_rate": 1
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "passed": 6,
+        "failed": 0,
+        "results": [
+          {
+            "name": "arch_fixture_b",
+            "passed": true,
+            "detail": "entrypoint=app.py modules=root/services/storage"
+          },
+          {
+            "name": "sync_changed_delete",
+            "passed": true,
+            "detail": "[L2] services/FOLDER_INDEX.md(dry-run)\n同步预演:1 处存在漂移。语义字段([POS]/职责/定位)未触碰,如有语义变化请人工/AI 补全后跑 geb_check。"
+          },
+          {
+            "name": "check_l1_path_ghost",
+            "passed": true,
+            "detail": "detected services/ghost.py"
+          },
+          {
+            "name": "adapt_copy_tools",
+            "passed": true,
+            "detail": "FOLDER_INDEX.md, geb_arch.py, geb_check.py, geb_facts.py, geb_metrics.py, geb_scaffold.py, geb_staged.py, geb_sync.py, geb_telemetry.py"
+          },
+          {
+            "name": "comprehension_grader",
+            "passed": true,
+            "detail": "score_ratio=1.0 token_ratio=0.25"
+          },
+          {
+            "name": "self_checks",
+            "passed": true,
+            "detail": "geb_check strict complete + geb_sync dry-run"
+          }
+        ]
+      }
+    ],
+    "boundary_tests": {
+      "tests": 97,
+      "passed": 97,
+      "failures": [],
+      "skipped": [],
+      "successful": true
+    }
+  },
+  "task_preflight": {
+    "schema": "geb.token-pilot-verify.v1",
+    "ok": true,
+    "workspace_arms": [
+      "index",
+      "noindex"
+    ],
+    "source_commit": "fdf481065cf7b0b3668786261e27ffbccdabc95d",
+    "tasks_sha256": "93db364a5bd8401e28637da687482faad3ec40a6eccaae7ffbb1fd363adbd330",
+    "results": [
+      {
+        "task": "comparison-rate",
+        "arm": "index",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": null
+      },
+      {
+        "task": "comparison-rate",
+        "arm": "noindex",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": {
+          "index_files_removed": 3,
+          "header_files_stripped": 15,
+          "header_lines_removed": 60,
+          "empty_header_blocks_removed": 9,
+          "managed_blocks_removed": 0
+        }
+      },
+      {
+        "task": "coverage-summary",
+        "arm": "index",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": null
+      },
+      {
+        "task": "coverage-summary",
+        "arm": "noindex",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": {
+          "index_files_removed": 3,
+          "header_files_stripped": 15,
+          "header_lines_removed": 60,
+          "empty_header_blocks_removed": 9,
+          "managed_blocks_removed": 0
+        }
+      },
+      {
+        "task": "finish-duration",
+        "arm": "index",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": null
+      },
+      {
+        "task": "finish-duration",
+        "arm": "noindex",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": {
+          "index_files_removed": 3,
+          "header_files_stripped": 15,
+          "header_lines_removed": 60,
+          "empty_header_blocks_removed": 9,
+          "managed_blocks_removed": 0
+        }
+      },
+      {
+        "task": "session-fallback",
+        "arm": "index",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": null
+      },
+      {
+        "task": "session-fallback",
+        "arm": "noindex",
+        "ok": true,
+        "expectations": {
+          "task_not_already_solved": true,
+          "regression_passes_before": true,
+          "reference_patch_applies": true,
+          "reference_solution_accepted": true
+        },
+        "strip": {
+          "index_files_removed": 3,
+          "header_files_stripped": 15,
+          "header_lines_removed": 60,
+          "empty_header_blocks_removed": 9,
+          "managed_blocks_removed": 0
+        }
+      }
+    ]
+  },
+  "note": "No model calls in these checks; this is tool correctness evidence, not token savings."
+}

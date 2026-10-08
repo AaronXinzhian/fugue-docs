@@ -116,6 +116,41 @@ class AnalyzerTests(unittest.TestCase):
         self.assertEqual(1, result["first_edit_item"])
         self.assertEqual(1, result["before_first_edit"]["commands"])
 
+    def test_failed_file_change_does_not_establish_a_boundary(self):
+        failed = {"type": "item.completed", "item": {"id": "edit", "type": "file_change",
+                  "status": "failed", "changes": [{"path": "a.py", "kind": "update"}]}}
+        result = nav.analyze_events([command("1", "cat a.py", "x"), failed])
+        self.assertFalse(result["first_edit_found"])
+        self.assertIsNone(result["before_first_edit"])
+        self.assertTrue(result["first_edit_boundary_uncertain"])
+        self.assertEqual(1, result["uncertain_edit_items"])
+        self.assertEqual(1, result["total"]["commands"])
+
+    def test_pending_or_failed_command_edits_leave_cost_unknown(self):
+        for completed in (True, False):
+            edit = command("edit", "sed -i s/a/b/ a.py")
+            edit["item"]["exit_code"] = 1
+            if not completed:
+                edit["type"] = "item.started"
+            result = nav.analyze_events([command("1", "cat a.py"), edit,
+                                        command("later", "sed -i s/a/b/ a.py")])
+            with self.subTest(completed=completed):
+                self.assertFalse(result["first_edit_found"])
+                self.assertIsNone(result["before_first_edit"])
+                self.assertTrue(result["first_edit_boundary_uncertain"])
+                self.assertEqual(1, result["uncertain_edit_items"])
+                self.assertEqual(3, result["total"]["commands"])
+
+    def test_failed_edit_after_known_boundary_keeps_locating_cost(self):
+        failed = command("later", "sed -i s/a/b/ missing.py")
+        failed["item"]["exit_code"] = 1
+        result = nav.analyze_events([command("read", "cat a.py"),
+                                    command("edit", "sed -i s/a/b/ a.py"), failed])
+        self.assertTrue(result["first_edit_found"])
+        self.assertEqual(1, result["before_first_edit"]["commands"])
+        self.assertFalse(result["first_edit_boundary_uncertain"])
+        self.assertEqual(1, result["uncertain_edit_items"])
+
     def test_paired_stats_and_power_hint(self):
         stats = nav.paired_stats([(100, 80), (100, 120), (None, 5)])
         self.assertEqual(2, stats["n"])
