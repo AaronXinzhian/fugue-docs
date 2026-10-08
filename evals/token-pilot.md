@@ -135,7 +135,7 @@ bash evals/run-first-round.sh --execute
 
 入口默认 `gpt-6.1-sol`、`xhigh`、单任务 `session-fallback`、三组各 1 次、600 秒限时与 500,000 total token 软上限。它只是流程冒烟测试,不是节省结论。原先的单任务两组预算不自动扩展为四任务三组试验;软上限仍可能超出一个完整块。默认私有结果在 `~/fugue-pilot/first-round-<时间>-<进程号>/`,相邻的 `.plan.json` 和 `.preflight.json` 保留计划与无模型校验。已有输出不会覆盖。
 
-可通过 `MODEL`、`EFFORT`、`BUDGET`、`TIMEOUT`、`REPEATS`、`TASKS`、`DESIGN` 与 `PILOT_OUTPUT` 显式修改设置。例如 `TASKS="session-fallback coverage-summary"` 选择多个任务;可用任务名以任务 JSON 为准。执行模式在 macOS 有 `caffeinate` 时阻止空闲休眠,其他系统直接运行。无模型校验失败时不启动任何模型调用。
+可通过 `MODEL`、`EFFORT`、`BUDGET`、`TIMEOUT`、`REPEATS`、`TASKS`、`DESIGN`、`PILOT_CODEX` 与 `PILOT_OUTPUT` 显式修改设置。例如 `TASKS="session-fallback coverage-summary"` 选择多个任务;可用任务名以任务 JSON 为准。`PILOT_CODEX` 可指向桌面 App 内置客户端,不自动切换客户端或模型。执行模式在 macOS 有 `caffeinate` 时阻止空闲休眠,其他系统直接运行。无模型校验失败时不启动任何模型调用。
 
 ```bash
 # 0. 零成本校验任务

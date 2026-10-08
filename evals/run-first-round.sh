@@ -14,7 +14,7 @@ if [[ "$#" -gt 1 || ( "$mode" != "--plan" && "$mode" != "--execute" && "$mode" !
 fi
 if [[ "$mode" == "--help" ]]; then
     printf '%s\n' 'Default: no model calls; verify tasks and save the plan.' \
-        'Settings: MODEL EFFORT BUDGET TIMEOUT REPEATS TASKS DESIGN PILOT_OUTPUT PILOT_PYTHON' \
+        'Settings: MODEL EFFORT BUDGET TIMEOUT REPEATS TASKS DESIGN PILOT_CODEX PILOT_OUTPUT PILOT_PYTHON' \
         'Defaults: gpt-6.1-sol xhigh 500000 600 1 session-fallback three-arm'
     exit 0
 fi
@@ -36,6 +36,7 @@ for target in "$output" "$output.plan.json" "$output.preflight.json"; do
 done
 mkdir -p "$(dirname "$output")"
 args=(--model "${MODEL:-gpt-6.1-sol}" --effort "${EFFORT:-xhigh}"
+      --codex "${PILOT_CODEX:-codex}"
       --max-total-tokens "${BUDGET:-500000}" --timeout "${TIMEOUT:-600}"
       --repeats "${REPEATS:-1}" --design "${DESIGN:-three-arm}"
       --output "$output" --tasks "${task_list[@]}")

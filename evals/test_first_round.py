@@ -83,13 +83,15 @@ class FirstRoundTests(unittest.TestCase):
 
     def test_custom_settings_are_not_silently_changed(self):
         settings = {"MODEL": "fake-model", "EFFORT": "high", "BUDGET": "800000",
-                    "TASKS": "session-fallback coverage-summary", "DESIGN": "two-arm"}
+                    "TASKS": "session-fallback coverage-summary", "DESIGN": "two-arm",
+                    "PILOT_CODEX": "/fake app/codex"}
         result, calls, _ = self.run_wrapper("--plan", settings=settings)
         self.assertEqual(0, result.returncode, result.stderr)
         plan = calls[1]
         self.assertEqual("fake-model", plan[plan.index("--model") + 1])
         self.assertEqual("high", plan[plan.index("--effort") + 1])
         self.assertEqual("800000", plan[plan.index("--max-total-tokens") + 1])
+        self.assertEqual("/fake app/codex", plan[plan.index("--codex") + 1])
         self.assertEqual(["session-fallback", "coverage-summary"], plan[plan.index("--tasks") + 1:])
 
     def test_existing_output_and_invalid_arguments_stop_before_verification(self):
