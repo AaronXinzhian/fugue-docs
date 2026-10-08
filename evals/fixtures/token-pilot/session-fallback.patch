@@ -1,0 +1,12 @@
+--- a/scripts/geb_metrics.py
++++ b/scripts/geb_metrics.py
+@@ -132,7 +132,8 @@
+     root = Path(root).resolve()
+     if not root.is_dir():
+         raise ValueError("project root does not exist")
+-    path = Path(session) if session else find_session(os.environ.get("CODEX_THREAD_ID"))
++    path = Path(session) if session else find_session(
++        os.environ.get("CODEX_THREAD_ID") or os.environ.get("CODEX_SESSION_ID"))
+     snapshot = session_snapshot(path)
+     if snapshot and snapshot.get("cwd") and Path(snapshot["cwd"]).resolve() != root:
+         raise ValueError("session cwd differs from project; provide the correct session")

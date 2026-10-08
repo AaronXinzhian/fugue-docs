@@ -1,0 +1,11 @@
+--- a/scripts/geb_metrics.py
++++ b/scripts/geb_metrics.py
+@@ -201,6 +201,8 @@
+             "fugue_run_id": fugue["run_id"], "task": fugue["task"], "root": fugue["root"],
+             "saved_tokens": difference, "baseline_tokens": baseline["usage"]["total_tokens"],
+             "fugue_tokens": fugue["usage"]["total_tokens"],
++            "saving_rate": (difference / baseline["usage"]["total_tokens"]
++                            if baseline["usage"]["total_tokens"] else None),
+             "kind": "paired_observed_difference_not_causal_proof", "created_at": now(),
+             "quality_evidence": str(evidence_path), "quality_sha256": hashlib.sha256(data).hexdigest()}
+ 
