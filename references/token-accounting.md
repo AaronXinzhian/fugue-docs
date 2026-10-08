@@ -59,4 +59,4 @@ python3 <skill-dir>/scripts/geb_metrics.py compare \
 
 理解评分器的 `proxy_healthy` 只表示关键词得分与用量阈值满足。未提供两侧的 `quality_review: {"passed": true, "evidence": "审核记录位置"}` 时，最终 `healthy` 为 `null`。缺失 token 不能通过质量审核补成零；人工预填的测试数字不是实际测量。
 
-受限重复试点见 [evals/token-pilot.md](../evals/token-pilot.md)。试验总消耗包含失败与对照组,与日常开发账本分开;通过自动验收的配对差值不自动加入已复核的节省总数。
+受限重复试点见 [evals/token-pilot.md](../evals/token-pilot.md):用无索引、仅索引、完整赋格三组分别估计索引收益与流程开销,先用 A/A 运行量出噪声再定重复次数,主指标为未缓存输入加输出。试验总消耗包含失败与对照组,与日常开发账本分开;通过自动验收的配对差值不自动加入已复核的节省总数。

@@ -1,0 +1,12 @@
+--- a/scripts/geb_metrics.py
++++ b/scripts/geb_metrics.py
+@@ -162,6 +162,9 @@
+     record["end"] = session_snapshot(record.get("session_source"))
+     record["usage"], record["status"] = usage_delta(record["start"], record["end"])
+     record["finished_at"] = now()
++    started = datetime.fromisoformat(record["started_at"])
++    finished = datetime.fromisoformat(record["finished_at"])
++    record["elapsed_seconds"] = round((finished - started).total_seconds(), 3)
+     record["coverage"] = "start-to-finish telemetry interval; excludes later messages and unmerged subagent sessions"
+     save_json(path, record)
+     return record

@@ -1,6 +1,6 @@
 # 评测复跑指南
 
-v2.5 增加分页会话绑定、收益单与试点汇总测试。模型效果试验单独运行,不混入确定性 CI;范围、预算和复跑方法见 [token-pilot.md](token-pilot.md)。
+v2.5 增加分页会话绑定、收益单与试点汇总测试。模型效果试验单独运行,不混入确定性 CI;范围、预算和复跑方法见 [token-pilot.md](token-pilot.md)。试点任务可用 `python3 -B evals/run_token_pilot.py --verify-tasks` 在不调用模型的情况下校验;已有试验日志可用 `evals/analyze_navigation.py` 离线统计定位成本。
 
 v2.4 新增边界与 token 计量回归,并纳入 macOS/Linux、Python 3.9/3.14 CI:
 

@@ -1,0 +1,46 @@
+{
+  "schema": "geb.token-pilot.tasks.v1",
+  "description": "Four small metrics tasks on fugue-docs fdf4810. Acceptance files and reference patches stay outside the workspace until the model finishes.",
+  "source_ref": "fdf4810",
+  "strip_exclude": ["evals/fixtures/"],
+  "protected": ["evals/test_*.py"],
+  "regression": [["{python}", "-B", "-m", "unittest", "discover", "-s", "evals", "-p", "test_*.py"]],
+  "tasks": {
+    "session-fallback": {
+      "prompts": {
+        "named": "In scripts/geb_metrics.py start_run, when CODEX_THREAD_ID is absent or empty, use CODEX_SESSION_ID to discover the session. Keep CODEX_THREAD_ID precedence. Preserve explicit --session behavior. Add focused tests.",
+        "symptom": "Token metering cannot bind a session in Codex environments that only expose CODEX_SESSION_ID: starting a metered task with CODEX_THREAD_ID unset or empty finds no session even though CODEX_SESSION_ID is set. Make metering fall back to CODEX_SESSION_ID. CODEX_THREAD_ID must still win when both are set, and an explicitly supplied session log must keep working as before. Add focused tests."
+      },
+      "acceptance_files": {".pilot_acceptance/session-fallback.py": "session-fallback.acceptance.py"},
+      "acceptance": [["{python}", "-B", ".pilot_acceptance/session-fallback.py"]],
+      "reference_patch": "session-fallback.patch"
+    },
+    "coverage-summary": {
+      "prompts": {
+        "named": "Extend scripts/geb_metrics.py summarize with finished_runs (all runs except active), status_counts (counts by status), and measurement_coverage (measured runs divided by finished runs; null when no finished runs). Preserve existing fields. Add focused tests.",
+        "symptom": "The token metering report cannot show how much finished work was actually measured. Add three fields to the report summary: finished_runs (all runs except active ones), status_counts (number of runs per status), and measurement_coverage (measured runs divided by finished runs; null when nothing has finished). Keep every existing summary field. Add focused tests."
+      },
+      "acceptance_files": {".pilot_acceptance/coverage-summary.py": "coverage-summary.acceptance.py"},
+      "acceptance": [["{python}", "-B", ".pilot_acceptance/coverage-summary.py"]],
+      "reference_patch": "coverage-summary.patch"
+    },
+    "comparison-rate": {
+      "prompts": {
+        "named": "Extend scripts/geb_metrics.py compare_records with saving_rate = (baseline total_tokens - fugue total_tokens) / baseline total_tokens. For a zero baseline return null, preserve negative rates, and retain all existing quality/evidence checks. Add focused tests.",
+        "symptom": "Comparing a baseline metered run with a Fugue metered run only reports the absolute token difference. Also report saving_rate = (baseline total_tokens - fugue total_tokens) / baseline total_tokens. Use null for a zero baseline, keep negative rates, and keep every existing quality and evidence check. Add focused tests."
+      },
+      "acceptance_files": {".pilot_acceptance/comparison-rate.py": "comparison-rate.acceptance.py"},
+      "acceptance": [["{python}", "-B", ".pilot_acceptance/comparison-rate.py"]],
+      "reference_patch": "comparison-rate.patch"
+    },
+    "finish-duration": {
+      "prompts": {
+        "named": "Extend scripts/geb_metrics.py finish_run to record elapsed_seconds as the wall-clock difference between finished_at and started_at, rounded to 3 decimals. Preserve finish idempotence and unknown token usage. Do not call duration model runtime. Add focused tests.",
+        "symptom": "Finished metering records do not say how long the task took. When a metered task is finished, record elapsed_seconds as the wall-clock difference between its finish and start timestamps, rounded to 3 decimals. Finishing the same run twice must still return the same record, and unknown token usage must stay unknown. Do not describe the duration as model runtime. Add focused tests."
+      },
+      "acceptance_files": {".pilot_acceptance/finish-duration.py": "finish-duration.acceptance.py"},
+      "acceptance": [["{python}", "-B", ".pilot_acceptance/finish-duration.py"]],
+      "reference_patch": "finish-duration.patch"
+    }
+  }
+}

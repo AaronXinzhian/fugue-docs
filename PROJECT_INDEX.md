@@ -40,6 +40,9 @@ graph TD
     geb_metrics --> geb_telemetry
     geb_telemetry --> Codex_readonly_index
     evals_token_pilot --> Codex_isolated_exec
+    evals_token_pilot --> evals_navigation
+    evals_token_pilot --> geb_check
+    evals_navigation --> Codex_exec_events
     evals_grader --> geb_check
 ```
 
