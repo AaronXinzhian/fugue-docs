@@ -21,6 +21,7 @@
 | test_token_pilot.py | 不调用模型的试点测试:配对块、三组/A-A 汇总、成本口径、索引剥离、预算与未知停止、假执行器端到端 | TWO_ARM, HAS_SOURCE_REF, usage(), trial(), FAKE_CODEX, SummaryTests, DesignTests, RunnerTests |
 
 ## 数据文件
+- `results/2026-10-08-v2.6-guard-regression.json` — 干净提交上的 97 项回归、6 组集成与 8 组无模型任务预检脱敏证据
 - `TOKEN_PILOT_RESULTS.md` — 已发生的模型预检、限时失败与暂无节省结论
 - `results/2026-09-30-token-preflight.json` — medium 基线预检原始数值;无赋格配对
 - `results/2026-09-30-token-pair-incomplete.json` — xhigh 基线超时记录;完整用量未知
