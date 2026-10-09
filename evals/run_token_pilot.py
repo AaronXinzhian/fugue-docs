@@ -941,7 +941,8 @@ def trial(args, archive, skill_dir, task, repeat, label, arm, parent, trial_dir=
     """在中性临时目录里跑一次:模型看到的路径不含任务名或组名,结束后整体移入输出目录。"""
     trial_id = "%s-%d-%s" % (task["name"], repeat, label)
     trial_dir = trial_dir or trial_id
-    directory = Path(tempfile.mkdtemp(prefix="run-"))
+    # 真实路径,与沙箱读取禁区、钩子的项目根判定一致
+    directory = Path(tempfile.mkdtemp(prefix="run-")).resolve()
     try:
         result = run_trial(args, archive, skill_dir, task, directory, arm)
     finally:
@@ -1171,7 +1172,8 @@ def claude_selftest(args, skill_dir, keep_dir=None, archive=None, task=None):
     给出 archive 与 task 时用真实的有索引工作区。任何一项不成立,付费试验就不该开始。
     """
     import claude_mock_api
-    directory = Path(tempfile.mkdtemp(prefix="run-"))
+    # 真实路径:读取禁区与探针命令里的路径必须一致(macOS 的 /var 是 /private/var 的符号链接)
+    directory = Path(tempfile.mkdtemp(prefix="run-")).resolve()
     try:
         workspace, home, denied = directory / "workspace", directory / "home", directory / "denied"
         denied.mkdir()
@@ -1278,6 +1280,8 @@ def deny_read_paths(args, task_set, source, output=None):
     你的 Claude/Codex 配置与历史试点结果。不会屏蔽系统临时目录或整个家目录(试验本身在临时目录里)。"""
     home = Path.home().resolve()
     temp = Path(tempfile.gettempdir()).resolve()
+    # 一律比较真实路径:macOS 的临时目录 /var 是 /private/var 的符号链接
+    output = Path(output).expanduser().resolve() if output else None
     candidates = [ROOT, Path(task_set["path"]).parent, Path(args.source_cache), source, home / ".claude",
                   home / ".codex", Path(args.auth_home), home / "fugue-pilot"]
     if output:
