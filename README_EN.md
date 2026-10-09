@@ -25,7 +25,7 @@ The first three-arm pilot showed the full Fugue workflow costing 44%–82% more 
 - **Metering**: actual usage is summed from the Claude Code transcript, de-duplicated by message, into `~/.claude/fugue/metrics` in the Codex-compatible ledger format. The transcript format is not a public interface; unreadable usage stays unknown, never zero.
 - **SKILL.md** body is about 40% smaller. With hooks installed, routine coding no longer needs the skill; the manual workflow for Codex and other tools moved to [references/manual-workflow.md](references/manual-workflow.md).
 
-Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`); projects without indexes are untouched. If you registered `geb_stop_hook.py` in `settings.json` by hand, remove that entry so two Stop hooks do not run. No real-model comparison has been run for this release yet; savings still need to be measured.
+Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`); projects without indexes are untouched. If you registered `geb_stop_hook.py` in `settings.json` by hand, remove that entry so two Stop hooks do not run. No real-model comparison has been run for this release yet. The pilot runner now drives Claude Code too (`--agent claude`, with the fugue arm loading the hooks as a plugin) and ships four upstream tasks on the external Docutils repository; run `bash evals/run-claude-pilot.sh plan|aa|compare` to measure noise first, then `index` versus `fugue`. Design notes (Chinese): [pilot design](evals/token-pilot.md#claude-code-与-docutils).
 
 ## v2.5: Task Receipts and Measurement Diagnostics
 

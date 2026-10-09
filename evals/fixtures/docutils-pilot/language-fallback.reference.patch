@@ -1,0 +1,24 @@
+diff --git a/docutils/languages/__init__.py b/docutils/languages/__init__.py
+index 2f143240e..17cf5673d 100644
+--- a/docutils/languages/__init__.py
++++ b/docutils/languages/__init__.py
+@@ -55,8 +55,8 @@ def __init__(self) -> None:
+         self.cache: dict[str, LanguageModuleT] = {}
+ 
+     def import_from_packages(self, name: str, reporter: Reporter = None
+-                             ) -> LanguageModuleT:
+-        """Try loading module `name` from `self.packages`."""
++                             ) -> LanguageModuleT|None:
++        """Try loading language module `name` from `self.packages`."""
+         module = None
+         for package in self.packages:
+             try:
+@@ -70,6 +70,8 @@ def import_from_packages(self, name: str, reporter: Reporter = None
+                     reporter.info(f'Module "{package+name}" not found.')
+                 continue
+             break
++        else:
++            module = None
+         return module
+ 
+     @overload

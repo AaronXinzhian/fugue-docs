@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 [INPUT]: 依赖 argparse, json, math, os, pathlib, re, shlex, statistics, sys
-[OUTPUT]: 提供 Codex exec 事件流的离线定位成本分析、配对统计与 A/A 样本量提示;不调用模型
+[OUTPUT]: 提供 Codex exec 事件流与 Claude Code stream-json 的离线定位成本分析、配对统计与 A/A 样本量提示;不调用模型
 [POS]: fugue-docs 评测包-定位成本分析器(从已有试验日志衡量索引是否减少首次修改前的探索)
 [PROTOCOL]: 改分类规则或指标时同步 token-pilot.md、evals/FOLDER_INDEX.md 与 test_navigation.py
 """
@@ -46,8 +46,95 @@ def load_events(path):
     return events
 
 
+CLAUDE_EDIT_TOOLS = {"Edit", "MultiEdit", "Write", "NotebookEdit"}
+
+
+def is_claude_stream(events):
+    return any(e.get("type") in ("assistant", "user") and isinstance(e.get("message"), dict) for e in events)
+
+
+def result_text(content):
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(str(part.get("text") or "") for part in content
+                         if isinstance(part, dict) and part.get("type") == "text")
+    return ""
+
+
+def claude_tool_item(use, result):
+    """把一次 Claude 工具调用折算成 Codex 条目:读、搜、列目录用等价 shell 命令表示,编辑记为文件修改。"""
+    name, data = use.get("name"), use.get("input") if isinstance(use.get("input"), dict) else {}
+    item = {"id": use.get("id"), "tool": name}
+    failed = bool(result and result.get("is_error"))
+    output = result_text(result.get("content")) if result else ""
+    if name in CLAUDE_EDIT_TOOLS:
+        if failed:
+            # Claude 的编辑工具是原子的:报错(找不到原文、权限拒绝)就没有写入,不算修改也不算边界不确定
+            item.update(type="tool_call", status="failed", failed_edit=True)
+            return item
+        path = data.get("file_path") or data.get("notebook_path")
+        item.update(type="file_change", changes=[{"path": path}] if path else [],
+                    status="completed" if result else "in_progress")
+        return item
+    if name == "Bash":
+        command = str(data.get("command") or "")
+    elif name == "Read":
+        command = ["cat", str(data.get("file_path") or "")]
+    elif name == "Grep":
+        command = ["rg", "-e", str(data.get("pattern") or "")] + ([str(data["path"])] if data.get("path") else [])
+    elif name in ("Glob", "LS"):
+        command = ["find", str(data.get("path") or ".")]
+    elif name == "Skill":
+        skill = str(data.get("skill") or data.get("command") or "skill").split(":")[-1]
+        command = ["cat", "skills/%s/SKILL.md" % skill]
+    else:
+        item.update(type="tool_call", status="failed" if failed else "completed")
+        return item
+    item.update(type="command_execution", command=command, aggregated_output=output,
+                exit_code=(1 if failed else 0) if result else None,
+                status="failed" if failed else ("completed" if result else "in_progress"))
+    return item
+
+
+def from_claude_stream(events):
+    """Claude Code stream-json → Codex 风格的 item 事件,复用同一套定位分类。
+
+    子代理的工具调用(parent_tool_use_id 非空)同样计入:它们也是定位成本。
+    """
+    converted, uses = [], {}
+    for position, event in enumerate(events):
+        message = event.get("message") if isinstance(event.get("message"), dict) else None
+        if message is None:
+            continue
+        content = message.get("content")
+        blocks = content if isinstance(content, list) else []
+        if event.get("type") == "assistant":
+            for index, block in enumerate(blocks):
+                if not isinstance(block, dict):
+                    continue
+                kind = block.get("type")
+                # stream-json 把同一条消息的每个内容块分成单独事件(同一消息 ID、各自下标 0),键里带上事件位置
+                key = "%s-%d-%d" % (message.get("id") or "message", position, index)
+                if kind in ("thinking", "redacted_thinking"):
+                    converted.append({"type": "item.completed", "item": {"id": key, "type": "reasoning"}})
+                elif kind == "text":
+                    converted.append({"type": "item.completed", "item": {"id": key, "type": "agent_message"}})
+                elif kind == "tool_use" and block.get("id"):
+                    uses[block["id"]] = block
+                    converted.append({"type": "item.started", "item": claude_tool_item(block, None)})
+        elif event.get("type") == "user":
+            for block in blocks:
+                if isinstance(block, dict) and block.get("type") == "tool_result" and block.get("tool_use_id") in uses:
+                    converted.append({"type": "item.completed",
+                                      "item": claude_tool_item(uses[block["tool_use_id"]], block)})
+    return converted
+
+
 def items_in_order(events):
     """按首次出现排序;完成事件覆盖开始事件,超时只开始的条目也保留。"""
+    if is_claude_stream(events):
+        events = from_claude_stream(events)
     order, latest = [], {}
     for index, event in enumerate(events):
         if event.get("type") not in ("item.started", "item.updated", "item.completed"):
@@ -228,7 +315,7 @@ def classify(argv):
     if script and re.search(r"(^|/)geb_[a-z_]+\.py$", script):
         return "workflow", [], writes
     if name in ("pytest", "py.test") or module in ("pytest", "unittest") or (
-            script and re.search(r"(^|/)(test_[\w-]*|[\w-]*_test|run_regression_suite)\.py$", script)):
+            script and re.search(r"(^|/)(test_[\w-]*|[\w-]*_test|alltests|run_regression_suite)\.py$", script)):
         return "test", [], writes
     if name in ("npm", "yarn", "pnpm", "go", "cargo", "make") and "test" in rest:
         return "test", [], writes
@@ -529,7 +616,7 @@ def analyze_output(output, include_failed=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Offline navigation-cost analysis of Codex exec --json logs; no model calls")
+    parser = argparse.ArgumentParser(description="Offline navigation-cost analysis of Codex exec --json or Claude Code stream-json logs; no model calls")
     parser.add_argument("paths", nargs="+", help="Pilot output directories (with report.json) or events.jsonl files")
     parser.add_argument("--include-failed", action="store_true", help="Also pair trials that failed acceptance")
     parser.add_argument("--output", help="Write JSON here instead of stdout")

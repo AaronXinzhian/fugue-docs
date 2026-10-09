@@ -25,7 +25,7 @@
 - **计量**:从 Claude Code 对话记录按消息去重累计实际用量,写入 `~/.claude/fugue/metrics`,与 Codex 账本格式兼容。对话记录格式不是公开接口,读不到时记为未知,不记成零。
 - **SKILL.md** 正文缩减约四成;装了钩子后,日常写代码不再需要调用技能,手动流程移到 [references/manual-workflow.md](references/manual-workflow.md) 供 Codex 等工具使用。
 
-通过插件市场安装即自动启用钩子(`hooks/hooks.json`),未采用协议的项目零打扰。曾在 `settings.json` 手动登记 `geb_stop_hook.py` 的用户请删除那条配置,避免两个 Stop 钩子同时运行。这一版尚未做真实模型对照,节省效果需要后续试点测量。
+通过插件市场安装即自动启用钩子(`hooks/hooks.json`),未采用协议的项目零打扰。曾在 `settings.json` 手动登记 `geb_stop_hook.py` 的用户请删除那条配置,避免两个 Stop 钩子同时运行。这一版尚未做真实模型对照。试点执行器已支持 Claude Code(`--agent claude`,赋格组以插件加载钩子),并内置外部仓库 Docutils 的四个上游任务;用 `bash evals/run-claude-pilot.sh plan|aa|compare` 先测噪声再测 `index` 对 `fugue`,设计见 [试点设计](evals/token-pilot.md#claude-code-与-docutils)。
 
 ## v2.5: 任务收益单与计量诊断
 

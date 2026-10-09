@@ -16,7 +16,7 @@ fugue-docs/
 ├── agents/            # Codex 技能展示与隐式调用策略
 ├── assets/            # logo 等静态资源
 ├── hooks/             # Claude Code 插件钩子登记(无代码)
-├── evals/             # 评测包:用例、夹具、评分器、三组试点与安全启动入口 → evals/FOLDER_INDEX.md
+├── evals/             # 评测包:用例、夹具、评分器、Codex/Claude Code 三组试点(含外部仓库 docutils)与安全启动入口 → evals/FOLDER_INDEX.md
 ├── references/        # L1/L2/L3 多语言模板库
 └── scripts/           # 全部可执行工具 → scripts/FOLDER_INDEX.md
 ```
@@ -46,9 +46,12 @@ graph TD
     geb_metrics --> geb_telemetry
     geb_telemetry --> Codex_readonly_index
     evals_token_pilot --> Codex_isolated_exec
+    evals_token_pilot --> Claude_Code_print_mode
+    evals_token_pilot --> evals_claude_mock_api
     evals_token_pilot --> evals_navigation
     evals_token_pilot --> geb_check
     evals_navigation --> Codex_exec_events
+    evals_navigation --> Claude_stream_json
     evals_grader --> geb_check
 ```
 

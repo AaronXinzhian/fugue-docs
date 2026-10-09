@@ -25,7 +25,7 @@ Claude Code スキルとしての利用が最良の体験ですが、設計上**
 - **計量**:Claude Code の会話記録からメッセージ単位で重複を除いて実使用量を集計し、Codex と互換の形式で `~/.claude/fugue/metrics` に記録します。会話記録の形式は公開インターフェースではないため、読めない場合はゼロではなく不明とします。
 - **SKILL.md** 本文は約 4 割小さくなりました。フック導入後は通常のコーディングでスキルを呼ぶ必要がなく、Codex など向けの手動手順は [references/manual-workflow.md](references/manual-workflow.md) に移しました。
 
-プラグインマーケットからインストールするとフック(`hooks/hooks.json`)が有効になり、索引のないプロジェクトには干渉しません。`settings.json` に `geb_stop_hook.py` を手動登録していた場合は、Stop フックが二重に動かないよう削除してください。本リリースはまだ実モデルでの対照測定をしていないため、削減効果は今後の試験で確認が必要です。
+プラグインマーケットからインストールするとフック(`hooks/hooks.json`)が有効になり、索引のないプロジェクトには干渉しません。`settings.json` に `geb_stop_hook.py` を手動登録していた場合は、Stop フックが二重に動かないよう削除してください。本リリースはまだ実モデルでの対照測定をしていません。試験ランナーは Claude Code にも対応し(`--agent claude`、fugue 群はフックをプラグインとして読み込む)、外部リポジトリ Docutils の上流タスク 4 件を同梱しました。`bash evals/run-claude-pilot.sh plan|aa|compare` で先にノイズを測り、次に `index` と `fugue` を比較します。設計(中国語):[試験設計](evals/token-pilot.md#claude-code-与-docutils)。
 
 ## v2.5: タスク別レポートと計量診断
 

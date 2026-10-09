@@ -1,0 +1,108 @@
+diff --git a/docutils/parsers/rst/__init__.py b/docutils/parsers/rst/__init__.py
+index 93a89a6d3..259c02096 100644
+--- a/docutils/parsers/rst/__init__.py
++++ b/docutils/parsers/rst/__init__.py
+@@ -117,6 +117,15 @@ class Parser(docutils.parsers.Parser):
+          ('Leave spaces before footnote references.',
+           ['--leave-footnote-reference-space'],
+           {'dest': 'trim_footnote_reference_space', 'action': 'store_false'}),
++         ('Make the "figure" directive\'s "align" option an alias'
++          ' to "figalign" (default).',
++          ['--legacy-figure-align'],
++          {'action': 'store_true', 'default': True,
++           'validator': frontend.validate_boolean}),
++         ('Pass the "figure" directive\'s "align" option to the '
++          ' included image.',
++          ['--figure-image-align'],
++          {'dest': 'trim_footnote_reference_space', 'action': 'store_false'}),
+          ('Token name set for parsing code with Pygments: one of '
+           '"long", "short", or "none" (no parsing).  (default: "long")',
+           ['--syntax-highlight'],
+diff --git a/docutils/parsers/rst/directives/images.py b/docutils/parsers/rst/directives/images.py
+index 67c8887ad..45eb0669f 100644
+--- a/docutils/parsers/rst/directives/images.py
++++ b/docutils/parsers/rst/directives/images.py
+@@ -118,17 +118,25 @@ def figwidth_value(argument):
+ 
+     option_spec = Image.option_spec.copy()
+ 
++    option_spec['align'] = align
++    option_spec['figalign'] = align
+     option_spec['figwidth'] = figwidth_value
+     option_spec['figclass'] = directives.class_option
+     option_spec['figname'] = directives.unchanged
+-    option_spec['align'] = align
+     has_content = True
+ 
+     def run(self):
+         figwidth = self.options.pop('figwidth', None)
+         figclasses = self.options.pop('figclass', None)
+         figname = self.options.pop('figname', None)
+-        align = self.options.pop('align', None)
++        figalign = self.options.pop('figalign', None)
++        if getattr(self.state.document.settings, 'legacy_figure_align', True):
++            align = self.options.pop('align', None)
++            if align and figalign and align != figalign:
++                msg = self.reporter.warning(
++                    'Option "align" overridden by "figalign"',
++                    line=self.lineno)
++            figalign = figalign or align
+         (image_node,) = Image.run(self)
+         if isinstance(image_node, nodes.system_message):
+             return [image_node]
+@@ -153,8 +161,8 @@ def run(self):
+         if figname:
+             figure_node['names'].append(nodes.fully_normalize_name(figname))
+             self.state.document.note_explicit_target(figure_node, figure_node)
+-        if align:
+-            figure_node['align'] = align
++        if figalign:
++            figure_node['align'] = figalign
+         if not self.content:
+             msg = self.reporter.warning('Figure without caption and legend.',
+                                         line=self.lineno)
+diff --git a/test/data/help/docutils.rst b/test/data/help/docutils.rst
+index 6b9187e6f..0df1e5e54 100644
+--- a/test/data/help/docutils.rst
++++ b/test/data/help/docutils.rst
+@@ -113,6 +113,10 @@ reStructuredText Parser Options
+                         Remove spaces before footnote references.
+ --leave-footnote-reference-space
+                         Leave spaces before footnote references.
++--legacy-figure-align   Make the "figure" directive's "align" option an alias
++                        to "figalign" (default).
++--figure-image-align    Pass the "figure" directive's "align" option to the
++                        included image.
+ --syntax-highlight=<format>
+                         Token name set for parsing code with Pygments: one of
+                         "long", "short", or "none" (no parsing).
+diff --git a/test/data/help/rst2html.rst b/test/data/help/rst2html.rst
+index 08ac84327..e2570efb6 100644
+--- a/test/data/help/rst2html.rst
++++ b/test/data/help/rst2html.rst
+@@ -114,6 +114,10 @@ reStructuredText Parser Options
+                         Remove spaces before footnote references.
+ --leave-footnote-reference-space
+                         Leave spaces before footnote references.
++--legacy-figure-align   Make the "figure" directive's "align" option an alias
++                        to "figalign" (default).
++--figure-image-align    Pass the "figure" directive's "align" option to the
++                        included image.
+ --syntax-highlight=<format>
+                         Token name set for parsing code with Pygments: one of
+                         "long", "short", or "none" (no parsing).
+diff --git a/test/data/help/rst2latex.rst b/test/data/help/rst2latex.rst
+index df93a7076..217c2f6f9 100644
+--- a/test/data/help/rst2latex.rst
++++ b/test/data/help/rst2latex.rst
+@@ -114,6 +114,10 @@ reStructuredText Parser Options
+                         Remove spaces before footnote references.
+ --leave-footnote-reference-space
+                         Leave spaces before footnote references.
++--legacy-figure-align   Make the "figure" directive's "align" option an alias
++                        to "figalign" (default).
++--figure-image-align    Pass the "figure" directive's "align" option to the
++                        included image.
+ --syntax-highlight=<format>
+                         Token name set for parsing code with Pygments: one of
+                         "long", "short", or "none" (no parsing).
