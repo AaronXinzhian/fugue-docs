@@ -62,6 +62,7 @@ graph TD
 | README.md / README_EN.md / README_JA.md | 三语说明文档 |
 | PROJECT_INDEX.md | 本文件(L1) |
 | LICENSE | MIT,含思想来源致谢 |
+| .gitattributes | 评测夹具补丁按字节保存,不做换行转换 |
 
 ## 全局约定
 - 所有脚本仅用 Python 3 标准库,最低 Python 3.9;CI 覆盖 macOS/Linux 与 3.9/3.14。
