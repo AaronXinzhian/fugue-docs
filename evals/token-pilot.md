@@ -154,17 +154,21 @@ bash evals/run-claude-pilot.sh plan
 ### 运行
 
 ```bash
-# 0. 一次性:生成长期令牌并导出(令牌不要写进仓库或日志)
+# 0. 安装 Claude Code(官方安装脚本,需要 macOS 13+),然后新开一个终端窗口确认版本
+curl -fsSL https://claude.ai/install.sh | bash
+claude --version
+
+# 1. 零成本:下载并校验任务、本机 Claude Code 自检、保存计划(没装 Claude Code 时只跳过自检)
+bash evals/run-claude-pilot.sh plan
+
+# 2. 一次性:生成一年有效的令牌并导出(需要 Pro、Max、Team 或 Enterprise 订阅;令牌不要写进仓库或日志)
 claude setup-token
 export CLAUDE_CODE_OAUTH_TOKEN=<上一步输出>
 
-# 1. 零成本:下载并校验任务、本机 Claude Code 自检、保存计划
-bash evals/run-claude-pilot.sh plan
-
-# 2. A/A 噪声:index 组跑两遍,默认 4 个任务 × 2 次 = 16 次调用
+# 3. A/A 噪声:index 组跑两遍,默认 4 个任务 × 2 次 = 16 次调用
 bash evals/run-claude-pilot.sh aa
 
-# 3. 按 A/A 的 power_hint 定 REPEATS,再跑 index 对 fugue
+# 4. 按 A/A 的 power_hint 定 REPEATS,再跑 index 对 fugue
 REPEATS=3 bash evals/run-claude-pilot.sh compare
 ```
 

@@ -1069,6 +1069,18 @@ class ClaudeRunnerTests(unittest.TestCase):
             probe = self.probe(Path(directory), report["trials"][0])
             self.assertEqual("3", probe["argv"][probe["argv"].index("--max-turns") + 1])
 
+    def test_missing_claude_cli_is_reported_before_anything_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo, tasks, _ = self.make_source(root)
+            run = subprocess.run([sys.executable, "-B", str(Path(pilot.__file__)), "--agent", "claude",
+                                  "--source-repo", str(repo), "--tasks-file", str(tasks), "--model", "m",
+                                  "--claude", str(root / "missing-claude"), "--claude-selftest"],
+                                 capture_output=True, text=True)
+            self.assertEqual(2, run.returncode)
+            self.assertIn("install.sh", run.stderr)
+            self.assertNotIn("Traceback", run.stderr)
+
     def test_execute_needs_a_token_because_the_config_dir_is_private(self):
         with tempfile.TemporaryDirectory() as directory:
             run = self.run_pilot(Path(directory), token=None, expect=2)

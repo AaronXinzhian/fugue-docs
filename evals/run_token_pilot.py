@@ -1422,6 +1422,9 @@ def main():
         parser.error("hidden acceptance files or reference patches are visible to the model: " + ", ".join(exposed))
     args.deny_read = deny_read_paths(args, task_set, source,
                                      Path(args.output).expanduser().resolve() if args.output else None)
+    if args.agent == "claude" and (args.claude_selftest or args.execute) and not shutil.which(args.claude):
+        parser.error("Claude Code CLI not found (%s). Install it: curl -fsSL https://claude.ai/install.sh | bash, "
+                     "then open a new terminal and check claude --version" % args.claude)
     if args.claude_selftest:
         if args.agent != "claude":
             parser.error("--claude-selftest needs --agent claude")

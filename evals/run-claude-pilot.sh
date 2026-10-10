@@ -75,7 +75,12 @@ args+=(--tasks "${task_list[@]}")
 # 无模型校验先行:下载并缓存固定提交的 docutils,确认无索引与有索引两种工作区里
 # 快照回归通过、验收先失败、参考补丁后全部通过(后出现的 --design 生效)
 "$python" -B "$script_dir/run_token_pilot.py" "${args[@]}" --design three-arm --verify-tasks > "$output.preflight.json"
-if [[ "$stage" == "plan" ]]; then
+selftest_note=""
+if [[ "$stage" == "plan" ]] && ! command -v "${PILOT_CLAUDE:-claude}" >/dev/null 2>&1; then
+    # 还没装 Claude Code:任务校验与计划照常完成,自检留到安装之后
+    selftest_note="skipped: Claude Code not installed (curl -fsSL https://claude.ai/install.sh | bash, then rerun plan)"
+    printf 'Self-test %s\n' "$selftest_note" >&2
+elif [[ "$stage" == "plan" ]]; then
     # 零成本自检:本地假接口驱动你机器上的 claude,确认沙箱、读取禁区、凭据清除、插件与钩子都生效(执行阶段还会再跑一次)
     if ! "$python" -B "$script_dir/run_token_pilot.py" "${args[@]}" --claude-selftest > "$output.selftest.json"; then
         printf 'Claude Code self-test failed; nothing was run. Details and hint: %s.selftest.json\n' "$output" >&2
@@ -84,8 +89,13 @@ if [[ "$stage" == "plan" ]]; then
 fi
 "$python" -B "$script_dir/run_token_pilot.py" "${args[@]}" | tee "$output.plan.json"
 if [[ "$stage" == "plan" ]]; then
-    printf 'No model calls. Verification: %s.preflight.json  Self-test: %s.selftest.json  Plan: %s.plan.json\n' \
-        "$output" "$output" "$output"
+    if [[ -n "$selftest_note" ]]; then
+        printf 'No model calls. Verification: %s.preflight.json  Plan: %s.plan.json  Self-test %s\n' \
+            "$output" "$output" "$selftest_note"
+    else
+        printf 'No model calls. Verification: %s.preflight.json  Self-test: %s.selftest.json  Plan: %s.plan.json\n' \
+            "$output" "$output" "$output"
+    fi
     exit 0
 fi
 

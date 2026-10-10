@@ -121,7 +121,9 @@ class ClaudePilotScriptTests(unittest.TestCase):
             calls = root / "calls.jsonl"
             output = root / "private output"
             env = {key: value for key, value in os.environ.items() if key not in self.SETTINGS}
-            env.update(PILOT_PYTHON=str(fake), PILOT_OUTPUT=str(output), WRAPPER_CALLS=str(calls))
+            # 默认把 claude 指向一个一定存在的可执行文件,结果不随本机是否装了 Claude Code 变化
+            env.update(PILOT_PYTHON=str(fake), PILOT_OUTPUT=str(output), WRAPPER_CALLS=str(calls),
+                       PILOT_CLAUDE=sys.executable)
             env.update(settings or {})
             result = subprocess.run(["bash", str(CLAUDE_SCRIPT), *args], cwd=root, env=env,
                                     capture_output=True, text=True, timeout=20)
@@ -146,6 +148,14 @@ class ClaudePilotScriptTests(unittest.TestCase):
         self.assertEqual(4, len(plan[plan.index("--tasks") + 1:]))
         self.assertNotIn("--effort", plan)
         self.assertNotIn("--max-turns", plan)
+
+    def test_plan_without_claude_code_still_verifies_and_plans(self):
+        result, calls = self.run_script(settings={"PILOT_CLAUDE": "/nonexistent/claude"})
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(2, len(calls))
+        self.assertIn("--verify-tasks", calls[0])
+        self.assertFalse(any("--claude-selftest" in call for call in calls))
+        self.assertIn("Claude Code not installed", result.stdout + result.stderr)
 
     def test_failed_selftest_stops_the_plan(self):
         result, calls = self.run_script(settings={"FAIL_SELFTEST": "1"})
