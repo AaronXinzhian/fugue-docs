@@ -211,7 +211,7 @@ A/A 设计把同一组跑两遍(`index-a`、`index-b`),比较名为 `noise`。�
 python3 -B evals/analyze_navigation.py /private/tmp/<试验输出目录> --output nav.json
 ```
 
-不调用模型。可直接分析已有私有输出目录,包括 2026-09-30 预检保留在本地的 `events.jsonl`(旧标签 `baseline`/`fugue` 自动按 `workflow_effect` 配对)。没有 `report.json` 时只输出逐次结果。Claude Code 的 stream-json 会先折算成同样的条目:`Read` 记为读取,`Grep` 记为搜索,`Glob` 记为列目录,`Skill` 记为读取技能文档,编辑与写文件工具记为文件修改,子代理的工具调用一并计入。Claude 的编辑工具是原子的,报错的编辑(找不到原文、权限拒绝)没有写入,既不算修改也不让首次修改边界变得不确定。
+不调用模型。可直接分析已有私有输出目录,包括 2026-09-30 预检保留在本地的 `events.jsonl`(旧标签 `baseline`/`fugue` 自动按 `workflow_effect` 配对)。没有 `report.json` 时只输出逐次结果。Claude Code 的 stream-json 会先折算成同样的条目:`Read` 记为读取,`Grep` 记为搜索,`Glob` 记为列目录,`Skill` 记为读取技能文档,编辑与写文件工具记为文件修改,子代理的工具调用一并计入。Claude 的编辑工具是原子的,报错的编辑(找不到原文、权限拒绝)没有写入,既不算修改也不让首次修改边界变得不确定。被 CLI 权限检查拒绝的调用(stream 里的 `permission_denied` 事件)同样没有执行。模型最常用内联 Python 改文件(`p='...'; open(p,'w').write(...)`),写入目标在变量里时按同一脚本里的简单赋值还原;还原不了、脚本里也没有临时目录迹象时记为工作区内的修改。首轮 A/A 里,这一改动让能找到首次修改的试验从 16 次中的 7 次增加到 14 次。
 
 命令分类是启发式的:展开 `bash -lc` 包装,按管道和 `&&` 拆分;先判修改(`apply_patch`、`sed -i`、`tee`、重定向写入、内联 Python 写文件、`file_change` 事件;写入临时目录或未展开的 shell 变量路径不算首次修改),再判运行测试(`pytest`、`python -m unittest`、直接运行 `test_*.py`),然后是 `cat`/`sed`/`head` 等读取和 `rg`/`grep` 搜索;读到 `test_*.py` 仍记为读取。以 Python 运行 `geb_*.py` 记为赋格流程,运行 `alltests.py` 也记为测试。支持 Codex `exec --json` 事件流(兼容 `type` 与旧 `item_type` 字段)和 Claude Code `-p --output-format stream-json --verbose`;其他代理需要另写适配。
 

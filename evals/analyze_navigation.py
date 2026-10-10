@@ -103,6 +103,9 @@ def from_claude_stream(events):
     子代理的工具调用(parent_tool_use_id 非空)同样计入:它们也是定位成本。
     """
     converted, uses = [], {}
+    # 被 CLI 权限检查拒绝的调用根本没有执行:不算读取、搜索或修改,也不让首次修改边界变得不确定
+    denied = {e.get("tool_use_id") for e in events
+              if e.get("type") == "system" and e.get("subtype") == "permission_denied" and e.get("tool_use_id")}
     for position, event in enumerate(events):
         message = event.get("message") if isinstance(event.get("message"), dict) else None
         if message is None:
@@ -126,8 +129,11 @@ def from_claude_stream(events):
         elif event.get("type") == "user":
             for block in blocks:
                 if isinstance(block, dict) and block.get("type") == "tool_result" and block.get("tool_use_id") in uses:
-                    converted.append({"type": "item.completed",
-                                      "item": claude_tool_item(uses[block["tool_use_id"]], block)})
+                    use = uses[block["tool_use_id"]]
+                    item = ({"id": use.get("id"), "tool": use.get("name"), "type": "tool_call", "status": "failed",
+                             "permission_denied": True} if block["tool_use_id"] in denied
+                            else claude_tool_item(use, block))
+                    converted.append({"type": "item.completed", "item": item})
     return converted
 
 
@@ -359,6 +365,29 @@ SYSTEM_PREFIXES = ("/usr", "/etc", "/opt", "/lib", "/bin", "/proc", "/sys", "/Sy
 PYTHON_WRITE = re.compile(r"""(?:Path\(\s*['"]([^'"]+)['"]\s*\)\s*\.write_(?:text|bytes)"""
                           r"""|open\(\s*['"]([^'"]+)['"]\s*,\s*['"][wax])""")
 PYTHON_INLINE = re.compile(r"(^|[\s;&|(\"'])python[0-9.]*\s+(-\s*<<|-c\s)")
+PYTHON_ASSIGN = re.compile(r"""\b(\w+)\s*=\s*(?:(?:pathlib\.)?Path\(\s*)?['"]([^'"]+)['"]""")
+PYTHON_VAR_WRITE = re.compile(r"""open\(\s*(\w+)\s*,\s*['"][wax]|Path\(\s*(\w+)\s*\)\s*\.write_(?:text|bytes)"""
+                              r"""|\b(\w+)\.write_(?:text|bytes)\(""")
+PYTHON_SCRATCH_HINT = re.compile(r"/tmp\b|/private/|tempfile|mkdtemp|TMPDIR|gettempdir")
+
+
+def python_write_targets(raw):
+    """内联 Python 的写入目标:字面量路径;写在变量里时按同一脚本里的简单赋值还原。
+
+    还原不了、脚本里也没有临时目录迹象时,记为工作区内的未知文件("<python>"):模型改代码最常见的写法就是
+    p='...'; s=open(p).read(); open(p,'w').write(...),全按"位置未知"处理会让大多数试验找不到首次修改。
+    """
+    targets = [a or b for a, b in PYTHON_WRITE.findall(raw)]
+    if targets:
+        return targets
+    assigned = dict(PYTHON_ASSIGN.findall(raw))
+    for names in PYTHON_VAR_WRITE.findall(raw):
+        name = next(n for n in names if n)
+        if name in assigned:
+            targets.append(assigned[name])
+    if not targets and not PYTHON_SCRATCH_HINT.search(raw):
+        targets = ["<python>"]
+    return targets
 
 
 def is_scratch(path):
@@ -437,10 +466,11 @@ def analyze_events(events):
         for path in PATCH_PATH.findall(raw):
             writes.append(path.strip())
             kinds.append("edit")
-        if PYTHON_INLINE.search(raw) and (PYTHON_WRITE.search(raw) or ".write(" in raw):
-            targets = [a or b for a, b in PYTHON_WRITE.findall(raw)]
+        if PYTHON_INLINE.search(raw) and (PYTHON_WRITE.search(raw) or ".write(" in raw
+                                          or PYTHON_VAR_WRITE.search(raw)):
+            targets = python_write_targets(raw)
             writes.extend(targets)
-            # 写入目标写在变量里时无法确认位置,保守地不当作首次修改
+            # 脚本有临时目录迹象而目标又还原不了时,保守地不当作首次修改
             kinds.append("edit" if targets else "other")
         if "edit" in kinds and writes and all(is_scratch(w) for w in writes):
             kinds = [k for k in kinds if k != "edit"] or ["other"]
