@@ -16,6 +16,16 @@
 
 以 Claude Code skill 为最佳体验,同时**万模通用**:Codex、Cursor、Windsurf、Cline(可接 DeepSeek 等任意模型)、Copilot 乃至网页聊天,一条命令即可接入同一协议与同一套硬约束,详见[「万模通用」](#万模通用任何工具任何模型)一节。
 
+## 实测效果
+
+先说结论:**目前没有测出能省 token,但在我们的对比里提高了任务通过率。**
+
+- **token**:Codex 首轮试点里,完整赋格流程比只有索引多花 44%–82%。v2.7 把同步、检查和计量交给程序后,在 Claude Code 上跑了 72 次对比(外部仓库 Docutils,4 个小任务):装插件和不装插件的未缓存输入加输出大致持平(+5.7%,95% 区间 −4.1% 至 +16.5%)。小任务上模型用 `grep` 几步就能找到要改的地方,读索引是额外的阅读,不会让它更省。
+- **通过率**:同一对比里,读了索引的两组 48 次全部通过,不读索引的一组 24 次通过 19 次。失败的 5 次里有 4 次没有按项目要求在 `test/` 下跑整套测试,模型自己写的测试在官方跑法下出错。这条要求写在 L1 里,读了索引的模型照着做了。所以收益来自"把项目知识写下来,让模型每次都读到",不是定位更快。
+- **范围**:一个模型、一个仓库、4 个小任务。是否适用于你的项目,可以用 [evals/](evals/token-pilot.md) 里的试点在自己的仓库上测。完整数据和边界见 [试点记录](evals/TOKEN_PILOT_RESULTS.md)。
+
+适合的用法:把模型容易忽略的项目约定(测试怎么跑、哪些目录是生成的、改动要配什么测试)写进索引,让模型每次都能读到。
+
 ## v2.7: Claude Code 钩子,模型只做语义
 
 首轮三组试点显示,完整赋格流程在小改动上比只有索引多花 44%–82% 的未缓存输入加输出,主要花在模型反复阅读技能文档、亲手执行计量、同步和检查脚本上。v2.7 把这些交给程序:
@@ -25,13 +35,13 @@
 - **计量**:从 Claude Code 对话记录按消息去重累计实际用量,写入 `~/.claude/fugue/metrics`,与 Codex 账本格式兼容。对话记录格式不是公开接口,读不到时记为未知,不记成零。
 - **SKILL.md** 正文缩减约四成;装了钩子后,日常写代码不再需要调用技能,手动流程移到 [references/manual-workflow.md](references/manual-workflow.md) 供 Codex 等工具使用。
 
-通过插件市场安装即自动启用钩子(`hooks/hooks.json`),未采用协议的项目零打扰。曾在 `settings.json` 手动登记 `geb_stop_hook.py` 的用户请删除那条配置,避免两个 Stop 钩子同时运行。试点执行器已支持 Claude Code(`--agent claude`,赋格组以插件加载钩子),并内置外部仓库 Docutils 的四个上游任务;`bash evals/run-claude-pilot.sh plan|aa|compare` 先测噪声,再比较 `index`(有索引、无提示)、`hint`(`CLAUDE.md` 一句导航提示)和 `fugue`(插件),设计见 [试点设计](evals/token-pilot.md#claude-code-与-docutils)。首轮 72 次对比(Sonnet 5.5,4 个小任务):钩子没有可检出的额外开销;读索引的两组未缓存输入加输出多约两成,但通过率 24/24,不读索引的组 19/24;插件整体与普通 Claude Code 大致持平。这还不是节省结论,细节与边界见 [试点记录](evals/TOKEN_PILOT_RESULTS.md)。
+通过插件市场安装即自动启用钩子(`hooks/hooks.json`),未采用协议的项目零打扰。曾在 `settings.json` 手动登记 `geb_stop_hook.py` 的用户请删除那条配置,避免两个 Stop 钩子同时运行。试点执行器已支持 Claude Code(`--agent claude`,赋格组以插件加载钩子),并内置外部仓库 Docutils 的四个上游任务;`bash evals/run-claude-pilot.sh plan|aa|compare` 先测噪声,再比较 `index`(有索引、无提示)、`hint`(`CLAUDE.md` 一句导航提示)和 `fugue`(插件),设计见 [试点设计](evals/token-pilot.md#claude-code-与-docutils)。首轮 72 次对比的结果见上文 [实测效果](#实测效果):钩子本身没有可检出的额外开销。
 
 ## v2.5: 任务收益单与计量诊断
 
 每次任务可输出实际 token、记录区间耗时、验收结果和对照状态。新增 `doctor` 会话诊断、分页日志发现、有效计量覆盖率与显式阶段记录。无新遥测不记成零,无合格对照不声称节省。使用方式见 [计量说明](references/token-accounting.md),预算受限的重复试点见 [试点设计](evals/token-pilot.md)。
 
-[最新三组试点记录](evals/TOKEN_PILOT_RESULTS.md):首轮完成 6 次调用、两个三组块后触发预算停止,5 次验收通过。两项有效流程配对中,完整赋格的未缓存输入加输出分别高于仅索引 44.2% 和 82.0%;未观察到节省,不能推广为其他项目结论。
+[Codex 首轮三组试点记录](evals/TOKEN_PILOT_RESULTS.md):首轮完成 6 次调用、两个三组块后触发预算停止,5 次验收通过。两项有效流程配对中,完整赋格的未缓存输入加输出分别高于仅索引 44.2% 和 82.0%;未观察到节省,不能推广为其他项目结论。
 
 ## v2.4 与 Codex
 
@@ -163,7 +173,7 @@ python3 scripts/geb_arch.py /path/to/project --out .geb-arch.json --brief .geb-a
 
 `geb_arch` 会从静态分析事实生成入口候选、模块角色候选、顶层依赖边、循环依赖/孤立模块/legacy 文件等风险提示,并在输出里附证据与启发式分数。它的输出不是最终文档,而是给 AI 的事实包:AI 先核对候选,再把可靠判断写入 L1/L2/L3 的语义字段。
 
-### 确定性脚手架(大项目初始化提速)
+### 确定性脚手架(大项目初始化)
 
 ```bash
 python3 scripts/geb_scaffold.py /path/to/project           # 生成骨架(幂等,绝不覆盖已有内容)
