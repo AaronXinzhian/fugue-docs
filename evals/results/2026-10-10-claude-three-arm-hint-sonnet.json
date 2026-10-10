@@ -1,0 +1,5189 @@
+{
+  "schema": "geb.token-pilot.v2",
+  "agent": "claude",
+  "agent_version": "2.1.296 (Claude Code)",
+  "source_commit": "83968aa2ff06a122db3f34363763a9cfc6e1f4db",
+  "external_source": {
+    "name": "docutils",
+    "git": "https://github.com/docutils/docutils",
+    "commit": "92a50f6f73adcad8ba5db988c477fd75854c893b",
+    "subdir": "docutils",
+    "tree": "f05215dab6ed756a1998594d3261acd4bf51dc9c"
+  },
+  "source_index_files": 20,
+  "model": "claude-sonnet-5-5",
+  "effort": null,
+  "design": "three-arm-hint",
+  "arms": [
+    [
+      "index",
+      "index"
+    ],
+    [
+      "hint",
+      "hint"
+    ],
+    [
+      "fugue",
+      "fugue"
+    ]
+  ],
+  "comparisons": [
+    [
+      "index",
+      "hint",
+      "hint_effect"
+    ],
+    [
+      "hint",
+      "fugue",
+      "hooks_effect"
+    ],
+    [
+      "index",
+      "fugue",
+      "plugin_effect"
+    ]
+  ],
+  "hint_arm": {
+    "file": "CLAUDE.md",
+    "text": "本项目使用赋格索引:先读 PROJECT_INDEX.md,再读目标目录 FOLDER_INDEX.md 和文件头定位,然后读代码。"
+  },
+  "prompt_style": "symptom",
+  "tasks_sha256": "7eecbc2a45891487d09147158dfc2fda4f9e5c1f0f6465d9a98cb3ddb2e9a2cc",
+  "skill_commit": "b716e85bd018e25975be833ce410802f80ac02c5",
+  "runner_sha256": "fd932d197a7123918b695dcb54a04a1f7a1c11631e914bab36d3a2249085b867",
+  "source_archive_sha256": "2cffac10ab6db20017c903841f6656182e0a027915f6e341367c38c65594c091",
+  "skill_sha256": "22f5b5ff12d04c93f3158b05cb59f956f49e5987875e49290c9b60c439059674",
+  "seed": 730,
+  "planned_blocks": 24,
+  "planned_trials": 72,
+  "schedule": [
+    {
+      "task": "language-fallback",
+      "repeat": 6,
+      "order": [
+        "index",
+        "fugue",
+        "hint"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "order": [
+        "index",
+        "hint",
+        "fugue"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "order": [
+        "hint",
+        "fugue",
+        "index"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 1,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 3,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 3,
+      "order": [
+        "index",
+        "hint",
+        "fugue"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 4,
+      "order": [
+        "index",
+        "hint",
+        "fugue"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 2,
+      "order": [
+        "fugue",
+        "hint",
+        "index"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 1,
+      "order": [
+        "hint",
+        "fugue",
+        "index"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 3,
+      "order": [
+        "index",
+        "hint",
+        "fugue"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 2,
+      "order": [
+        "hint",
+        "index",
+        "fugue"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 5,
+      "order": [
+        "index",
+        "fugue",
+        "hint"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 5,
+      "order": [
+        "hint",
+        "fugue",
+        "index"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 3,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 5,
+      "order": [
+        "hint",
+        "fugue",
+        "index"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 5,
+      "order": [
+        "hint",
+        "index",
+        "fugue"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 6,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 4,
+      "order": [
+        "index",
+        "hint",
+        "fugue"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 6,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 6,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "order": [
+        "hint",
+        "index",
+        "fugue"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 4,
+      "order": [
+        "index",
+        "fugue",
+        "hint"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 4,
+      "order": [
+        "fugue",
+        "index",
+        "hint"
+      ]
+    }
+  ],
+  "primary_metric": "uncached_plus_output",
+  "usage_definition": "uncached input = fresh input + cache writes; cached input = cache reads; totals from result.modelUsage (includes subagents)",
+  "claude_credential": [
+    "CLAUDE_CODE_OAUTH_TOKEN"
+  ],
+  "claude_isolation": {
+    "sandbox": "on",
+    "bash_cannot_read_answer_dirs": true,
+    "bash_sees_no_credentials": true,
+    "note": null
+  },
+  "claude_environment": {
+    "version": "2.1.296",
+    "model": "claude-sonnet-5-5",
+    "api_key_source": "none",
+    "plugins": [
+      "cc-plugin-agents-md",
+      "cc-plugin-plugin-authoring"
+    ],
+    "tools": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "NotebookEdit",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "mcp_servers": []
+  },
+  "cost_budget_usd": 25.0,
+  "timeout_per_trial": 1500,
+  "evidence_level": "test_passed_pairs_only_pending_independent_semantic_review",
+  "stop_reason": "schedule_complete",
+  "note": "De-identified three-arm record on the user's Mac: per-trial numbers, statuses, hook counters and recomputed navigation proxies only. Prompts, patches, event logs, transcripts and local paths are not published.",
+  "claude_selftest": {
+    "ok": true,
+    "checks": {
+      "run_completed": true,
+      "fugue_plugin_loaded": true,
+      "hooks_ran": true,
+      "stop_hook_prompted_semantics": true,
+      "bash_ran": true,
+      "python3_runs": true,
+      "git_runs": true,
+      "task_tests_pass_in_sandbox": true,
+      "sandbox_active": true,
+      "outside_write_blocked": true,
+      "deny_read_effective": true,
+      "credentials_hidden_from_bash": true
+    },
+    "claude_version": "2.1.296",
+    "test_command": "cd test && python3 -B alltests.py"
+  },
+  "trials": [
+    {
+      "trial_id": "language-fallback-6-index",
+      "task": "language-fallback",
+      "repeat": 6,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 19461,
+        "total_tokens": 195048,
+        "input_tokens": 192244,
+        "cached_input_tokens": 175587,
+        "cache_creation_input_tokens": 16641,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2804,
+        "cost_usd": 0.11219470000000001,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 32.964,
+      "num_turns": 12,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 3,
+          "output_chars": 5101,
+          "index_reads": 0
+        },
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-6-fugue",
+      "task": "language-fallback",
+      "repeat": 6,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16736,
+        "total_tokens": 151176,
+        "input_tokens": 149538,
+        "cached_input_tokens": 134440,
+        "cache_creation_input_tokens": 15086,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1638,
+        "cost_usd": 0.090192,
+        "turns": 6,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 23.662,
+      "num_turns": 6,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 10997,
+          "index_reads": 2
+        },
+        "total_commands": 5,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "language-fallback-6-hint",
+      "task": "language-fallback",
+      "repeat": 6,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22074,
+        "total_tokens": 244404,
+        "input_tokens": 241122,
+        "cached_input_tokens": 222330,
+        "cache_creation_input_tokens": 18774,
+        "fresh_input_tokens": 18,
+        "output_tokens": 3282,
+        "cost_usd": 0.130185,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 36.659,
+      "num_turns": 13,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 3,
+          "output_chars": 11651,
+          "index_reads": 1
+        },
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-2-index",
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 19429,
+        "total_tokens": 278738,
+        "input_tokens": 276509,
+        "cached_input_tokens": 259309,
+        "cache_creation_input_tokens": 17178,
+        "fresh_input_tokens": 22,
+        "output_tokens": 2229,
+        "cost_usd": 0.11697689999999998,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 60.009,
+      "num_turns": 12,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 6,
+          "output_chars": 8606,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-2-hint",
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 23442,
+        "total_tokens": 308932,
+        "input_tokens": 305899,
+        "cached_input_tokens": 285490,
+        "cache_creation_input_tokens": 20387,
+        "fresh_input_tokens": 22,
+        "output_tokens": 3033,
+        "cost_usd": 0.14047099999999998,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 37.161,
+      "num_turns": 13,
+      "permission_denials": 4,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 4,
+          "output_chars": 18316,
+          "index_reads": 1
+        },
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-2-fugue",
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22591,
+        "total_tokens": 297402,
+        "input_tokens": 293702,
+        "cached_input_tokens": 274811,
+        "cache_creation_input_tokens": 18869,
+        "fresh_input_tokens": 22,
+        "output_tokens": 3700,
+        "cost_usd": 0.1400011,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 44.885,
+      "num_turns": 16,
+      "permission_denials": 4,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-1-hint",
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 23105,
+        "total_tokens": 363097,
+        "input_tokens": 359805,
+        "cached_input_tokens": 339992,
+        "cache_creation_input_tokens": 19787,
+        "fresh_input_tokens": 26,
+        "output_tokens": 3292,
+        "cost_usd": 0.1461192,
+        "turns": 17,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 41.009,
+      "num_turns": 17,
+      "permission_denials": 5,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 10,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-1-fugue",
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22093,
+        "total_tokens": 333160,
+        "input_tokens": 330177,
+        "cached_input_tokens": 311067,
+        "cache_creation_input_tokens": 19086,
+        "fresh_input_tokens": 24,
+        "output_tokens": 2983,
+        "cost_usd": 0.1373287,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 40.882,
+      "num_turns": 16,
+      "permission_denials": 4,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 10,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-1-index",
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "condition": "index",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20811,
+        "total_tokens": 260217,
+        "input_tokens": 256780,
+        "cached_input_tokens": 239406,
+        "cache_creation_input_tokens": 17354,
+        "fresh_input_tokens": 20,
+        "output_tokens": 3437,
+        "cost_usd": 0.1277666,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 36.22,
+      "num_turns": 11,
+      "permission_denials": 4,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-1-fugue",
+      "task": "language-fallback",
+      "repeat": 1,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16743,
+        "total_tokens": 147568,
+        "input_tokens": 145954,
+        "cached_input_tokens": 130825,
+        "cache_creation_input_tokens": 15117,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1614,
+        "cost_usd": 0.0897145,
+        "turns": 6,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 22.727,
+      "num_turns": 6,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 9448,
+          "index_reads": 1
+        },
+        "total_commands": 5,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-1-index",
+      "task": "language-fallback",
+      "repeat": 1,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16456,
+        "total_tokens": 216499,
+        "input_tokens": 213989,
+        "cached_input_tokens": 200043,
+        "cache_creation_input_tokens": 13928,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2510,
+        "cost_usd": 0.1008523,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 34.445,
+      "num_turns": 11,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 2,
+          "output_chars": 6628,
+          "index_reads": 0
+        },
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-1-hint",
+      "task": "language-fallback",
+      "repeat": 1,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 21121,
+        "total_tokens": 208999,
+        "input_tokens": 206232,
+        "cached_input_tokens": 187878,
+        "cache_creation_input_tokens": 18338,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2767,
+        "cost_usd": 0.11984180000000001,
+        "turns": 9,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 31.974,
+      "num_turns": 9,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 5,
+          "output_chars": 10161,
+          "index_reads": 3
+        },
+        "total_commands": 7,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "language-fallback-3-fugue",
+      "task": "language-fallback",
+      "repeat": 3,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16358,
+        "total_tokens": 171327,
+        "input_tokens": 169381,
+        "cached_input_tokens": 154969,
+        "cache_creation_input_tokens": 14398,
+        "fresh_input_tokens": 14,
+        "output_tokens": 1946,
+        "cost_usd": 0.09257689999999999,
+        "turns": 8,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 26.18,
+      "num_turns": 8,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 9448,
+          "index_reads": 1
+        },
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-3-index",
+      "task": "language-fallback",
+      "repeat": 3,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 19671,
+        "total_tokens": 294082,
+        "input_tokens": 290405,
+        "cached_input_tokens": 274411,
+        "cache_creation_input_tokens": 15970,
+        "fresh_input_tokens": 24,
+        "output_tokens": 3677,
+        "cost_usd": 0.1281391,
+        "turns": 17,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 40.763,
+      "num_turns": 17,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 5,
+          "output_chars": 7594,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-3-hint",
+      "task": "language-fallback",
+      "repeat": 3,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20908,
+        "total_tokens": 258941,
+        "input_tokens": 256387,
+        "cached_input_tokens": 238033,
+        "cache_creation_input_tokens": 18334,
+        "fresh_input_tokens": 20,
+        "output_tokens": 2554,
+        "cost_usd": 0.1227193,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 36.364,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 5,
+          "output_chars": 12520,
+          "index_reads": 3
+        },
+        "total_commands": 10,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "figure-figalign-3-index",
+      "task": "figure-figalign",
+      "repeat": 3,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 27031,
+        "total_tokens": 338998,
+        "input_tokens": 334234,
+        "cached_input_tokens": 311967,
+        "cache_creation_input_tokens": 22243,
+        "fresh_input_tokens": 24,
+        "output_tokens": 4764,
+        "cost_usd": 0.16785670000000003,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 48.705,
+      "num_turns": 13,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 9,
+          "output_chars": 18202,
+          "index_reads": 0
+        },
+        "total_commands": 12,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-3-hint",
+      "task": "figure-figalign",
+      "repeat": 3,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 36418,
+        "total_tokens": 419048,
+        "input_tokens": 411294,
+        "cached_input_tokens": 382630,
+        "cache_creation_input_tokens": 28638,
+        "fresh_input_tokens": 26,
+        "output_tokens": 7754,
+        "cost_usd": 0.230407,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 65.816,
+      "num_turns": 14,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 10,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-3-fugue",
+      "task": "figure-figalign",
+      "repeat": 3,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 25674,
+        "total_tokens": 289195,
+        "input_tokens": 284917,
+        "cached_input_tokens": 263521,
+        "cache_creation_input_tokens": 21376,
+        "fresh_input_tokens": 20,
+        "output_tokens": 4278,
+        "cost_usd": 0.1546761,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 48.456,
+      "num_turns": 10,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 9,
+          "output_chars": 19305,
+          "index_reads": 2
+        },
+        "total_commands": 9,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-4-index",
+      "task": "source-date-epoch",
+      "repeat": 4,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 28148,
+        "total_tokens": 350433,
+        "input_tokens": 344169,
+        "cached_input_tokens": 322285,
+        "cache_creation_input_tokens": 21858,
+        "fresh_input_tokens": 26,
+        "output_tokens": 6264,
+        "cost_usd": 0.1823525,
+        "turns": 18,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 57.869,
+      "num_turns": 18,
+      "permission_denials": 2,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 6,
+          "output_chars": 9482,
+          "index_reads": 0
+        },
+        "total_commands": 9,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-4-hint",
+      "task": "source-date-epoch",
+      "repeat": 4,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 35307,
+        "total_tokens": 337936,
+        "input_tokens": 332477,
+        "cached_input_tokens": 302629,
+        "cache_creation_input_tokens": 29826,
+        "fresh_input_tokens": 22,
+        "output_tokens": 5459,
+        "cost_usd": 0.20420090000000002,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 51.234,
+      "num_turns": 14,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 5,
+          "output_chars": 12083,
+          "index_reads": 1
+        },
+        "total_commands": 10,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-4-fugue",
+      "task": "source-date-epoch",
+      "repeat": 4,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 40182,
+        "total_tokens": 808207,
+        "input_tokens": 799171,
+        "cached_input_tokens": 768025,
+        "cache_creation_input_tokens": 31100,
+        "fresh_input_tokens": 46,
+        "output_tokens": 9036,
+        "cost_usd": 0.29165450000000004,
+        "turns": 28,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 87.769,
+      "num_turns": 28,
+      "permission_denials": 6,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 113,
+        "auto_writes": 2,
+        "prompted_gaps": 1,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 8,
+          "output_chars": 15938,
+          "index_reads": 2
+        },
+        "total_commands": 15,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-2-fugue",
+      "task": "figure-figalign",
+      "repeat": 2,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 29741,
+        "total_tokens": 303734,
+        "input_tokens": 298470,
+        "cached_input_tokens": 273993,
+        "cache_creation_input_tokens": 24457,
+        "fresh_input_tokens": 20,
+        "output_tokens": 5264,
+        "cost_usd": 0.17790730000000002,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 54.122,
+      "num_turns": 10,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 10,
+          "output_chars": 24281,
+          "index_reads": 2
+        },
+        "total_commands": 9,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-2-hint",
+      "task": "figure-figalign",
+      "repeat": 2,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 28519,
+        "total_tokens": 373390,
+        "input_tokens": 368728,
+        "cached_input_tokens": 344871,
+        "cache_creation_input_tokens": 23833,
+        "fresh_input_tokens": 24,
+        "output_tokens": 4662,
+        "cost_usd": 0.17648710000000004,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 56.034,
+      "num_turns": 13,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 9,
+          "output_chars": 21201,
+          "index_reads": 2
+        },
+        "total_commands": 9,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-2-index",
+      "task": "figure-figalign",
+      "repeat": 2,
+      "condition": "index",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 25899,
+        "total_tokens": 305908,
+        "input_tokens": 301385,
+        "cached_input_tokens": 280009,
+        "cache_creation_input_tokens": 21354,
+        "fresh_input_tokens": 22,
+        "output_tokens": 4523,
+        "cost_usd": 0.1586909,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 48.036,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 6,
+          "output_chars": 18120,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-1-hint",
+      "task": "figure-figalign",
+      "repeat": 1,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 37814,
+        "total_tokens": 571354,
+        "input_tokens": 564001,
+        "cached_input_tokens": 533540,
+        "cache_creation_input_tokens": 30427,
+        "fresh_input_tokens": 34,
+        "output_tokens": 7353,
+        "cost_usd": 0.24866000000000002,
+        "turns": 18,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 76.845,
+      "num_turns": 18,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 7,
+          "files_read": 12,
+          "output_chars": 25751,
+          "index_reads": 2
+        },
+        "total_commands": 16,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-1-fugue",
+      "task": "figure-figalign",
+      "repeat": 1,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 28127,
+        "total_tokens": 428102,
+        "input_tokens": 422672,
+        "cached_input_tokens": 399975,
+        "cache_creation_input_tokens": 22669,
+        "fresh_input_tokens": 28,
+        "output_tokens": 5430,
+        "cost_usd": 0.1850295,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 58.741,
+      "num_turns": 16,
+      "permission_denials": 5,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 7,
+          "output_chars": 15576,
+          "index_reads": 1
+        },
+        "total_commands": 10,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "figure-figalign-1-index",
+      "task": "figure-figalign",
+      "repeat": 1,
+      "condition": "index",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 39736,
+        "total_tokens": 634413,
+        "input_tokens": 623515,
+        "cached_input_tokens": 594677,
+        "cache_creation_input_tokens": 28800,
+        "fresh_input_tokens": 38,
+        "output_tokens": 10898,
+        "cost_usd": 0.2837237,
+        "turns": 31,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 89.669,
+      "num_turns": 31,
+      "permission_denials": 4,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 5,
+          "output_chars": 17276,
+          "index_reads": 0
+        },
+        "total_commands": 14,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-3-index",
+      "task": "source-date-epoch",
+      "repeat": 3,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 23589,
+        "total_tokens": 301650,
+        "input_tokens": 296323,
+        "cached_input_tokens": 278061,
+        "cache_creation_input_tokens": 18238,
+        "fresh_input_tokens": 24,
+        "output_tokens": 5327,
+        "cost_usd": 0.1540761,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 48.657,
+      "num_turns": 14,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 7,
+          "files_read": 6,
+          "output_chars": 9538,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-3-hint",
+      "task": "source-date-epoch",
+      "repeat": 3,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 29936,
+        "total_tokens": 333288,
+        "input_tokens": 329273,
+        "cached_input_tokens": 303352,
+        "cache_creation_input_tokens": 25897,
+        "fresh_input_tokens": 24,
+        "output_tokens": 4015,
+        "cost_usd": 0.17412120000000003,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 48.071,
+      "num_turns": 12,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 7,
+          "output_chars": 10806,
+          "index_reads": 1
+        },
+        "total_commands": 11,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-3-fugue",
+      "task": "source-date-epoch",
+      "repeat": 3,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 40875,
+        "total_tokens": 787062,
+        "input_tokens": 780207,
+        "cached_input_tokens": 746187,
+        "cache_creation_input_tokens": 33976,
+        "fresh_input_tokens": 44,
+        "output_tokens": 6855,
+        "cost_usd": 0.27916070000000004,
+        "turns": 25,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 82.086,
+      "num_turns": 25,
+      "permission_denials": 2,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 177,
+        "auto_writes": 4,
+        "prompted_gaps": 2,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 11,
+          "output_chars": 16607,
+          "index_reads": 2
+        },
+        "total_commands": 17,
+        "total_index_reads": 4
+      }
+    },
+    {
+      "trial_id": "language-fallback-2-hint",
+      "task": "language-fallback",
+      "repeat": 2,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 18253,
+        "total_tokens": 150183,
+        "input_tokens": 148286,
+        "cached_input_tokens": 131930,
+        "cache_creation_input_tokens": 16344,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1897,
+        "cost_usd": 0.097563,
+        "turns": 7,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 23.136,
+      "num_turns": 7,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 4,
+          "output_chars": 11376,
+          "index_reads": 1
+        },
+        "total_commands": 6,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-2-index",
+      "task": "language-fallback",
+      "repeat": 2,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17011,
+        "total_tokens": 263265,
+        "input_tokens": 260530,
+        "cached_input_tokens": 246254,
+        "cache_creation_input_tokens": 14254,
+        "fresh_input_tokens": 22,
+        "output_tokens": 2735,
+        "cost_usd": 0.10903539999999998,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 35.581,
+      "num_turns": 13,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 3,
+          "output_chars": 5567,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-2-fugue",
+      "task": "language-fallback",
+      "repeat": 2,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 19317,
+        "total_tokens": 234813,
+        "input_tokens": 232262,
+        "cached_input_tokens": 215496,
+        "cache_creation_input_tokens": 16748,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2551,
+        "cost_usd": 0.1140876,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 35.073,
+      "num_turns": 10,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 9617,
+          "index_reads": 1
+        },
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-5-index",
+      "task": "source-date-epoch",
+      "repeat": 5,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20692,
+        "total_tokens": 220755,
+        "input_tokens": 216729,
+        "cached_input_tokens": 200063,
+        "cache_creation_input_tokens": 16648,
+        "fresh_input_tokens": 18,
+        "output_tokens": 4026,
+        "cost_usd": 0.1268943,
+        "turns": 9,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 41.565,
+      "num_turns": 9,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 8,
+          "output_chars": 10410,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-5-fugue",
+      "task": "source-date-epoch",
+      "repeat": 5,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 38356,
+        "total_tokens": 623147,
+        "input_tokens": 613771,
+        "cached_input_tokens": 584791,
+        "cache_creation_input_tokens": 28942,
+        "fresh_input_tokens": 38,
+        "output_tokens": 9376,
+        "cost_usd": 0.26808309999999996,
+        "turns": 29,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 88.397,
+      "num_turns": 29,
+      "permission_denials": 2,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 181,
+        "auto_writes": 4,
+        "prompted_gaps": 2,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 8,
+          "output_chars": 13413,
+          "index_reads": 2
+        },
+        "total_commands": 12,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-5-hint",
+      "task": "source-date-epoch",
+      "repeat": 5,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 44026,
+        "total_tokens": 644805,
+        "input_tokens": 637238,
+        "cached_input_tokens": 600779,
+        "cache_creation_input_tokens": 36421,
+        "fresh_input_tokens": 38,
+        "output_tokens": 7567,
+        "cost_usd": 0.2815078999999999,
+        "turns": 23,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 93.775,
+      "num_turns": 23,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 5,
+          "output_chars": 11750,
+          "index_reads": 2
+        },
+        "total_commands": 17,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "language-fallback-5-hint",
+      "task": "language-fallback",
+      "repeat": 5,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20627,
+        "total_tokens": 214300,
+        "input_tokens": 211798,
+        "cached_input_tokens": 193673,
+        "cache_creation_input_tokens": 18109,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2502,
+        "cost_usd": 0.1168553,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 27.98,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 3,
+          "output_chars": 11980,
+          "index_reads": 1
+        },
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-5-fugue",
+      "task": "language-fallback",
+      "repeat": 5,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16494,
+        "total_tokens": 146968,
+        "input_tokens": 145224,
+        "cached_input_tokens": 130474,
+        "cache_creation_input_tokens": 14738,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1744,
+        "cost_usd": 0.08946339999999998,
+        "turns": 7,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 24.372,
+      "num_turns": 7,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 9448,
+          "index_reads": 1
+        },
+        "total_commands": 6,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-5-index",
+      "task": "language-fallback",
+      "repeat": 5,
+      "condition": "index",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 15937,
+        "total_tokens": 187775,
+        "input_tokens": 185261,
+        "cached_input_tokens": 171838,
+        "cache_creation_input_tokens": 13407,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2514,
+        "cost_usd": 0.09598380000000001,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 27.273,
+      "num_turns": 11,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 3,
+          "output_chars": 4527,
+          "index_reads": 0
+        },
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-3-fugue",
+      "task": "rfc-base-url",
+      "repeat": 3,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 18942,
+        "total_tokens": 231774,
+        "input_tokens": 229409,
+        "cached_input_tokens": 212832,
+        "cache_creation_input_tokens": 16559,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2365,
+        "cost_usd": 0.1112052,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 33.005,
+      "num_turns": 10,
+      "permission_denials": 2,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-3-index",
+      "task": "rfc-base-url",
+      "repeat": 3,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17941,
+        "total_tokens": 229615,
+        "input_tokens": 227388,
+        "cached_input_tokens": 211674,
+        "cache_creation_input_tokens": 15696,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2227,
+        "cost_usd": 0.10625740000000002,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 32.313,
+      "num_turns": 10,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 2,
+          "output_chars": 7187,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-3-hint",
+      "task": "rfc-base-url",
+      "repeat": 3,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22883,
+        "total_tokens": 250265,
+        "input_tokens": 248159,
+        "cached_input_tokens": 227382,
+        "cache_creation_input_tokens": 20759,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2106,
+        "cost_usd": 0.1268702,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 33.114,
+      "num_turns": 10,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 7,
+          "output_chars": 13454,
+          "index_reads": 1
+        },
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "figure-figalign-5-hint",
+      "task": "figure-figalign",
+      "repeat": 5,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 35486,
+        "total_tokens": 503186,
+        "input_tokens": 497495,
+        "cached_input_tokens": 467700,
+        "cache_creation_input_tokens": 29765,
+        "fresh_input_tokens": 30,
+        "output_tokens": 5691,
+        "cost_usd": 0.22280000000000003,
+        "turns": 18,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 67.207,
+      "num_turns": 18,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 9,
+          "output_chars": 24857,
+          "index_reads": 2
+        },
+        "total_commands": 12,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-5-fugue",
+      "task": "figure-figalign",
+      "repeat": 5,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 29295,
+        "total_tokens": 301549,
+        "input_tokens": 297002,
+        "cached_input_tokens": 272254,
+        "cache_creation_input_tokens": 24728,
+        "fresh_input_tokens": 20,
+        "output_tokens": 4547,
+        "cost_usd": 0.17164740000000003,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 50.901,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 9,
+          "output_chars": 21924,
+          "index_reads": 2
+        },
+        "total_commands": 10,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-5-index",
+      "task": "figure-figalign",
+      "repeat": 5,
+      "condition": "index",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 30529,
+        "total_tokens": 467500,
+        "input_tokens": 461133,
+        "cached_input_tokens": 436971,
+        "cache_creation_input_tokens": 24130,
+        "fresh_input_tokens": 32,
+        "output_tokens": 6367,
+        "cost_usd": 0.20395110000000002,
+        "turns": 17,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 64.436,
+      "num_turns": 17,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 7,
+          "output_chars": 11698,
+          "index_reads": 0
+        },
+        "total_commands": 14,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-5-hint",
+      "task": "rfc-base-url",
+      "repeat": 5,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20145,
+        "total_tokens": 212629,
+        "input_tokens": 210534,
+        "cached_input_tokens": 192484,
+        "cache_creation_input_tokens": 18034,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2095,
+        "cost_usd": 0.11236639999999998,
+        "turns": 9,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 32.63,
+      "num_turns": 9,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 5,
+          "output_chars": 11400,
+          "index_reads": 1
+        },
+        "total_commands": 8,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-5-index",
+      "task": "rfc-base-url",
+      "repeat": 5,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17708,
+        "total_tokens": 253160,
+        "input_tokens": 250596,
+        "cached_input_tokens": 235452,
+        "cache_creation_input_tokens": 15124,
+        "fresh_input_tokens": 20,
+        "output_tokens": 2564,
+        "cost_usd": 0.10972120000000002,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 33.839,
+      "num_turns": 11,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 1,
+          "output_chars": 7507,
+          "index_reads": 0
+        },
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-5-fugue",
+      "task": "rfc-base-url",
+      "repeat": 5,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 19746,
+        "total_tokens": 262798,
+        "input_tokens": 260204,
+        "cached_input_tokens": 243052,
+        "cache_creation_input_tokens": 17132,
+        "fresh_input_tokens": 20,
+        "output_tokens": 2594,
+        "cost_usd": 0.11881320000000001,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 40.73,
+      "num_turns": 12,
+      "permission_denials": 2,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "figure-figalign-6-fugue",
+      "task": "figure-figalign",
+      "repeat": 6,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 28518,
+        "total_tokens": 397752,
+        "input_tokens": 392826,
+        "cached_input_tokens": 369234,
+        "cache_creation_input_tokens": 23566,
+        "fresh_input_tokens": 26,
+        "output_tokens": 4926,
+        "cost_usd": 0.18049940000000003,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 58.061,
+      "num_turns": 14,
+      "permission_denials": 2,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 6,
+          "output_chars": 19616,
+          "index_reads": 2
+        },
+        "total_commands": 10,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-6-index",
+      "task": "figure-figalign",
+      "repeat": 6,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 25370,
+        "total_tokens": 391570,
+        "input_tokens": 386836,
+        "cached_input_tokens": 366200,
+        "cache_creation_input_tokens": 20608,
+        "fresh_input_tokens": 28,
+        "output_tokens": 4734,
+        "cost_usd": 0.166448,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 62.026,
+      "num_turns": 16,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 6,
+          "output_chars": 13026,
+          "index_reads": 0
+        },
+        "total_commands": 14,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-6-hint",
+      "task": "figure-figalign",
+      "repeat": 6,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 33291,
+        "total_tokens": 350055,
+        "input_tokens": 344172,
+        "cached_input_tokens": 316764,
+        "cache_creation_input_tokens": 27386,
+        "fresh_input_tokens": 22,
+        "output_tokens": 5883,
+        "cost_usd": 0.2000944,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 55.408,
+      "num_turns": 12,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 7,
+          "output_chars": 19994,
+          "index_reads": 2
+        },
+        "total_commands": 10,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-4-index",
+      "task": "rfc-base-url",
+      "repeat": 4,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20228,
+        "total_tokens": 422756,
+        "input_tokens": 419911,
+        "cached_input_tokens": 402528,
+        "cache_creation_input_tokens": 17351,
+        "fresh_input_tokens": 32,
+        "output_tokens": 2845,
+        "cost_usd": 0.1381708,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 45.351,
+      "num_turns": 16,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 7,
+          "output_chars": 9161,
+          "index_reads": 0
+        },
+        "total_commands": 14,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-4-hint",
+      "task": "rfc-base-url",
+      "repeat": 4,
+      "condition": "hint",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 21315,
+        "total_tokens": 214742,
+        "input_tokens": 212658,
+        "cached_input_tokens": 193427,
+        "cache_creation_input_tokens": 19215,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2084,
+        "cost_usd": 0.11707470000000002,
+        "turns": 8,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 32.896,
+      "num_turns": 8,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 6,
+          "output_chars": 12527,
+          "index_reads": 1
+        },
+        "total_commands": 7,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-4-fugue",
+      "task": "rfc-base-url",
+      "repeat": 4,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20079,
+        "total_tokens": 214370,
+        "input_tokens": 211841,
+        "cached_input_tokens": 194291,
+        "cache_creation_input_tokens": 17534,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2529,
+        "cost_usd": 0.1148871,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 31.082,
+      "num_turns": 11,
+      "permission_denials": 1,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 2,
+          "output_chars": 11823,
+          "index_reads": 1
+        },
+        "total_commands": 8,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-6-fugue",
+      "task": "rfc-base-url",
+      "repeat": 6,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 24876,
+        "total_tokens": 377894,
+        "input_tokens": 374970,
+        "cached_input_tokens": 353018,
+        "cache_creation_input_tokens": 21926,
+        "fresh_input_tokens": 26,
+        "output_tokens": 2924,
+        "cost_usd": 0.15229779999999998,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 47.745,
+      "num_turns": 14,
+      "permission_denials": 3,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 10,
+          "output_chars": 11606,
+          "index_reads": 1
+        },
+        "total_commands": 10,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-6-index",
+      "task": "rfc-base-url",
+      "repeat": 6,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22340,
+        "total_tokens": 272140,
+        "input_tokens": 268971,
+        "cached_input_tokens": 249800,
+        "cache_creation_input_tokens": 19151,
+        "fresh_input_tokens": 20,
+        "output_tokens": 3169,
+        "cost_usd": 0.133314,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 35.585,
+      "num_turns": 11,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-6-hint",
+      "task": "rfc-base-url",
+      "repeat": 6,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 33555,
+        "total_tokens": 536126,
+        "input_tokens": 529241,
+        "cached_input_tokens": 502571,
+        "cache_creation_input_tokens": 26636,
+        "fresh_input_tokens": 34,
+        "output_tokens": 6885,
+        "cost_usd": 0.2257191,
+        "turns": 20,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 72.295,
+      "num_turns": 20,
+      "permission_denials": 7,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 9,
+          "output_chars": 13600,
+          "index_reads": 1
+        },
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-1-fugue",
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 23853,
+        "total_tokens": 299609,
+        "input_tokens": 295243,
+        "cached_input_tokens": 275756,
+        "cache_creation_input_tokens": 19465,
+        "fresh_input_tokens": 22,
+        "output_tokens": 4366,
+        "cost_usd": 0.14913960000000004,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 44.946,
+      "num_turns": 12,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 178,
+        "auto_writes": 3,
+        "prompted_gaps": 2,
+        "errors": 0
+      },
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 6,
+          "output_chars": 11137,
+          "index_reads": 2
+        },
+        "total_commands": 10,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-1-index",
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 32215,
+        "total_tokens": 401057,
+        "input_tokens": 392943,
+        "cached_input_tokens": 368842,
+        "cache_creation_input_tokens": 24073,
+        "fresh_input_tokens": 28,
+        "output_tokens": 8114,
+        "cost_usd": 0.2143722,
+        "turns": 21,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 68.809,
+      "num_turns": 21,
+      "permission_denials": 2,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 6,
+          "output_chars": 11810,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-1-hint",
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 34594,
+        "total_tokens": 315851,
+        "input_tokens": 310120,
+        "cached_input_tokens": 281257,
+        "cache_creation_input_tokens": 28841,
+        "fresh_input_tokens": 22,
+        "output_tokens": 5731,
+        "cost_usd": 0.2008437,
+        "turns": 18,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 52.31,
+      "num_turns": 18,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 7,
+          "output_chars": 12228,
+          "index_reads": 3
+        },
+        "total_commands": 8,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-6-fugue",
+      "task": "source-date-epoch",
+      "repeat": 6,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 40571,
+        "total_tokens": 476650,
+        "input_tokens": 469239,
+        "cached_input_tokens": 436079,
+        "cache_creation_input_tokens": 33132,
+        "fresh_input_tokens": 28,
+        "output_tokens": 7411,
+        "cost_usd": 0.2503019,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 65.573,
+      "num_turns": 16,
+      "permission_denials": 1,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 97,
+        "auto_writes": 3,
+        "prompted_gaps": 1,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 9,
+          "output_chars": 14235,
+          "index_reads": 2
+        },
+        "total_commands": 10,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-6-index",
+      "task": "source-date-epoch",
+      "repeat": 6,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 26071,
+        "total_tokens": 407528,
+        "input_tokens": 401481,
+        "cached_input_tokens": 381457,
+        "cache_creation_input_tokens": 19994,
+        "fresh_input_tokens": 30,
+        "output_tokens": 6047,
+        "cost_usd": 0.1786517,
+        "turns": 19,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 59.054,
+      "num_turns": 19,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 6,
+          "output_chars": 8535,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-6-hint",
+      "task": "source-date-epoch",
+      "repeat": 6,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 30587,
+        "total_tokens": 466174,
+        "input_tokens": 459322,
+        "cached_input_tokens": 435587,
+        "cache_creation_input_tokens": 23703,
+        "fresh_input_tokens": 32,
+        "output_tokens": 6852,
+        "cost_usd": 0.20695469999999994,
+        "turns": 18,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 71.782,
+      "num_turns": 18,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 7,
+          "output_chars": 13866,
+          "index_reads": 2
+        },
+        "total_commands": 14,
+        "total_index_reads": 3
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-2-hint",
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "condition": "hint",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 36855,
+        "total_tokens": 645499,
+        "input_tokens": 637737,
+        "cached_input_tokens": 608644,
+        "cache_creation_input_tokens": 29053,
+        "fresh_input_tokens": 40,
+        "output_tokens": 7762,
+        "cost_usd": 0.2547764,
+        "turns": 27,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 84.305,
+      "num_turns": 27,
+      "permission_denials": 3,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 7,
+          "output_chars": 11487,
+          "index_reads": 2
+        },
+        "total_commands": 17,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-2-index",
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 24425,
+        "total_tokens": 285845,
+        "input_tokens": 280716,
+        "cached_input_tokens": 261420,
+        "cache_creation_input_tokens": 19274,
+        "fresh_input_tokens": 22,
+        "output_tokens": 5129,
+        "cost_usd": 0.154572,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 49.442,
+      "num_turns": 12,
+      "permission_denials": 1,
+      "hooks": null,
+      "full_test_suite": "from_root_only",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 5,
+          "output_chars": 9614,
+          "index_reads": 0
+        },
+        "total_commands": 9,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-2-fugue",
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "condition": "fugue",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 38178,
+        "total_tokens": 669905,
+        "input_tokens": 663909,
+        "cached_input_tokens": 631727,
+        "cache_creation_input_tokens": 32142,
+        "fresh_input_tokens": 40,
+        "output_tokens": 5996,
+        "cost_usd": 0.25178069999999997,
+        "turns": 20,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 77.595,
+      "num_turns": 20,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 2,
+        "blocks": 1,
+        "block_chars": 120,
+        "auto_writes": 3,
+        "prompted_gaps": 1,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 8,
+          "output_chars": 15456,
+          "index_reads": 3
+        },
+        "total_commands": 16,
+        "total_index_reads": 4
+      }
+    },
+    {
+      "trial_id": "figure-figalign-4-index",
+      "task": "figure-figalign",
+      "repeat": 4,
+      "condition": "index",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 29307,
+        "total_tokens": 459737,
+        "input_tokens": 453746,
+        "cached_input_tokens": 430430,
+        "cache_creation_input_tokens": 23284,
+        "fresh_input_tokens": 32,
+        "output_tokens": 5991,
+        "cost_usd": 0.196153,
+        "turns": 17,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 72.183,
+      "num_turns": 17,
+      "permission_denials": 2,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 5,
+          "output_chars": 17252,
+          "index_reads": 0
+        },
+        "total_commands": 11,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-4-fugue",
+      "task": "figure-figalign",
+      "repeat": 4,
+      "condition": "fugue",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 40001,
+        "total_tokens": 589856,
+        "input_tokens": 580638,
+        "cached_input_tokens": 549855,
+        "cache_creation_input_tokens": 30749,
+        "fresh_input_tokens": 34,
+        "output_tokens": 9218,
+        "cost_usd": 0.27022949999999996,
+        "turns": 28,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 82.681,
+      "num_turns": 28,
+      "permission_denials": 3,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 9,
+          "output_chars": 23205,
+          "index_reads": 2
+        },
+        "total_commands": 15,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "figure-figalign-4-hint",
+      "task": "figure-figalign",
+      "repeat": 4,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 24969,
+        "total_tokens": 194928,
+        "input_tokens": 191355,
+        "cached_input_tokens": 169959,
+        "cache_creation_input_tokens": 21382,
+        "fresh_input_tokens": 14,
+        "output_tokens": 3573,
+        "cost_usd": 0.1382819,
+        "turns": 8,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 38.237,
+      "num_turns": 8,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 6,
+          "output_chars": 17978,
+          "index_reads": 2
+        },
+        "total_commands": 7,
+        "total_index_reads": 2
+      }
+    },
+    {
+      "trial_id": "language-fallback-4-fugue",
+      "task": "language-fallback",
+      "repeat": 4,
+      "condition": "fugue",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 15927,
+        "total_tokens": 144047,
+        "input_tokens": 142246,
+        "cached_input_tokens": 128120,
+        "cache_creation_input_tokens": 14114,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1801,
+        "cost_usd": 0.087302,
+        "turns": 7,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 23.915,
+      "num_turns": 7,
+      "permission_denials": 0,
+      "hooks": {
+        "sessions": 1,
+        "stops": 1,
+        "blocks": 0,
+        "block_chars": 0,
+        "auto_writes": 0,
+        "prompted_gaps": 0,
+        "errors": 0
+      },
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 7,
+          "output_chars": 9538,
+          "index_reads": 1
+        },
+        "total_commands": 6,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "language-fallback-4-index",
+      "task": "language-fallback",
+      "repeat": 4,
+      "condition": "index",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17323,
+        "total_tokens": 170529,
+        "input_tokens": 167925,
+        "cached_input_tokens": 153206,
+        "cache_creation_input_tokens": 14705,
+        "fresh_input_tokens": 14,
+        "output_tokens": 2604,
+        "cost_usd": 0.10020860000000001,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 27.175,
+      "num_turns": 10,
+      "permission_denials": 0,
+      "hooks": null,
+      "full_test_suite": "not_run",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 2,
+          "output_chars": 6519,
+          "index_reads": 0
+        },
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-4-hint",
+      "task": "language-fallback",
+      "repeat": 4,
+      "condition": "hint",
+      "block_position": 2,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 22849,
+        "total_tokens": 329819,
+        "input_tokens": 326542,
+        "cached_input_tokens": 306970,
+        "cache_creation_input_tokens": 19548,
+        "fresh_input_tokens": 24,
+        "output_tokens": 3277,
+        "cost_usd": 0.141707,
+        "turns": 13,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 44.414,
+      "num_turns": 13,
+      "permission_denials": 2,
+      "hooks": null,
+      "full_test_suite": "from_test_dir",
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 3,
+          "output_chars": 10825,
+          "index_reads": 1
+        },
+        "total_commands": 9,
+        "total_index_reads": 1
+      }
+    }
+  ],
+  "summary": {
+    "attempted": 72,
+    "accepted": 67,
+    "unknown_usage_trials": 0,
+    "budget_cost_usd": 11.670969,
+    "known_total_tokens": 24745234,
+    "primary_metric_median_by_block_position": {
+      "0": 23105,
+      "1": 22891.0,
+      "2": 25321.5
+    },
+    "by_condition": {
+      "index": {
+        "attempted": 24,
+        "accepted": 19,
+        "acceptance_rate": 0.7916666666666666,
+        "measured_tokens": 7609218,
+        "measured_uncached_plus_output": 557328,
+        "measured_cost_usd": 3.566363
+      },
+      "fugue": {
+        "attempted": 24,
+        "accepted": 24,
+        "acceptance_rate": 1.0,
+        "measured_tokens": 8688065,
+        "measured_uncached_plus_output": 633273,
+        "measured_cost_usd": 3.9679792000000003
+      },
+      "hint": {
+        "attempted": 24,
+        "accepted": 24,
+        "acceptance_rate": 1.0,
+        "measured_tokens": 8447951,
+        "measured_uncached_plus_output": 678079,
+        "measured_cost_usd": 4.1366272
+      }
+    },
+    "comparisons": {
+      "hint_effect": {
+        "reference": "index",
+        "treatment": "hint",
+        "qualified_pairs": 19,
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 6,
+          "treatment_worse": 18,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "skipped_infrastructure": 0,
+          "sign_test_p": 0.022655844688415527
+        },
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 19,
+            "reference_median": 20228,
+            "treatment_median": 23105,
+            "sum_difference": -87701,
+            "mean_difference": -4615.8421052631575,
+            "median_difference": -4665,
+            "sd_difference": 3642.6937417118165,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.1885415554100891,
+            "sd_log_ratio": 0.12201126679560681,
+            "geometric_saving_rate": -0.20748725957230252,
+            "median_saving_rate": -0.20654691440629985,
+            "saving_rate_range": [
+              -0.5089048106448311,
+              0.04836923696396215
+            ],
+            "treatment_lower": 1,
+            "treatment_higher": 18,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.28062890048156586,
+              -0.13852301902694442
+            ]
+          },
+          "cost_usd": {
+            "n": 19,
+            "reference_median": 0.1281391,
+            "treatment_median": 0.141707,
+            "sum_difference": -0.43689880000000003,
+            "mean_difference": -0.02299467368421053,
+            "median_difference": -0.018989500000000006,
+            "sd_difference": 0.0338705490584346,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.14605387104024797,
+            "sd_log_ratio": 0.18904063539414576,
+            "geometric_saving_rate": -0.1572585290923909,
+            "median_saving_rate": -0.1603489291383638,
+            "saving_rate_range": [
+              -0.6931387551194925,
+              0.15268131906307258
+            ],
+            "treatment_lower": 4,
+            "treatment_higher": 15,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.26765903719846484,
+              -0.05647280842712221
+            ]
+          },
+          "total_tokens": {
+            "n": 19,
+            "reference_median": 278738,
+            "treatment_median": 329819,
+            "sum_difference": -718549,
+            "mean_difference": -37818.36842105263,
+            "median_difference": -30194,
+            "sd_difference": 126979.44278732265,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.09601615894815824,
+            "sd_log_ratio": 0.3746027007608217,
+            "geometric_saving_rate": -0.10077685124634006,
+            "median_saving_rate": -0.10488314271506713,
+            "saving_rate_range": [
+              -1.2582133673844216,
+              0.4920426912923767
+            ],
+            "treatment_lower": 7,
+            "treatment_higher": 12,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 19,
+            "reference_median": 3169,
+            "treatment_median": 3282,
+            "sum_difference": -3837,
+            "mean_difference": -201.94736842105263,
+            "median_difference": 12,
+            "sd_difference": 1653.0037128977663,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.030626843571965174,
+            "sd_log_ratio": 0.32318344695305773,
+            "geometric_saving_rate": -0.031100670246361428,
+            "median_saving_rate": 0.00477326968973747,
+            "saving_rate_range": [
+              -1.1726096560429158,
+              0.32528904386125895
+            ],
+            "treatment_lower": 10,
+            "treatment_higher": 9,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 19,
+            "reference_median": 8,
+            "treatment_median": 9,
+            "sum_difference": -7,
+            "mean_difference": -0.3684210526315789,
+            "median_difference": -1,
+            "sd_difference": 3.2865132877630776,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.05003684636756491,
+            "sd_log_ratio": 0.32797860465331,
+            "geometric_saving_rate": -0.05130983261089184,
+            "median_saving_rate": -0.14285714285714285,
+            "saving_rate_range": [
+              -0.8888888888888888,
+              0.5
+            ],
+            "treatment_lower": 7,
+            "treatment_higher": 12,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          }
+        }
+      },
+      "hooks_effect": {
+        "reference": "hint",
+        "treatment": "fugue",
+        "qualified_pairs": 24,
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 17,
+          "treatment_worse": 7,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "skipped_infrastructure": 0,
+          "sign_test_p": 0.06391465663909912
+        },
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 24,
+            "reference_median": 26744.0,
+            "treatment_median": 24364.5,
+            "sum_difference": 44806,
+            "mean_difference": 1866.9166666666667,
+            "median_difference": 4037.0,
+            "sd_difference": 6709.324879641745,
+            "n_ratio": 24,
+            "mean_log_ratio": 0.09008594790523063,
+            "sd_log_ratio": 0.22443081658319083,
+            "geometric_saving_rate": 0.08614736182414329,
+            "median_saving_rate": 0.1360798085917273,
+            "saving_rate_range": [
+              -0.6020265128759662,
+              0.3104873677516332
+            ],
+            "treatment_lower": 17,
+            "treatment_higher": 7,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.004709615486619523,
+              0.16878804439779427
+            ]
+          },
+          "cost_usd": {
+            "n": 24,
+            "reference_median": 0.16012020000000002,
+            "treatment_median": 0.1507187,
+            "sum_difference": 0.1686479999999999,
+            "mean_difference": 0.007026999999999996,
+            "median_difference": 0.014544899999999972,
+            "sd_difference": 0.0534030783808916,
+            "n_ratio": 24,
+            "mean_log_ratio": 0.07528365348323732,
+            "sd_log_ratio": 0.289140598170829,
+            "geometric_saving_rate": 0.07251963402362849,
+            "median_saving_rate": 0.07904428248433057,
+            "saving_rate_range": [
+              -0.9541928480878548,
+              0.3839259881304381
+            ],
+            "treatment_lower": 17,
+            "treatment_higher": 7,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.04794376097589681,
+              0.1791355020134049
+            ]
+          },
+          "total_tokens": {
+            "n": 24,
+            "reference_median": 331553.5,
+            "treatment_median": 300579.0,
+            "sum_difference": -240114,
+            "mean_difference": -10004.75,
+            "median_difference": 20074.5,
+            "sd_difference": 182078.71896452058,
+            "n_ratio": 24,
+            "mean_log_ratio": 0.03249890070110412,
+            "sd_log_ratio": 0.46531299948147936,
+            "geometric_saving_rate": 0.03197648602209879,
+            "median_saving_rate": 0.06265433113356791,
+            "saving_rate_range": [
+              -2.026019863744562,
+              0.5632543910447851
+            ],
+            "treatment_lower": 16,
+            "treatment_higher": 8,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 24,
+            "reference_median": 3794.0,
+            "treatment_median": 3989.0,
+            "sum_difference": 2984,
+            "mean_difference": 124.33333333333333,
+            "median_difference": 458.5,
+            "sd_difference": 2122.515359019897,
+            "n_ratio": 24,
+            "mean_log_ratio": 0.0763070603019346,
+            "sd_log_ratio": 0.43422017987090383,
+            "geometric_saving_rate": 0.07346833821640364,
+            "median_saving_rate": 0.1282680092917604,
+            "saving_rate_range": [
+              -1.5799048418695774,
+              0.5753086419753086
+            ],
+            "treatment_lower": 13,
+            "treatment_higher": 11,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 24,
+            "reference_median": 9.0,
+            "treatment_median": 9.5,
+            "sum_difference": 7,
+            "mean_difference": 0.2916666666666667,
+            "median_difference": 0.5,
+            "sd_difference": 3.3941018747574274,
+            "n_ratio": 24,
+            "mean_log_ratio": 0.041947770054490005,
+            "sd_log_ratio": 0.3290453065057232,
+            "geometric_saving_rate": 0.0410801364032195,
+            "median_saving_rate": 0.029411764705882353,
+            "saving_rate_range": [
+              -1.1428571428571428,
+              0.4444444444444444
+            ],
+            "treatment_lower": 12,
+            "treatment_higher": 8,
+            "ties": 4,
+            "missing_in_qualified_pairs": 0
+          }
+        }
+      },
+      "plugin_effect": {
+        "reference": "index",
+        "treatment": "fugue",
+        "qualified_pairs": 19,
+        "failure_aware": {
+          "metric": "uncached_plus_output",
+          "treatment_better": 12,
+          "treatment_worse": 12,
+          "ties": 0,
+          "skipped_unknown_usage": 0,
+          "skipped_infrastructure": 0,
+          "sign_test_p": 1.0
+        },
+        "metrics": {
+          "uncached_plus_output": {
+            "n": 19,
+            "reference_median": 20228,
+            "treatment_median": 22093,
+            "sum_difference": -29415,
+            "mean_difference": -1548.157894736842,
+            "median_difference": -1001,
+            "sd_difference": 6030.142197173185,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.0550937227240529,
+            "sd_log_ratio": 0.20204612088079837,
+            "geometric_saving_rate": -0.05663964118041864,
+            "median_saving_rate": -0.055793991416309016,
+            "saving_rate_range": [
+              -0.7327991860612998,
+              0.2921532111938796
+            ],
+            "treatment_lower": 7,
+            "treatment_higher": 12,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.16471969088930605,
+              0.041411130895018244
+            ]
+          },
+          "cost_usd": {
+            "n": 19,
+            "reference_median": 0.1281391,
+            "treatment_median": 0.1373287,
+            "sum_difference": -0.07063129999999998,
+            "mean_difference": -0.003717436842105262,
+            "median_difference": -0.004947799999999988,
+            "sd_difference": 0.047197165380504356,
+            "n_ratio": 19,
+            "mean_log_ratio": -0.005163837425572004,
+            "sd_log_ratio": 0.24947647427933364,
+            "geometric_saving_rate": -0.005177193012848802,
+            "median_saving_rate": -0.04633541033462547,
+            "saving_rate_range": [
+              -0.8118364885923258,
+              0.3478532107116889
+            ],
+            "treatment_lower": 9,
+            "treatment_higher": 10,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0,
+            "geometric_saving_ci95": [
+              -0.13361553219840472,
+              0.10870911640230296
+            ]
+          },
+          "total_tokens": {
+            "n": 19,
+            "reference_median": 278738,
+            "treatment_median": 289195,
+            "sum_difference": -120888,
+            "mean_difference": -6362.526315789473,
+            "median_difference": 26482,
+            "sd_difference": 173250.17983359864,
+            "n_ratio": 19,
+            "mean_log_ratio": 0.04579695706322271,
+            "sd_log_ratio": 0.42287564495430563,
+            "geometric_saving_rate": 0.0447641035967169,
+            "median_saving_rate": 0.1080736140390861,
+            "saving_rate_range": [
+              -1.609189457981104,
+              0.49292263149428983
+            ],
+            "treatment_lower": 11,
+            "treatment_higher": 8,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "output_tokens": {
+            "n": 19,
+            "reference_median": 3169,
+            "treatment_median": 2924,
+            "sum_difference": 9372,
+            "mean_difference": 493.2631578947368,
+            "median_difference": 316,
+            "sd_difference": 1517.9894540003038,
+            "n_ratio": 19,
+            "mean_log_ratio": 0.14325797266473916,
+            "sd_log_ratio": 0.3159871456525015,
+            "geometric_saving_rate": 0.13346950112262101,
+            "median_saving_rate": 0.10201511335012595,
+            "saving_rate_range": [
+              -0.6599371915657245,
+              0.5017434391631492
+            ],
+            "treatment_lower": 12,
+            "treatment_higher": 7,
+            "ties": 0,
+            "missing_in_qualified_pairs": 0
+          },
+          "nav_commands_total": {
+            "n": 19,
+            "reference_median": 8,
+            "treatment_median": 9,
+            "sum_difference": 6,
+            "mean_difference": 0.3157894736842105,
+            "median_difference": 1,
+            "sd_difference": 3.6217342619700146,
+            "n_ratio": 19,
+            "mean_log_ratio": 0.040106114784414136,
+            "sd_log_ratio": 0.3418288793070054,
+            "geometric_saving_rate": 0.039312509402659734,
+            "median_saving_rate": 0.125,
+            "saving_rate_range": [
+              -0.7777777777777778,
+              0.42857142857142855
+            ],
+            "treatment_lower": 11,
+            "treatment_higher": 6,
+            "ties": 2,
+            "missing_in_qualified_pairs": 0
+          }
+        }
+      }
+    }
+  }
+}

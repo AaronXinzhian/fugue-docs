@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # [INPUT]: 依赖 (未检出外部依赖)
-# [OUTPUT]: no-model verification and plans; A/A noise or index-vs-fugue Claude Code trials with private report.json/navigation.json
+# [OUTPUT]: no-model verification and plans; A/A noise or index/hint/fugue Claude Code trials with private report.json/navigation.json
 # [POS]: fugue-docs evaluation entry point for Claude Code pilots on the external docutils repository
 # [PROTOCOL]: Keep token-pilot.md, FOLDER_INDEX.md and test_first_round.py in sync
 

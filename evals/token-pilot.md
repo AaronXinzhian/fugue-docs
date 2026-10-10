@@ -1,6 +1,6 @@
 # Token 增量试点
 
-当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。首轮完成两个三组块后预算停止,有自动验收通过的负差值配对,仍没有普遍节省率或已复核净节省结论。
+当前实际进展见 [TOKEN_PILOT_RESULTS.md](TOKEN_PILOT_RESULTS.md)。Codex 首轮完成两个三组块后预算停止;Claude Code 在 Docutils 上完成了 A/A 与 72 次三组对比:钩子没有可检出的额外开销,插件整体与普通 Claude Code 主指标大致持平、通过率更高。仍没有普遍节省率或已复核净节省结论。
 
 执行器支持两种代理:Codex(`--agent codex`,默认)和 Claude Code(`--agent claude`)。Claude Code 的赋格组以插件形式加载 v2.7 钩子,用来测"钩子化之后流程开销还剩多少";外部仓库任务见下文 [Claude Code 与 docutils](#claude-code-与-docutils)。
 

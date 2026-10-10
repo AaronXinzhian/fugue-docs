@@ -12,7 +12,7 @@
 | claude_mock_api.py | Claude Code 零成本自检用的本地 Messages API 替身:只监听 127.0.0.1,按脚本依次返回工具调用再结束,支持流式 SSE | MockMessagesAPI |
 | grade_comprehension.py | 理解成本评分器:按 rubric 给 docs-only/code-only 答案打分,计算分数比与 token 比 | WS, DEFAULT_SPEC, read_json(), normalize(), answer_map(), has_any(), has_all(), point_passed(), grade_question(), grade_run(), condition_key(), compare_runs(), load_runs(), main() |
 | grade_iteration.py | 自动评分器:对每个运行目录逐断言打分,生成 grading.json | WS, GEB_CHECK, INDEX_NAMES, L3_TAGS, read(), head_lines(), first_docstring(), find_index(), run_geb_check(), run_app(), expectation(), grade_eval0(), grade_eval1(), grade_eval2(), GRADERS, main() |
-| run-claude-pilot.sh | Claude Code 试点安全入口:plan 无模型校验 docutils 任务、本机自检并保存计划;aa 跑 A/A 噪声,compare 跑 index 对 fugue;缺令牌直接退出,结束后离线汇总定位结果 | — |
+| run-claude-pilot.sh | Claude Code 试点安全入口:plan 无模型校验 docutils 任务、本机自检并保存计划;aa 跑 A/A 噪声,compare 跑 index/hint/fugue 三组;缺令牌直接退出,结束后离线汇总定位结果 | — |
 | run-first-round.sh | 首轮试点安全入口:默认无模型校验并展示计划,显式执行时才调用 Codex、保持预算并离线汇总定位结果 | — |
 | run_regression_suite.py | 确定性回归测试套件:多轮验证架构候选、增量同步、路径级检查、适配器复制、理解评分与仓库自检 | WS, ROOT, run(), fail(), ok(), require(), copy_fixture(), test_arch_fixture_b(), test_sync_changed_delete(), test_check_l1_path_ghost(), test_adapt_copy_tools(), test_comprehension_grader(), test_self_checks(), TESTS, run_round(), git_commit(), source_digest(), run_boundaries(), main() |
 | run_token_pilot.py | 配对块 token 试点:Codex 或 Claude Code(插件钩子)执行,无索引/仅索引/完整赋格三组或 A/A 噪声设计;外部源码固定提交加索引覆盖,隐藏验收文件或测试补丁、测试重置、运行目录与参考补丁校验;Claude 白名单环境、单一凭据、沙箱读取禁区与凭据清除、付费前本地假接口自检;插件/钩子/沙箱/环境漂移检查,接口故障与执行器故障单列并停止;主指标为未缓存输入+输出,另报标价成本;保留失败、不自动声称节省 | ROOT, DEFAULT_TASKS_FILE, ARMS, HINT_TEXT, HINT_FILES, DESIGNS, PRIMARY_METRIC, COST_KEYS, HEADER_LINE, EMPTY_BLOCK, INDEX_FILE_NAMES, DEFAULT_TEST_RULE, BASE_PROMPT, PLAIN_PROMPT, design(), load_tasks(), patch_targets(), glob_regex(), matching(), checked_members(), extract(), materialize_source(), archive_hashes(), leaked(), SKILL_PATHS, PLUGIN_PATHS, skill_archive(), build_schedule(), is_excluded(), strip_indexes(), drop_empty_blocks(), count_index_files(), git_environment(), write_hint(), prepare_workspace(), protected_snapshot(), expand(), prepare_acceptance(), validate(), cli_usage(), partial_usage(), CLAUDE_MODEL_KEYS, CLAUDE_MESSAGE_KEYS, counter(), claude_tokens(), claude_result(), claude_usage(), claude_partial_usage(), INFRA_STATUSES, INFRA_API_ERRORS, INFRA_TEXT, claude_status(), claude_session(), hook_stats(), usage_value(), OPTIONAL_USAGE_KEYS, token_metrics(), budget_cost(), sum_known(), budget_tokens(), failure_aware(), summarize_trials(), run_process(), run_codex(), CLAUDE_ENV_ALLOW, CREDENTIAL_VARS, claude_credentials(), claude_environment(), claude_settings(), claude_command(), run_claude(), kill_group(), build_prompt(), trial(), SANDBOX_DISABLED, environment_signature(), setup_problem(), run_trial(), verify_tasks(), parse_weights(), SELFTEST_MARKER, sandbox_test_command(), claude_selftest(), deny_read_paths(), stale_trial_dirs(), agent_version(), resolve_source(), main() |
@@ -24,10 +24,11 @@
 | test_token_pilot.py | 不调用模型的试点测试:配对块、三组/A-A 汇总、成本口径、索引剥离、预算与未知停止、外部源码与归档安全、隐藏测试补丁与重置、Claude 用量换算、凭据选择与白名单环境、接口故障与缺金额停止、自检通过与失败、假 Codex/假 Claude 端到端 | TWO_ARM, ROOT_DOCUTILS_TASKS, HAS_SOURCE_REF, usage(), trial(), FAKE_CODEX, FAKE_CLAUDE, FAKE_SELFTEST_CLAUDE, SummaryTests, stream(), ClaudeTests, SelfTestTests, SourceTests, DesignTests, RunnerTests, ClaudeRunnerTests |
 
 ## 数据文件
+- `results/2026-10-10-claude-three-arm-hint-sonnet.json` — Claude Code 三组对比(Docutils,Sonnet 5.5)的脱敏数值:72 次、通过 19/24/24、三个比较的配对统计、钩子计数、整套测试运行方式与定位代理
 - `results/2026-10-10-claude-aa-sonnet.json` — Claude Code A/A(Docutils,Sonnet 5.5)的脱敏数值:16 次、15 次通过、自检 12 项、噪声与功效提示、重算后的定位代理
 - `results/2026-10-08-three-arm-xhigh.json` — 首轮真实三组试点的脱敏数值:6 次调用、5 次验收通过、预算停止;保留负差值与准备失败未知用量
 - `results/2026-10-08-v2.6-guard-regression.json` — 干净提交上的 97 项回归、6 组集成与 8 组无模型任务预检脱敏证据
-- `TOKEN_PILOT_RESULTS.md` — 真实三组试点、负差值、失败与未运行任务;历史预检与结论边界
+- `TOKEN_PILOT_RESULTS.md` — Claude Code 三组对比与 A/A、Codex 首轮三组试点、失败与未运行任务;历史预检与结论边界
 - `results/2026-09-30-token-preflight.json` — medium 基线预检原始数值;无赋格配对
 - `results/2026-09-30-token-pair-incomplete.json` — xhigh 基线超时记录;完整用量未知
 - `token-pilot.md` — 三组配对块试点设计(索引收益/流程开销分离)、A/A 噪声、任务格式、预算与结论边界
