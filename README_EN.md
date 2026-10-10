@@ -16,6 +16,16 @@ A toolkit that turns the *GEB Fractal Documentation Protocol* into an everyday w
 
 Best experienced as a Claude Code skill, yet **model-agnostic by design**: Codex, Cursor, Windsurf, Cline (with DeepSeek or any model), Copilot, even web chat — one command plugs them all into the same protocol and the same hard constraints. See [Works with any tool, any model](#works-with-any-tool-any-model).
 
+## Measured results
+
+In short: **so far it has not been shown to save tokens, but in our comparison it raised the task pass rate.**
+
+- **Tokens**: in the first Codex pilot, the full Fugue workflow used 44%–82% more than indexes alone. After v2.7 moved syncing, checks and metering into programs, a 72-trial Claude Code comparison (external Docutils repository, four small tasks) found the plugin roughly even with plain Claude Code in uncached input plus output (+5.7%, 95% interval −4.1% to +16.5%). On small tasks the model finds the code to change with a few `grep` calls, so reading the indexes is extra reading, not a shortcut.
+- **Pass rate**: in the same comparison, the two arms that read the indexes passed all 48 runs; the arm that ignored them passed 19 of 24. Four of the five failures never ran the full test suite from `test/` as the project requires, so tests the model wrote broke under the official run. That rule is written in the L1 index, and the models that read it followed it. The gain comes from writing project knowledge down where the model reads it every time, not from faster navigation.
+- **Scope**: one model, one repository, four small tasks. To check your own project, run the pilot in [evals/](evals/token-pilot.md) (Chinese) on your repository. Full data and limits: [pilot record](evals/TOKEN_PILOT_RESULTS.md) (Chinese).
+
+Where it fits: write down the project conventions models tend to miss (how tests run, which directories are generated, which tests a change needs) so the model reads them every time.
+
 ## v2.7: Claude Code hooks, model only for semantics
 
 The first three-arm pilot showed the full Fugue workflow costing 44%–82% more uncached input plus output than indexes alone on small changes, mostly because the model re-read skill docs and ran the metering, sync and check scripts itself. v2.7 hands that work to programs:
@@ -25,7 +35,7 @@ The first three-arm pilot showed the full Fugue workflow costing 44%–82% more 
 - **Metering**: actual usage is summed from the Claude Code transcript, de-duplicated by message, into `~/.claude/fugue/metrics` in the Codex-compatible ledger format. The transcript format is not a public interface; unreadable usage stays unknown, never zero.
 - **SKILL.md** body is about 40% smaller. With hooks installed, routine coding no longer needs the skill; the manual workflow for Codex and other tools moved to [references/manual-workflow.md](references/manual-workflow.md).
 
-Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`); projects without indexes are untouched. If you registered `geb_stop_hook.py` in `settings.json` by hand, remove that entry so two Stop hooks do not run. The pilot runner now drives Claude Code too (`--agent claude`, with the fugue arm loading the hooks as a plugin) and ships four upstream tasks on the external Docutils repository; `bash evals/run-claude-pilot.sh plan|aa|compare` measures noise first, then compares `index` (indexes, no pointer), `hint` (one navigation sentence in `CLAUDE.md`) and `fugue` (the plugin). Design notes (Chinese): [pilot design](evals/token-pilot.md#claude-code-与-docutils). First 72-trial comparison (Sonnet 5.5, four small tasks): the hooks added no detectable overhead; the two arms that read the indexes used about a fifth more uncached input plus output but passed 24/24, against 19/24 for the arm that ignored them; the plugin as a whole was roughly even with plain Claude Code. This is not yet a savings claim; details and limits are in the [pilot record](evals/TOKEN_PILOT_RESULTS.md) (Chinese).
+Installing through the plugin marketplace enables the hooks (`hooks/hooks.json`); projects without indexes are untouched. If you registered `geb_stop_hook.py` in `settings.json` by hand, remove that entry so two Stop hooks do not run. The pilot runner now drives Claude Code too (`--agent claude`, with the fugue arm loading the hooks as a plugin) and ships four upstream tasks on the external Docutils repository; `bash evals/run-claude-pilot.sh plan|aa|compare` measures noise first, then compares `index` (indexes, no pointer), `hint` (one navigation sentence in `CLAUDE.md`) and `fugue` (the plugin). Design notes (Chinese): [pilot design](evals/token-pilot.md#claude-code-与-docutils). Results of the first 72-trial comparison are under [Measured results](#measured-results): the hooks themselves added no detectable overhead.
 
 ## v2.5: Task Receipts and Measurement Diagnostics
 
@@ -146,7 +156,7 @@ fugue-docs/
 └── evals/evals.json               # Test cases & assertions (replayable)
 ```
 
-### Deterministic scaffolder (fast initialization for large projects)
+### Deterministic scaffolder (initializing large projects)
 
 ```bash
 python3 scripts/geb_scaffold.py /path/to/project           # generate skeleton (idempotent; never overwrites)
