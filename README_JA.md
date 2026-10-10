@@ -25,7 +25,7 @@ Claude Code スキルとしての利用が最良の体験ですが、設計上**
 - **計量**:Claude Code の会話記録からメッセージ単位で重複を除いて実使用量を集計し、Codex と互換の形式で `~/.claude/fugue/metrics` に記録します。会話記録の形式は公開インターフェースではないため、読めない場合はゼロではなく不明とします。
 - **SKILL.md** 本文は約 4 割小さくなりました。フック導入後は通常のコーディングでスキルを呼ぶ必要がなく、Codex など向けの手動手順は [references/manual-workflow.md](references/manual-workflow.md) に移しました。
 
-プラグインマーケットからインストールするとフック(`hooks/hooks.json`)が有効になり、索引のないプロジェクトには干渉しません。`settings.json` に `geb_stop_hook.py` を手動登録していた場合は、Stop フックが二重に動かないよう削除してください。本リリースはまだ実モデルでの対照測定をしていないため、削減効果は今後の試験で確認が必要です。
+プラグインマーケットからインストールするとフック(`hooks/hooks.json`)が有効になり、索引のないプロジェクトには干渉しません。`settings.json` に `geb_stop_hook.py` を手動登録していた場合は、Stop フックが二重に動かないよう削除してください。試験ランナーは Claude Code にも対応し(`--agent claude`、fugue 群はフックをプラグインとして読み込む)、外部リポジトリ Docutils の上流タスク 4 件を同梱しました。`bash evals/run-claude-pilot.sh plan|aa|compare` で先にノイズを測り、次に `index`(索引あり・案内なし)、`hint`(`CLAUDE.md` に案内一文)、`fugue`(プラグイン)を比較します。設計(中国語):[試験設計](evals/token-pilot.md#claude-code-与-docutils)。最初の 72 回の比較(Sonnet 5.5、小さなタスク 4 件)では、フックによる検出可能な追加コストはなく、索引を読んだ 2 群は非キャッシュ入力と出力が約 2 割多い一方で合格 24/24、索引を読まなかった群は 19/24、プラグイン全体は通常の Claude Code とほぼ同等でした。まだ節約の結論ではありません。詳細と限界は[試験記録](evals/TOKEN_PILOT_RESULTS.md)(中国語)を参照してください。
 
 ## v2.5: タスク別レポートと計量診断
 

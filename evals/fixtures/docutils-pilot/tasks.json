@@ -1,0 +1,120 @@
+{
+  "schema": "geb.token-pilot.tasks.v1",
+  "description": "Four upstream Docutils changes (Sep-Oct 2026) replayed on the 2026-08-31 snapshot. indexes.patch adds warm fugue indexes for the docutils/ package only; test/, docs/ and tools/ stay unindexed, as the L1 says. Commands run from test/, as upstream requires (functional tests resolve paths relative to it). Acceptance patches are the upstream test changes (for figure-figalign only the figure tests: the help texts depend on how the option is worded). Reference patches are the upstream package changes, plus upstream's help texts for figure-figalign.",
+  "source": {
+    "name": "docutils",
+    "git": "https://github.com/docutils/docutils",
+    "commit": "92a50f6f73adcad8ba5db988c477fd75854c893b",
+    "subdir": "docutils",
+    "tree": "f05215dab6ed756a1998594d3261acd4bf51dc9c",
+    "overlay": "indexes.patch"
+  },
+  "workspace_ignore": [
+    "/alltests.out",
+    "/test/alltests.out",
+    "/test/record.txt",
+    "/test/functional/output/*",
+    "/test/extra/output/*",
+    "__pycache__/",
+    "*.pyc"
+  ],
+  "test_rule": "Add or update tests for the change as needed.",
+  "reset_before_validation": [
+    "test/**/*.py"
+  ],
+  "protected": [],
+  "regression": [
+    [
+      "{python}",
+      "-B",
+      "alltests.py"
+    ]
+  ],
+  "tasks": {
+    "language-fallback": {
+      "upstream_commit": "f7b99cdf72ebd7fa2e2f6f0f9ba50c53edd7aeac",
+      "prompts": {
+        "named": "In docutils/languages/__init__.py, LanguageImporter.import_from_packages() returns the last imported candidate even when check_content() rejected it. Return None when no candidate passes, so that docutils.languages.get_language('re') falls back to English and docutils.parsers.rst.languages.get_language('re') returns None. Add focused tests.",
+        "symptom": "Choosing a document language whose tag happens to match the name of an unrelated importable Python module picks up that module. For example, with the language tag \"re\" the lookup of language-dependent output labels returns Python's regular-expression module instead of falling back to English, and the reStructuredText parser's lookup of localized directive and role names returns the same module instead of None. A matching module that is not a Docutils language module must be treated exactly like an unsupported tag such as \"xx-xxx\". Add focused tests."
+      },
+      "acceptance_patch": "language-fallback.acceptance.patch",
+      "acceptance": [
+        [
+          "{python}",
+          "-B",
+          "test_language.py"
+        ]
+      ],
+      "reference_patch": "language-fallback.reference.patch"
+    },
+    "source-date-epoch": {
+      "upstream_commit": "ce2dcf47b9394f627c520214abe6fe6ad7b23dd2",
+      "prompts": {
+        "named": "In docutils/parsers/rst/directives/misc.py (Date directive) and docutils/transforms/universal.py (Decorations.generate_footer datestamp), use time.gmtime(int(SOURCE_DATE_EPOCH)) instead of the current time when the SOURCE_DATE_EPOCH environment variable is set. Read the variable each time, not at import. Add focused tests.",
+        "symptom": "Builds that use Docutils are not reproducible: the \"date\" directive and the \"Generated on: ...\" datestamp in the document footer always use the current time. When the standard environment variable SOURCE_DATE_EPOCH is set (seconds since the Unix epoch), both must use that moment, as UTC, with their usual format strings; without the variable nothing changes. The variable is read each time a document is processed. Add focused tests."
+      },
+      "acceptance_patch": "source-date-epoch.acceptance.patch",
+      "acceptance": [
+        [
+          "{python}",
+          "-B",
+          "test_parsers/test_rst/test_directives/test_date.py"
+        ],
+        [
+          "{python}",
+          "-B",
+          "test_parsers/test_docutils_xml/test_misc.py"
+        ]
+      ],
+      "reference_patch": "source-date-epoch.reference.patch"
+    },
+    "figure-figalign": {
+      "upstream_commit": "35b59ca7d0645e6d7c5581a34b75f6a0feb799cc",
+      "prompts": {
+        "named": "In docutils/parsers/rst/directives/images.py (Figure), add a \"figalign\" option, and in docutils/parsers/rst/__init__.py add a boolean parser setting legacy_figure_align (default True; tests set it on the document settings). When it is True, \"align\" stays an alias for \"figalign\" (figalign wins silently if both are given) and the image gets no align attribute. When it is False, \"figalign\" sets figure['align'] and \"align\" is passed on to the image. Both options keep the left/center/right validator. Add focused tests.",
+        "symptom": "The figure directive cannot align the figure and its image independently: its \"align\" option always aligns the whole figure. Add a \"figalign\" option to the figure directive and a boolean reStructuredText parser setting legacy_figure_align (default True; tests set it on the document settings). When legacy_figure_align is True, \"align\" remains an alias for \"figalign\" and aligns the figure; if both are given, \"figalign\" wins and nothing is reported; the image itself gets no alignment. When legacy_figure_align is False, \"figalign\" aligns the figure and \"align\" is passed to the contained image like the other image options. Both options accept only left, center or right, with the existing error for other values. Add focused tests."
+      },
+      "acceptance_patch": "figure-figalign.acceptance.patch",
+      "acceptance": [
+        [
+          "{python}",
+          "-B",
+          "test_parsers/test_rst/test_directives/test_figures.py"
+        ]
+      ],
+      "reference_patch": "figure-figalign.reference.patch"
+    },
+    "rfc-base-url": {
+      "upstream_commit": "0b812bdc55cfe453e2602883d06486d0393cdbdc",
+      "prompts": {
+        "named": "Change the default rfc_base_url in docutils/parsers/rst/__init__.py (and the default quoted in its help text) to https://www.rfc-editor.org/info/, and Inliner.rfc_url in docutils/parsers/rst/states.py to 'rfc%d/'. Update tests and expected outputs that contain the old URLs.",
+        "symptom": "RFC references (standalone \"RFC 2822\" references and the rfc role) link to https://tools.ietf.org/html/rfc2822.html, which is deprecated. Link to the RFC Editor instead: the default RFC base URL becomes https://www.rfc-editor.org/info/ and the per-RFC part becomes rfc<number>/ without the .html suffix, for example https://www.rfc-editor.org/info/rfc2822/. Update the default quoted in the command-line help, and any tests or expected outputs that contain the old URLs."
+      },
+      "acceptance_patch": "rfc-base-url.acceptance.patch",
+      "acceptance": [
+        [
+          "{python}",
+          "-B",
+          "test_parsers/test_rst/test_interpreted.py"
+        ],
+        [
+          "{python}",
+          "-B",
+          "test_readers/test_pep/test_inline_markup.py"
+        ],
+        [
+          "{python}",
+          "-B",
+          "test_functional.py"
+        ],
+        [
+          "{python}",
+          "-B",
+          "test_CLI.py"
+        ]
+      ],
+      "reference_patch": "rfc-base-url.reference.patch"
+    }
+  },
+  "cwd": "test"
+}

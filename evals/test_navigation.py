@@ -194,5 +194,46 @@ class AnalyzerTests(unittest.TestCase):
             self.assertEqual(0, result["missing_event_logs"])
 
 
+class ClaudeStreamTests(unittest.TestCase):
+    def run_python(self, script):
+        return nav.analyze_events([command("1", "python3 - <<'E'\n%s\nE" % script)])
+
+    def test_inline_python_writes_through_a_variable_are_edits(self):
+        for script in ("p='docutils/x.py'\ns=open(p).read()\nopen(p,'w').write(s.replace('a','b'))",
+                       "from pathlib import Path\nf = Path('docutils/y.py')\nf.write_text('x')",
+                       "import glob\nfor f in glob.glob('test/*.rst'):\n    open(f, 'w').write('x')"):
+            with self.subTest(script=script):
+                self.assertTrue(self.run_python(script)["first_edit_found"])
+        self.assertFalse(self.run_python("import tempfile\nd = tempfile.mkdtemp()\n"
+                                         "open(d + '/x', 'w').write('1')")["first_edit_found"])
+        self.assertFalse(self.run_python("print(open('docutils/x.py').read())")["first_edit_found"])
+
+    def test_denied_calls_neither_read_nor_edit(self):
+        workspace = "/w/workspace/"
+        events = [
+            {"type": "assistant", "message": {"id": "m1", "content": [
+                {"type": "tool_use", "id": "t1", "name": "Bash", "input": {"command": "sed -i '' s/a/b/ x.py"}}]}},
+            {"type": "system", "subtype": "permission_denied", "tool_name": "Bash", "tool_use_id": "t1"},
+            {"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": "t1", "is_error": True, "content": "requires approval"}]}},
+            {"type": "assistant", "message": {"id": "m2", "content": [
+                {"type": "tool_use", "id": "t2", "name": "Read", "input": {"file_path": workspace + "a.py"}}]}},
+            {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "t2", "content": "x"}]}},
+            {"type": "assistant", "message": {"id": "m3", "content": [
+                {"type": "tool_use", "id": "t3", "name": "Edit", "input": {"file_path": workspace + "a.py"}}]}},
+            {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": "t3", "content": "ok"}]}}]
+        result = nav.analyze_events(events)
+        self.assertTrue(result["first_edit_found"])
+        self.assertFalse(result["first_edit_boundary_uncertain"])
+        self.assertEqual(1, result["before_first_edit"]["commands"])
+        self.assertEqual(1, result["other_items"])
+
+    def test_thinking_and_text_blocks_of_one_message_are_both_counted(self):
+        events = [{"type": "assistant", "message": {"id": "m1", "content": [{"type": "thinking", "thinking": "."}]}},
+                  {"type": "assistant", "message": {"id": "m1", "content": [{"type": "text", "text": "."}]}}]
+        result = nav.analyze_events(events)
+        self.assertEqual((1, 1), (result["reasoning_items"], result["agent_messages"]))
+
+
 if __name__ == "__main__":
     unittest.main()

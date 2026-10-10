@@ -1,0 +1,29 @@
+diff --git a/docutils/parsers/rst/__init__.py b/docutils/parsers/rst/__init__.py
+index e9ffdb1cc..93a89a6d3 100644
+--- a/docutils/parsers/rst/__init__.py
++++ b/docutils/parsers/rst/__init__.py
+@@ -103,9 +103,9 @@ class Parser(docutils.parsers.Parser):
+           ['--rfc-references'],
+           {'action': 'store_true', 'validator': frontend.validate_boolean}),
+          ('Base URL for RFC references '
+-          '(default "https://tools.ietf.org/html/").',
++          '(default "https://www.rfc-editor.org/info/").',
+           ['--rfc-base-url'],
+-          {'metavar': '<URL>', 'default': 'https://tools.ietf.org/html/',
++          {'metavar': '<URL>', 'default': 'https://www.rfc-editor.org/info/',
+            'validator': frontend.validate_url_trailing_slash}),
+          ('Set number of spaces for tab expansion (default 8).',
+           ['--tab-width'],
+diff --git a/docutils/parsers/rst/states.py b/docutils/parsers/rst/states.py
+index ed74458e2..508e4029d 100644
+--- a/docutils/parsers/rst/states.py
++++ b/docutils/parsers/rst/states.py
+@@ -1122,7 +1122,7 @@ def pep_reference(self, match, lineno):
+                + self.document.settings.pep_file_url_template % pepnum)
+         return [nodes.reference(unescape(text, True), text, refuri=ref)]
+ 
+-    rfc_url = 'rfc%d.html'
++    rfc_url = 'rfc%d/'
+ 
+     def rfc_reference(self, match, lineno):
+         text = match.group(0)

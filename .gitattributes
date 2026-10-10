@@ -1,0 +1,2 @@
+# 评测夹具里的补丁按字节使用(含 CRLF 文件的改动),不做换行转换
+evals/fixtures/**/*.patch -text

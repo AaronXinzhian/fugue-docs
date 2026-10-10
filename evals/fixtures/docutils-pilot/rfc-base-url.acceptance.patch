@@ -1,0 +1,268 @@
+diff --git a/test/data/help/docutils.rst b/test/data/help/docutils.rst
+index 63cd6bc6c..6b9187e6f 100644
+--- a/test/data/help/docutils.rst
++++ b/test/data/help/docutils.rst
+@@ -106,8 +106,8 @@ reStructuredText Parser Options
+                         "pep-%04d")
+ --rfc-references        Recognize and link to standalone RFC references (like
+                         "RFC 822").
+---rfc-base-url=<URL>    Base URL for RFC references (default
+-                        "https://tools.ietf.org/html/").
++--rfc-base-url=<URL>    Base URL for RFC references (default "https://www.rfc-
++                        editor.org/info/").
+ --tab-width=<width>     Set number of spaces for tab expansion (default 8).
+ --trim-footnote-reference-space
+                         Remove spaces before footnote references.
+diff --git a/test/data/help/rst2html.rst b/test/data/help/rst2html.rst
+index 8eeb8ed5e..08ac84327 100644
+--- a/test/data/help/rst2html.rst
++++ b/test/data/help/rst2html.rst
+@@ -107,8 +107,8 @@ reStructuredText Parser Options
+                         "pep-%04d")
+ --rfc-references        Recognize and link to standalone RFC references (like
+                         "RFC 822").
+---rfc-base-url=<URL>    Base URL for RFC references (default
+-                        "https://tools.ietf.org/html/").
++--rfc-base-url=<URL>    Base URL for RFC references (default "https://www.rfc-
++                        editor.org/info/").
+ --tab-width=<width>     Set number of spaces for tab expansion (default 8).
+ --trim-footnote-reference-space
+                         Remove spaces before footnote references.
+diff --git a/test/data/help/rst2latex.rst b/test/data/help/rst2latex.rst
+index 711a6b05d..df93a7076 100644
+--- a/test/data/help/rst2latex.rst
++++ b/test/data/help/rst2latex.rst
+@@ -107,8 +107,8 @@ reStructuredText Parser Options
+                         "pep-%04d")
+ --rfc-references        Recognize and link to standalone RFC references (like
+                         "RFC 822").
+---rfc-base-url=<URL>    Base URL for RFC references (default
+-                        "https://tools.ietf.org/html/").
++--rfc-base-url=<URL>    Base URL for RFC references (default "https://www.rfc-
++                        editor.org/info/").
+ --tab-width=<width>     Set number of spaces for tab expansion (default 8).
+ --trim-footnote-reference-space
+                         Remove spaces before footnote references.
+diff --git a/test/functional/expected/latex_literal_block.tex b/test/functional/expected/latex_literal_block.tex
+index dce2378ec..48e4d5059 100644
+--- a/test/functional/expected/latex_literal_block.tex
++++ b/test/functional/expected/latex_literal_block.tex
+@@ -138,7 +138,7 @@
+ ~\\
+ ~~~Here~are~some~explicit~interpreted~text~roles:\\
+ a~PEP~reference~(\href{https://peps.python.org/pep-0287}{PEP~287}),\\
+-an~RFC~reference~(\href{https://tools.ietf.org/html/rfc2822.html}{RFC~2822}),\\
++an~RFC~reference~(\href{https://www.rfc-editor.org/info/rfc2822/}{RFC~2822}),\\
+ an~abbreviation~(\DUrole{abbreviation}{abb.}),~an~acronym~(\DUrole{acronym}{reST}),\\
+ code~(\texttt{\DUrole{code}{print~\textquotedbl{}hello~world\textquotedbl{}}}),\\
+ maths~$\sin^2(x)$,\\
+diff --git a/test/functional/expected/latex_literal_block_fancyvrb.tex b/test/functional/expected/latex_literal_block_fancyvrb.tex
+index 5eb76ef89..9a249da73 100644
+--- a/test/functional/expected/latex_literal_block_fancyvrb.tex
++++ b/test/functional/expected/latex_literal_block_fancyvrb.tex
+@@ -138,7 +138,7 @@
+ ~\\
+ ~~~Here~are~some~explicit~interpreted~text~roles:\\
+ a~PEP~reference~(\href{https://peps.python.org/pep-0287}{PEP~287}),\\
+-an~RFC~reference~(\href{https://tools.ietf.org/html/rfc2822.html}{RFC~2822}),\\
++an~RFC~reference~(\href{https://www.rfc-editor.org/info/rfc2822/}{RFC~2822}),\\
+ an~abbreviation~(\DUrole{abbreviation}{abb.}),~an~acronym~(\DUrole{acronym}{reST}),\\
+ code~(\texttt{\DUrole{code}{print~\textquotedbl{}hello~world\textquotedbl{}}}),\\
+ maths~$\sin^2(x)$,\\
+diff --git a/test/functional/expected/latex_literal_block_listings.tex b/test/functional/expected/latex_literal_block_listings.tex
+index 54f7fc9de..c1b88746d 100644
+--- a/test/functional/expected/latex_literal_block_listings.tex
++++ b/test/functional/expected/latex_literal_block_listings.tex
+@@ -141,7 +141,7 @@
+ ~\\
+ ~~~Here~are~some~explicit~interpreted~text~roles:\\
+ a~PEP~reference~(\href{https://peps.python.org/pep-0287}{PEP~287}),\\
+-an~RFC~reference~(\href{https://tools.ietf.org/html/rfc2822.html}{RFC~2822}),\\
++an~RFC~reference~(\href{https://www.rfc-editor.org/info/rfc2822/}{RFC~2822}),\\
+ an~abbreviation~(\DUrole{abbreviation}{abb.}),~an~acronym~(\DUrole{acronym}{reST}),\\
+ code~(\texttt{\DUrole{code}{print~\textquotedbl{}hello~world\textquotedbl{}}}),\\
+ maths~$\sin^2(x)$,\\
+diff --git a/test/functional/expected/latex_literal_block_verbatim.tex b/test/functional/expected/latex_literal_block_verbatim.tex
+index 369d492ff..544404d88 100644
+--- a/test/functional/expected/latex_literal_block_verbatim.tex
++++ b/test/functional/expected/latex_literal_block_verbatim.tex
+@@ -137,7 +137,7 @@
+ ~\\
+ ~~~Here~are~some~explicit~interpreted~text~roles:\\
+ a~PEP~reference~(\href{https://peps.python.org/pep-0287}{PEP~287}),\\
+-an~RFC~reference~(\href{https://tools.ietf.org/html/rfc2822.html}{RFC~2822}),\\
++an~RFC~reference~(\href{https://www.rfc-editor.org/info/rfc2822/}{RFC~2822}),\\
+ an~abbreviation~(\DUrole{abbreviation}{abb.}),~an~acronym~(\DUrole{acronym}{reST}),\\
+ code~(\texttt{\DUrole{code}{print~\textquotedbl{}hello~world\textquotedbl{}}}),\\
+ maths~$\sin^2(x)$,\\
+diff --git a/test/functional/expected/latex_literal_block_verbatimtab.tex b/test/functional/expected/latex_literal_block_verbatimtab.tex
+index 89908995d..e3d309099 100644
+--- a/test/functional/expected/latex_literal_block_verbatimtab.tex
++++ b/test/functional/expected/latex_literal_block_verbatimtab.tex
+@@ -138,7 +138,7 @@
+ ~\\
+ ~~~Here~are~some~explicit~interpreted~text~roles:\\
+ a~PEP~reference~(\href{https://peps.python.org/pep-0287}{PEP~287}),\\
+-an~RFC~reference~(\href{https://tools.ietf.org/html/rfc2822.html}{RFC~2822}),\\
++an~RFC~reference~(\href{https://www.rfc-editor.org/info/rfc2822/}{RFC~2822}),\\
+ an~abbreviation~(\DUrole{abbreviation}{abb.}),~an~acronym~(\DUrole{acronym}{reST}),\\
+ code~(\texttt{\DUrole{code}{print~\textquotedbl{}hello~world\textquotedbl{}}}),\\
+ maths~$\sin^2(x)$,\\
+diff --git a/test/functional/expected/latex_memoir.tex b/test/functional/expected/latex_memoir.tex
+index d2f0e58c2..28516f12b 100644
+--- a/test/functional/expected/latex_memoir.tex
++++ b/test/functional/expected/latex_memoir.tex
+@@ -337,7 +337,7 @@ \subsection{2.1.1   Inline Markup%
+ 
+ The default role for interpreted text is \DUroletitlereference{Title Reference}.  Here are
+ some explicit interpreted text roles: a PEP reference (\href{https://peps.python.org/pep-0287}{PEP 287}); an
+-RFC reference (\href{https://tools.ietf.org/html/rfc2822.html}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
++RFC reference (\href{https://www.rfc-editor.org/info/rfc2822/}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
+ (\DUrole{acronym}{reST}), code (\texttt{\DUrole{code}{print \textquotedbl{}hello world\textquotedbl{}}}); a \textsubscript{subscript};
+ a \textsuperscript{superscript} and explicit roles for \DUroletitlereference{Docutils}'
+ \emph{standard} \textbf{inline} \texttt{markup}.
+diff --git a/test/functional/expected/standalone_rst_docutils_xml.xml b/test/functional/expected/standalone_rst_docutils_xml.xml
+index 695d00c85..84d735167 100644
+--- a/test/functional/expected/standalone_rst_docutils_xml.xml
++++ b/test/functional/expected/standalone_rst_docutils_xml.xml
+@@ -254,7 +254,7 @@ They are transformed from section titles after parsing.</comment>
+                 <target anonymous="1" ids="target-2" refuri="https://docutils.sourceforge.io/"></target>
+                 <paragraph>The default role for interpreted text is <title_reference>Title Reference</title_reference>.  Here are
+                     some explicit interpreted text roles: a PEP reference (<reference refuri="https://peps.python.org/pep-0287">PEP 287</reference>); an
+-                    RFC reference (<reference refuri="https://tools.ietf.org/html/rfc2822.html">RFC 2822</reference>); an abbreviation (<abbreviation>abb.</abbreviation>), an acronym
++                    RFC reference (<reference refuri="https://www.rfc-editor.org/info/rfc2822/">RFC 2822</reference>); an abbreviation (<abbreviation>abb.</abbreviation>), an acronym
+                     (<acronym>reST</acronym>), code (<literal classes="code">print "hello world"</literal>); a <subscript>subscript</subscript>;
+                     a <superscript>superscript</superscript> and explicit roles for <title_reference>Docutils</title_reference>'
+                     <emphasis>standard</emphasis> <strong>inline</strong> <literal>markup</literal>.</paragraph>
+diff --git a/test/functional/expected/standalone_rst_html4css1.html b/test/functional/expected/standalone_rst_html4css1.html
+index d4997454f..1fe8baae7 100644
+--- a/test/functional/expected/standalone_rst_html4css1.html
++++ b/test/functional/expected/standalone_rst_html4css1.html
+@@ -186,7 +186,7 @@ <h3><a class="toc-backref" href="#toc-entry-7">2.1.1&nbsp;&nbsp;&nbsp;Inline Mar
+ reference to the <a class="reference internal" href="#doctitle">doctitle</a> and the <a class="reference internal" href="#subtitle">subtitle</a>.</p>
+ <p>The default role for interpreted text is <cite>Title Reference</cite>.  Here are
+ some explicit interpreted text roles: a PEP reference (<a class="reference external" href="https://peps.python.org/pep-0287">PEP 287</a>); an
+-RFC reference (<a class="reference external" href="https://tools.ietf.org/html/rfc2822.html">RFC 2822</a>); an abbreviation (<abbr>abb.</abbr>), an acronym
++RFC reference (<a class="reference external" href="https://www.rfc-editor.org/info/rfc2822/">RFC 2822</a>); an abbreviation (<abbr>abb.</abbr>), an acronym
+ (<acronym>reST</acronym>), code (<code>print &quot;hello world&quot;</code>); a <sub>subscript</sub>;
+ a <sup>superscript</sup> and explicit roles for <cite>Docutils</cite>'
+ <em>standard</em> <strong>inline</strong> <tt class="docutils literal">markup</tt>.</p>
+diff --git a/test/functional/expected/standalone_rst_html5.html b/test/functional/expected/standalone_rst_html5.html
+index 0fc51a3aa..92499f198 100644
+--- a/test/functional/expected/standalone_rst_html5.html
++++ b/test/functional/expected/standalone_rst_html5.html
+@@ -203,7 +203,7 @@ <h4><a class="toc-backref" href="#toc-entry-7" role="doc-backlink"><span class="
+ reference to the <a class="reference internal" href="#doctitle">doctitle</a> and the <a class="reference internal" href="#subtitle">subtitle</a>.</p>
+ <p>The default role for interpreted text is <cite>Title Reference</cite>.  Here are
+ some explicit interpreted text roles: a PEP reference (<a class="reference external" href="https://peps.python.org/pep-0287">PEP 287</a>); an
+-RFC reference (<a class="reference external" href="https://tools.ietf.org/html/rfc2822.html">RFC 2822</a>); an abbreviation (<abbr>abb.</abbr>), an acronym
++RFC reference (<a class="reference external" href="https://www.rfc-editor.org/info/rfc2822/">RFC 2822</a>); an abbreviation (<abbr>abb.</abbr>), an acronym
+ (<abbr>reST</abbr>), code (<code>print &quot;hello world&quot;</code>); a <sub>subscript</sub>;
+ a <sup>superscript</sup> and explicit roles for <cite>Docutils</cite>'
+ <em>standard</em> <strong>inline</strong> <span class="docutils literal">markup</span>.</p>
+diff --git a/test/functional/expected/standalone_rst_latex.tex b/test/functional/expected/standalone_rst_latex.tex
+index 1c9eb2da0..24aff9d43 100644
+--- a/test/functional/expected/standalone_rst_latex.tex
++++ b/test/functional/expected/standalone_rst_latex.tex
+@@ -333,7 +333,7 @@ \subsubsection{2.1.1   Inline Markup%
+ 
+ The default role for interpreted text is \DUroletitlereference{Title Reference}.  Here are
+ some explicit interpreted text roles: a PEP reference (\href{https://peps.python.org/pep-0287}{PEP 287}); an
+-RFC reference (\href{https://tools.ietf.org/html/rfc2822.html}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
++RFC reference (\href{https://www.rfc-editor.org/info/rfc2822/}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
+ (\DUrole{acronym}{reST}), code (\texttt{\DUrole{code}{print \textquotedbl{}hello world\textquotedbl{}}}); a \textsubscript{subscript};
+ a \textsuperscript{superscript} and explicit roles for \DUroletitlereference{Docutils}’
+ \emph{standard} \textbf{inline} \texttt{markup}.
+diff --git a/test/functional/expected/standalone_rst_pseudoxml.txt b/test/functional/expected/standalone_rst_pseudoxml.txt
+index 6770fdbfa..af1b6cee0 100644
+--- a/test/functional/expected/standalone_rst_pseudoxml.txt
++++ b/test/functional/expected/standalone_rst_pseudoxml.txt
+@@ -509,7 +509,7 @@
+                         PEP 287
+                     ); an
+                     RFC reference (
+-                    <reference refuri="https://tools.ietf.org/html/rfc2822.html">
++                    <reference refuri="https://www.rfc-editor.org/info/rfc2822/">
+                         RFC 2822
+                     ); an abbreviation (
+                     <abbreviation>
+diff --git a/test/functional/expected/standalone_rst_xetex.tex b/test/functional/expected/standalone_rst_xetex.tex
+index 7335a12f5..d8667c60a 100644
+--- a/test/functional/expected/standalone_rst_xetex.tex
++++ b/test/functional/expected/standalone_rst_xetex.tex
+@@ -333,7 +333,7 @@ \subsubsection{2.1.1   Inline Markup%
+ 
+ The default role for interpreted text is \DUroletitlereference{Title Reference}.  Here are
+ some explicit interpreted text roles: a PEP reference (\href{https://peps.python.org/pep-0287}{PEP 287}); an
+-RFC reference (\href{https://tools.ietf.org/html/rfc2822.html}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
++RFC reference (\href{https://www.rfc-editor.org/info/rfc2822/}{RFC 2822}); an abbreviation (\DUrole{abbreviation}{abb.}), an acronym
+ (\DUrole{acronym}{reST}), code (\texttt{\DUrole{code}{print \textquotedbl{}hello world\textquotedbl{}}}); a \textsubscript{subscript};
+ a \textsuperscript{superscript} and explicit roles for \DUroletitlereference{Docutils}’
+ \emph{standard} \textbf{inline} \texttt{markup}.
+diff --git a/test/test_parsers/test_rst/test_interpreted.py b/test/test_parsers/test_rst/test_interpreted.py
+index 96a97a4fb..2c07ecb73 100755
+--- a/test/test_parsers/test_rst/test_interpreted.py
++++ b/test/test_parsers/test_rst/test_interpreted.py
+@@ -359,7 +359,7 @@ def test_parser(self):
+ """\
+ <document source="test data">
+     <paragraph>
+-        <reference refuri="https://tools.ietf.org/html/rfc2822.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc2822/">
+             RFC 2822
+ """],
+ ["""\
+@@ -375,12 +375,12 @@ def test_parser(self):
+             RFC number must be a number greater than or equal to 1; "0" is invalid.
+ """],
+ ["""\
+-:RFC:`2822#section1`
++:RFC:`2822#section-1`
+ """,
+ """\
+ <document source="test data">
+     <paragraph>
+-        <reference refuri="https://tools.ietf.org/html/rfc2822.html#section1">
++        <reference refuri="https://www.rfc-editor.org/info/rfc2822/#section-1">
+             RFC 2822
+ """],
+ ]
+diff --git a/test/test_readers/test_pep/test_inline_markup.py b/test/test_readers/test_pep/test_inline_markup.py
+index 01fa159d7..8d8a94ab0 100755
+--- a/test/test_readers/test_pep/test_inline_markup.py
++++ b/test/test_readers/test_pep/test_inline_markup.py
+@@ -57,13 +57,13 @@ def test_parser(self):
+             pep-0287.txt
+         ),
+         and \n\
+-        <reference refuri="https://tools.ietf.org/html/rfc2822.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc2822/">
+             RFC 2822
+          (which obsoletes \n\
+-        <reference refuri="https://tools.ietf.org/html/rfc822.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc822/">
+             RFC822
+          and \n\
+-        <reference refuri="https://tools.ietf.org/html/rfc733.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc733/">
+             RFC-733
+         ).
+ """],
+@@ -85,7 +85,7 @@ def test_parser(self):
+             PEP
+             287
+     <paragraph>
+-        <reference refuri="https://tools.ietf.org/html/rfc2822.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc2822/">
+             RFC
+             2822
+ """],
+@@ -105,7 +105,7 @@ def test_parser(self):
+         <reference refuri="https://peps.python.org/pep-0287">
+             https://peps.python.org/pep-0287
+         ), \n\
+-        <reference refuri="https://tools.ietf.org/html/rfc2822.html">
++        <reference refuri="https://www.rfc-editor.org/info/rfc2822/">
+             RFC 2822
+         .
+ """],
