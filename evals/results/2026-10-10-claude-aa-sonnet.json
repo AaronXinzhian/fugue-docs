@@ -1,0 +1,1230 @@
+{
+  "schema": "geb.token-pilot.v2",
+  "agent": "claude",
+  "agent_version": "2.1.296 (Claude Code)",
+  "source_commit": "83968aa2ff06a122db3f34363763a9cfc6e1f4db",
+  "external_source": {
+    "name": "docutils",
+    "git": "https://github.com/docutils/docutils",
+    "commit": "92a50f6f73adcad8ba5db988c477fd75854c893b",
+    "subdir": "docutils",
+    "tree": "f05215dab6ed756a1998594d3261acd4bf51dc9c"
+  },
+  "source_index_files": 20,
+  "model": "claude-sonnet-5-5",
+  "effort": null,
+  "design": "aa",
+  "arms": [
+    [
+      "index-a",
+      "index"
+    ],
+    [
+      "index-b",
+      "index"
+    ]
+  ],
+  "comparisons": [
+    [
+      "index-a",
+      "index-b",
+      "noise"
+    ]
+  ],
+  "prompt_style": "symptom",
+  "tasks_sha256": "7eecbc2a45891487d09147158dfc2fda4f9e5c1f0f6465d9a98cb3ddb2e9a2cc",
+  "skill_commit": "b7eef35e8bdd5159507aee05e6b7416ec678ac1f",
+  "runner_sha256": "1256b5e5f973c15b59c4dcc0241f71f08edc1bce1928c1861cc4bf6c27d8d210",
+  "source_archive_sha256": "2cffac10ab6db20017c903841f6656182e0a027915f6e341367c38c65594c091",
+  "skill_sha256": "22f5b5ff12d04c93f3158b05cb59f956f49e5987875e49290c9b60c439059674",
+  "seed": 730,
+  "planned_blocks": 8,
+  "planned_trials": 16,
+  "schedule": [
+    {
+      "task": "figure-figalign",
+      "repeat": 2,
+      "order": [
+        "index-a",
+        "index-b"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "order": [
+        "index-a",
+        "index-b"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "order": [
+        "index-b",
+        "index-a"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 2,
+      "order": [
+        "index-a",
+        "index-b"
+      ]
+    },
+    {
+      "task": "language-fallback",
+      "repeat": 1,
+      "order": [
+        "index-b",
+        "index-a"
+      ]
+    },
+    {
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "order": [
+        "index-b",
+        "index-a"
+      ]
+    },
+    {
+      "task": "figure-figalign",
+      "repeat": 1,
+      "order": [
+        "index-a",
+        "index-b"
+      ]
+    },
+    {
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "order": [
+        "index-b",
+        "index-a"
+      ]
+    }
+  ],
+  "primary_metric": "uncached_plus_output",
+  "usage_definition": "uncached input = fresh input + cache writes; cached input = cache reads; totals from result.modelUsage (includes subagents)",
+  "claude_credential": [
+    "CLAUDE_CODE_OAUTH_TOKEN"
+  ],
+  "claude_isolation": {
+    "sandbox": "on",
+    "bash_cannot_read_answer_dirs": true,
+    "bash_sees_no_credentials": true,
+    "note": null
+  },
+  "claude_environment": {
+    "version": "2.1.296",
+    "model": "claude-sonnet-5-5",
+    "api_key_source": "none",
+    "plugins": [
+      "cc-plugin-agents-md",
+      "cc-plugin-plugin-authoring"
+    ],
+    "tools": [
+      "Bash",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "Edit",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ListAgents",
+      "NotebookEdit",
+      "Read",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "SendMessage",
+      "Task",
+      "TaskStop",
+      "ToolSearch",
+      "Workflow",
+      "Write"
+    ],
+    "mcp_servers": []
+  },
+  "cost_budget_usd": 25.0,
+  "timeout_per_trial": 1500,
+  "evidence_level": "test_passed_pairs_only_pending_independent_semantic_review",
+  "stop_reason": "schedule_complete",
+  "note": "De-identified A/A record on the user's Mac: per-trial numbers, statuses and recomputed navigation proxies only. Prompts, patches, event logs, transcripts and local paths are not published.",
+  "claude_selftest": {
+    "ok": true,
+    "checks": {
+      "run_completed": true,
+      "fugue_plugin_loaded": true,
+      "hooks_ran": true,
+      "stop_hook_prompted_semantics": true,
+      "bash_ran": true,
+      "python3_runs": true,
+      "git_runs": true,
+      "task_tests_pass_in_sandbox": true,
+      "sandbox_active": true,
+      "outside_write_blocked": true,
+      "deny_read_effective": true,
+      "credentials_hidden_from_bash": true
+    },
+    "claude_version": "2.1.296",
+    "test_command": "cd test && python3 -B alltests.py"
+  },
+  "trials": [
+    {
+      "trial_id": "figure-figalign-2-index-a",
+      "task": "figure-figalign",
+      "repeat": 2,
+      "condition": "index-a",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 26276,
+        "total_tokens": 307161,
+        "input_tokens": 302744,
+        "cached_input_tokens": 280885,
+        "cache_creation_input_tokens": 21837,
+        "fresh_input_tokens": 22,
+        "output_tokens": 4417,
+        "cost_usd": 0.15965049999999997,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 46.457,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 6,
+          "output_chars": 18364,
+          "index_reads": 0
+        },
+        "total_commands": 10,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-2-index-b",
+      "task": "figure-figalign",
+      "repeat": 2,
+      "condition": "index-b",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 58856,
+        "total_tokens": 1347808,
+        "input_tokens": 1331702,
+        "cached_input_tokens": 1288952,
+        "cache_creation_input_tokens": 42684,
+        "fresh_input_tokens": 66,
+        "output_tokens": 16106,
+        "cost_usd": 0.46082319999999993,
+        "turns": 50,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 152.345,
+      "num_turns": 50,
+      "permission_denials": 6,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 3,
+          "output_chars": 13488,
+          "index_reads": 0
+        },
+        "total_commands": 25,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-2-index-a",
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "condition": "index-a",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17212,
+        "total_tokens": 237196,
+        "input_tokens": 234603,
+        "cached_input_tokens": 219984,
+        "cache_creation_input_tokens": 14599,
+        "fresh_input_tokens": 20,
+        "output_tokens": 2593,
+        "cost_usd": 0.1063644,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 32.573,
+      "num_turns": 11,
+      "permission_denials": 3,
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-2-index-b",
+      "task": "rfc-base-url",
+      "repeat": 2,
+      "condition": "index-b",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17699,
+        "total_tokens": 224262,
+        "input_tokens": 221706,
+        "cached_input_tokens": 206563,
+        "cache_creation_input_tokens": 15125,
+        "fresh_input_tokens": 18,
+        "output_tokens": 2556,
+        "cost_usd": 0.1067523,
+        "turns": 9,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 38.02,
+      "num_turns": 9,
+      "permission_denials": 2,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 4,
+          "output_chars": 7313,
+          "index_reads": 0
+        },
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-1-index-b",
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "condition": "index-b",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": false,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": false
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 24982,
+        "total_tokens": 357052,
+        "input_tokens": 351213,
+        "cached_input_tokens": 332070,
+        "cache_creation_input_tokens": 19115,
+        "fresh_input_tokens": 28,
+        "output_tokens": 5839,
+        "cost_usd": 0.168113,
+        "turns": 16,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 59.14,
+      "num_turns": 16,
+      "permission_denials": 1,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 6,
+          "output_chars": 6559,
+          "index_reads": 0
+        },
+        "total_commands": 12,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-1-index-a",
+      "task": "source-date-epoch",
+      "repeat": 1,
+      "condition": "index-a",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 24904,
+        "total_tokens": 228788,
+        "input_tokens": 222873,
+        "cached_input_tokens": 203884,
+        "cache_creation_input_tokens": 18971,
+        "fresh_input_tokens": 18,
+        "output_tokens": 5915,
+        "cost_usd": 0.1554584,
+        "turns": 15,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 54.064,
+      "num_turns": 15,
+      "permission_denials": 1,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 5,
+          "output_chars": 8649,
+          "index_reads": 0
+        },
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-2-index-a",
+      "task": "language-fallback",
+      "repeat": 2,
+      "condition": "index-a",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 17970,
+        "total_tokens": 192904,
+        "input_tokens": 190228,
+        "cached_input_tokens": 174934,
+        "cache_creation_input_tokens": 15278,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2676,
+        "cost_usd": 0.10539740000000002,
+        "turns": 11,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 29.125,
+      "num_turns": 11,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 4,
+          "output_chars": 7043,
+          "index_reads": 0
+        },
+        "total_commands": 6,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-2-index-b",
+      "task": "language-fallback",
+      "repeat": 2,
+      "condition": "index-b",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 18671,
+        "total_tokens": 273389,
+        "input_tokens": 270488,
+        "cached_input_tokens": 254718,
+        "cache_creation_input_tokens": 15748,
+        "fresh_input_tokens": 22,
+        "output_tokens": 2901,
+        "cost_usd": 0.11751779999999999,
+        "turns": 15,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 35.028,
+      "num_turns": 15,
+      "permission_denials": 2,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 4,
+          "output_chars": 7228,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-1-index-b",
+      "task": "language-fallback",
+      "repeat": 1,
+      "condition": "index-b",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 16877,
+        "total_tokens": 188615,
+        "input_tokens": 185833,
+        "cached_input_tokens": 171738,
+        "cache_creation_input_tokens": 14079,
+        "fresh_input_tokens": 16,
+        "output_tokens": 2782,
+        "cost_usd": 0.10134179999999998,
+        "turns": 9,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 30.789,
+      "num_turns": 9,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 4,
+          "output_chars": 6951,
+          "index_reads": 0
+        },
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "language-fallback-1-index-a",
+      "task": "language-fallback",
+      "repeat": 1,
+      "condition": "index-a",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 18331,
+        "total_tokens": 293983,
+        "input_tokens": 291059,
+        "cached_input_tokens": 275652,
+        "cache_creation_input_tokens": 15383,
+        "fresh_input_tokens": 24,
+        "output_tokens": 2924,
+        "cost_usd": 0.11838519999999998,
+        "turns": 15,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 37.272,
+      "num_turns": 15,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 3,
+          "output_chars": 5771,
+          "index_reads": 0
+        },
+        "total_commands": 9,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-2-index-b",
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "condition": "index-b",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 23140,
+        "total_tokens": 223573,
+        "input_tokens": 218940,
+        "cached_input_tokens": 200433,
+        "cache_creation_input_tokens": 18489,
+        "fresh_input_tokens": 18,
+        "output_tokens": 4633,
+        "cost_usd": 0.14036530000000003,
+        "turns": 10,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 39.469,
+      "num_turns": 10,
+      "permission_denials": 1,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 5,
+          "files_read": 4,
+          "output_chars": 9662,
+          "index_reads": 0
+        },
+        "total_commands": 7,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "source-date-epoch-2-index-a",
+      "task": "source-date-epoch",
+      "repeat": 2,
+      "condition": "index-a",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "regression:2",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 21945,
+        "total_tokens": 277139,
+        "input_tokens": 272261,
+        "cached_input_tokens": 255194,
+        "cache_creation_input_tokens": 17045,
+        "fresh_input_tokens": 22,
+        "output_tokens": 4878,
+        "cost_usd": 0.14252340000000002,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 47.391,
+      "num_turns": 12,
+      "permission_denials": 1,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 6,
+          "files_read": 7,
+          "output_chars": 8878,
+          "index_reads": 0
+        },
+        "total_commands": 9,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-1-index-a",
+      "task": "figure-figalign",
+      "repeat": 1,
+      "condition": "index-a",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 30354,
+        "total_tokens": 384157,
+        "input_tokens": 377599,
+        "cached_input_tokens": 353803,
+        "cache_creation_input_tokens": 23770,
+        "fresh_input_tokens": 26,
+        "output_tokens": 6558,
+        "cost_usd": 0.19609230000000005,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 60.822,
+      "num_turns": 14,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 4,
+          "files_read": 5,
+          "output_chars": 18839,
+          "index_reads": 0
+        },
+        "total_commands": 13,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "figure-figalign-1-index-b",
+      "task": "figure-figalign",
+      "repeat": 1,
+      "condition": "index-b",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "regression:1",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 34123,
+        "total_tokens": 385428,
+        "input_tokens": 378139,
+        "cached_input_tokens": 351305,
+        "cache_creation_input_tokens": 26810,
+        "fresh_input_tokens": 24,
+        "output_tokens": 7289,
+        "cost_usd": 0.2153085,
+        "turns": 12,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 62.147,
+      "num_turns": 12,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 3,
+          "files_read": 6,
+          "output_chars": 21681,
+          "index_reads": 1
+        },
+        "total_commands": 11,
+        "total_index_reads": 1
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-1-index-b",
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "condition": "index-b",
+      "block_position": 0,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 14380,
+        "total_tokens": 140292,
+        "input_tokens": 138713,
+        "cached_input_tokens": 125912,
+        "cache_creation_input_tokens": 12789,
+        "fresh_input_tokens": 12,
+        "output_tokens": 1579,
+        "cost_usd": 0.0795612,
+        "turns": 6,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 22.791,
+      "num_turns": 6,
+      "permission_denials": 0,
+      "navigation": {
+        "first_edit_found": true,
+        "before_first_edit": {
+          "commands": 2,
+          "files_read": 3,
+          "output_chars": 5701,
+          "index_reads": 0
+        },
+        "total_commands": 5,
+        "total_index_reads": 0
+      }
+    },
+    {
+      "trial_id": "rfc-base-url-1-index-a",
+      "task": "rfc-base-url",
+      "repeat": 1,
+      "condition": "index-a",
+      "block_position": 1,
+      "status": "completed",
+      "accepted": true,
+      "validation": [
+        {
+          "check": "acceptance_setup",
+          "passed": true
+        },
+        {
+          "check": "acceptance:0",
+          "passed": true
+        },
+        {
+          "check": "acceptance:1",
+          "passed": true
+        },
+        {
+          "check": "acceptance:2",
+          "passed": true
+        },
+        {
+          "check": "acceptance:3",
+          "passed": true
+        },
+        {
+          "check": "regression:4",
+          "passed": true
+        },
+        {
+          "check": "protected_files_unchanged",
+          "passed": true
+        }
+      ],
+      "usage": {
+        "uncached_plus_output": 20897,
+        "total_tokens": 317426,
+        "input_tokens": 314152,
+        "cached_input_tokens": 296529,
+        "cache_creation_input_tokens": 17599,
+        "fresh_input_tokens": 24,
+        "output_tokens": 3274,
+        "cost_usd": 0.13283689999999998,
+        "turns": 14,
+        "source": "result.modelUsage"
+      },
+      "elapsed_seconds": 41.653,
+      "num_turns": 14,
+      "permission_denials": 4,
+      "navigation": {
+        "first_edit_found": false,
+        "before_first_edit": null,
+        "total_commands": 8,
+        "total_index_reads": 0
+      }
+    }
+  ],
+  "summary": {
+    "attempted": 16,
+    "accepted": 15,
+    "unknown_usage_trials": 0,
+    "budget_cost_usd": 2.506492,
+    "known_total_tokens": 5379173,
+    "primary_metric_median_by_block_position": {
+      "0": 17970,
+      "1": 21421.0
+    },
+    "by_condition": {
+      "index-a": {
+        "attempted": 8,
+        "accepted": 8,
+        "acceptance_rate": 1.0,
+        "measured_tokens": 2238754,
+        "measured_uncached_plus_output": 177889,
+        "measured_cost_usd": 1.1167085
+      },
+      "index-b": {
+        "attempted": 8,
+        "accepted": 7,
+        "acceptance_rate": 0.875,
+        "measured_tokens": 3140419,
+        "measured_uncached_plus_output": 208728,
+        "measured_cost_usd": 1.3897831
+      }
+    },
+    "noise": {
+      "qualified_pairs": 7,
+      "failure_aware": {
+        "metric": "uncached_plus_output",
+        "treatment_better": 2,
+        "treatment_worse": 6,
+        "ties": 0,
+        "skipped_unknown_usage": 0,
+        "skipped_infrastructure": 0,
+        "sign_test_p": 0.2890625
+      },
+      "power_hint": {
+        "uncached_plus_output": {
+          "assumption": "normal approximation on log(reference/treatment); assumes A/A noise carries over",
+          "aa_sd_log_ratio": 0.35742743643093355,
+          "pairs_needed": {
+            "10%": 91,
+            "20%": 21,
+            "30%": 8
+          }
+        },
+        "total_tokens": {
+          "assumption": "normal approximation on log(reference/treatment); assumes A/A noise carries over",
+          "aa_sd_log_ratio": 0.7312955076266704,
+          "pairs_needed": {
+            "10%": 379,
+            "20%": 85,
+            "30%": 33
+          }
+        }
+      },
+      "metrics": {
+        "uncached_plus_output": {
+          "n": 7,
+          "reference_median": 20897,
+          "treatment_median": 18671,
+          "sum_difference": -30761,
+          "mean_difference": -4394.428571428572,
+          "median_difference": -701,
+          "sd_difference": 12827.228485493179,
+          "n_ratio": 7,
+          "mean_log_ratio": -0.08375208074975231,
+          "sd_log_ratio": 0.35742743643093355,
+          "geometric_saving_rate": -0.08735928309114982,
+          "median_saving_rate": -0.03900946021146355,
+          "saving_rate_range": [
+            -1.2399147511036688,
+            0.31186294683447385
+          ],
+          "treatment_lower": 2,
+          "treatment_higher": 5,
+          "ties": 0,
+          "missing_in_qualified_pairs": 0
+        },
+        "total_tokens": {
+          "n": 7,
+          "reference_median": 293983,
+          "treatment_median": 224262,
+          "sum_difference": -773401,
+          "mean_difference": -110485.85714285714,
+          "median_difference": 12934,
+          "sd_difference": 418228.65176975005,
+          "n_ratio": 7,
+          "mean_log_ratio": -0.042811875831748655,
+          "sd_log_ratio": 0.7312955076266704,
+          "geometric_saving_rate": -0.04374152337412718,
+          "median_saving_rate": 0.054528744160947065,
+          "saving_rate_range": [
+            -3.387952897666045,
+            0.5580324233049593
+          ],
+          "treatment_lower": 4,
+          "treatment_higher": 3,
+          "ties": 0,
+          "missing_in_qualified_pairs": 0
+        },
+        "cost_usd": {
+          "n": 7,
+          "reference_median": 0.13283689999999998,
+          "treatment_median": 0.11751779999999999,
+          "sum_difference": -0.26041999999999993,
+          "mean_difference": -0.03720285714285713,
+          "median_difference": -0.0003878999999999966,
+          "sd_difference": 0.11878999618571781,
+          "n_ratio": 7,
+          "mean_log_ratio": -0.08324396644701787,
+          "sd_log_ratio": 0.4800873049558522,
+          "geometric_saving_rate": -0.08680692063071738,
+          "median_saving_rate": -0.003646896894073549,
+          "saving_rate_range": [
+            -1.886450089414064,
+            0.4010610003696261
+          ],
+          "treatment_lower": 3,
+          "treatment_higher": 4,
+          "ties": 0,
+          "missing_in_qualified_pairs": 0
+        },
+        "output_tokens": {
+          "n": 7,
+          "reference_median": 3274,
+          "treatment_median": 2901,
+          "sum_difference": -10526,
+          "mean_difference": -1503.7142857142858,
+          "median_difference": 37,
+          "sd_difference": 4552.365565076605,
+          "n_ratio": 7,
+          "mean_log_ratio": -0.09074833316395614,
+          "sd_log_ratio": 0.6015095894499045,
+          "geometric_saving_rate": -0.09499339705547194,
+          "median_saving_rate": 0.014269186270728885,
+          "saving_rate_range": [
+            -2.6463663119764544,
+            0.5177153329260843
+          ],
+          "treatment_lower": 4,
+          "treatment_higher": 3,
+          "ties": 0,
+          "missing_in_qualified_pairs": 0
+        }
+      }
+    }
+  }
+}

@@ -34,7 +34,11 @@ from geb_adapt import BEGIN as MANAGED_BEGIN, END as MANAGED_END
 import analyze_navigation as nav
 
 DEFAULT_TASKS_FILE = ROOT / "evals" / "fixtures" / "token-pilot" / "tasks.json"
-ARMS = ("noindex", "index", "fugue")
+ARMS = ("noindex", "index", "hint", "fugue")
+# hint 组:有索引,项目规则文件里只有一句导航提示(与插件 SessionStart 注入的第一句相同),没有插件和钩子。
+# 用来区分"模型知道并使用索引"的收益和钩子流程本身的开销;首轮 A/A 里没有提示的 index 组 16 次只读过 1 次索引
+HINT_TEXT = "本项目使用赋格索引:先读 PROJECT_INDEX.md,再读目标目录 FOLDER_INDEX.md 和文件头定位,然后读代码。"
+HINT_FILES = {"claude": "CLAUDE.md", "codex": "AGENTS.md"}
 DESIGNS = {
     # 无索引 → 仅索引 = 索引收益;仅索引 → 完整赋格 = 流程开销/收益;两端 = 总效应
     "three-arm": {"arms": [("noindex", "noindex"), ("index", "index"), ("fugue", "fugue")],
@@ -43,6 +47,11 @@ DESIGNS = {
                                   ("noindex", "fugue", "total_effect")]},
     "two-arm": {"arms": [("index", "index"), ("fugue", "fugue")],
                 "comparisons": [("index", "fugue", "workflow_effect")]},
+    # 无提示 → 有提示 = 让模型使用索引的收益;有提示 → 赋格插件 = 钩子流程的开销或收益;两端 = 装插件的总效应
+    "three-arm-hint": {"arms": [("index", "index"), ("hint", "hint"), ("fugue", "fugue")],
+                       "comparisons": [("index", "hint", "hint_effect"),
+                                       ("hint", "fugue", "hooks_effect"),
+                                       ("index", "fugue", "plugin_effect")]},
 }
 PRIMARY_METRIC = "uncached_plus_output"
 COST_KEYS = ("uncached_input_tokens", "cached_input_tokens", "output_tokens")
@@ -362,10 +371,20 @@ def git_environment(env):
                 GIT_AUTHOR_DATE="2000-01-01T00:00:00+00:00", GIT_COMMITTER_DATE="2000-01-01T00:00:00+00:00")
 
 
-def prepare_workspace(archive, workspace, arm, task, git_env):
+def write_hint(workspace, name):
+    """hint 组的项目规则文件:已有同名文件时追加一段,不覆盖项目原有规则。"""
+    path = workspace / name
+    existing = path.read_text(encoding="utf-8") if path.is_file() else ""
+    path.write_text(existing + ("\n" if existing and not existing.endswith("\n") else "")
+                    + ("\n" if existing else "") + HINT_TEXT + "\n", encoding="utf-8")
+
+
+def prepare_workspace(archive, workspace, arm, task, git_env, hint_file="CLAUDE.md"):
     workspace.mkdir(parents=True)
     with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
         extract(tar, workspace, checked_members(tar))
+    if arm == "hint":
+        write_hint(workspace, hint_file)
     strip = strip_indexes(workspace, task["strip_exclude"]) if arm == "noindex" else None
     subprocess.run(["git", "-c", "init.templateDir=", "-c", "init.defaultBranch=main", "init", "-q"],
                    cwd=workspace, env=git_env, check=True, capture_output=True)
@@ -998,7 +1017,7 @@ def run_trial(args, archive, skill_dir, task, directory, arm):
         env = {k: v for k, v in os.environ.items() if not k.startswith("CODEX_")}
         env.update(HOME=str(home), CODEX_HOME=str(codex_home), PYTHONDONTWRITEBYTECODE="1")
     git_env = git_environment(env)
-    base_commit, strip = prepare_workspace(archive, workspace, arm, task, git_env)
+    base_commit, strip = prepare_workspace(archive, workspace, arm, task, git_env, HINT_FILES[agent])
     plugin = None
     if agent == "claude":
         if arm == "fugue":
@@ -1088,7 +1107,8 @@ def verify_tasks(archive, task_set, names, arms, parent, timeout):
     results, ok = [], True
     env = dict(os.environ, HOME=str(parent / "home"))
     git_env = git_environment(env)
-    workspace_arms = sorted({"index" if arm == "fugue" else arm for _, arm in arms})
+    # fugue 与 hint 组的工作区只比 index 组多了插件或一个说明文件,测试结果相同,不重复校验
+    workspace_arms = sorted({"index" if arm in ("fugue", "hint") else arm for _, arm in arms})
     for name in names:
         task = task_set["tasks"][name]
         for arm in workspace_arms:
@@ -1134,7 +1154,7 @@ def verify_tasks(archive, task_set, names, arms, parent, timeout):
             ok = ok and row["ok"]
             results.append(row)
     return {"schema": "geb.token-pilot-verify.v1", "ok": ok, "workspace_arms": workspace_arms,
-            "note": "fugue arm shares the index workspace; only the installed skill differs",
+            "note": "fugue and hint arms share the index workspace; only the skill or one rule-file line differs",
             "results": results}
 
 
@@ -1358,7 +1378,7 @@ def main():
     parser.add_argument("--model")
     parser.add_argument("--effort", choices=("low", "medium", "high", "xhigh", "max"),
                         help="Codex default medium; Claude uses its own default unless set")
-    parser.add_argument("--design", choices=("three-arm", "two-arm", "aa"), default="three-arm")
+    parser.add_argument("--design", choices=("three-arm", "two-arm", "three-arm-hint", "aa"), default="three-arm")
     parser.add_argument("--aa-arm", choices=ARMS, default="index", help="Arm repeated in an A/A noise run")
     parser.add_argument("--prompt-style", choices=("symptom", "named"), default="symptom",
                         help="symptom prompts describe behavior without naming files or functions")
@@ -1488,6 +1508,8 @@ def main():
                                 "extra_args": args.claude_arg} if claude else None,
               "fugue_arm_install": ("plugin via --plugin-dir: SKILL.md + hooks; identical prompt in every arm"
                                     if claude else "skill + AGENTS.md pointer; other arms told not to invoke it"),
+              "hint_arm": ({"file": HINT_FILES[args.agent], "text": HINT_TEXT}
+                           if any(arm == "hint" for _, arm in chosen["arms"]) else None),
               "seed": args.seed,
               "planned_blocks": len(schedule), "planned_trials": sum(len(b["order"]) for b in schedule),
               "schedule": schedule, "primary_metric": PRIMARY_METRIC, "cost_weights": weights,

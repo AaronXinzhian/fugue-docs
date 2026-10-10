@@ -24,6 +24,7 @@
 | test_token_pilot.py | 不调用模型的试点测试:配对块、三组/A-A 汇总、成本口径、索引剥离、预算与未知停止、外部源码与归档安全、隐藏测试补丁与重置、Claude 用量换算、凭据选择与白名单环境、接口故障与缺金额停止、自检通过与失败、假 Codex/假 Claude 端到端 | TWO_ARM, ROOT_DOCUTILS_TASKS, HAS_SOURCE_REF, usage(), trial(), FAKE_CODEX, FAKE_CLAUDE, FAKE_SELFTEST_CLAUDE, SummaryTests, stream(), ClaudeTests, SelfTestTests, SourceTests, DesignTests, RunnerTests, ClaudeRunnerTests |
 
 ## 数据文件
+- `results/2026-10-10-claude-aa-sonnet.json` — Claude Code A/A(Docutils,Sonnet 5.5)的脱敏数值:16 次、15 次通过、自检 12 项、噪声与功效提示、重算后的定位代理
 - `results/2026-10-08-three-arm-xhigh.json` — 首轮真实三组试点的脱敏数值:6 次调用、5 次验收通过、预算停止;保留负差值与准备失败未知用量
 - `results/2026-10-08-v2.6-guard-regression.json` — 干净提交上的 97 项回归、6 组集成与 8 组无模型任务预检脱敏证据
 - `TOKEN_PILOT_RESULTS.md` — 真实三组试点、负差值、失败与未运行任务;历史预检与结论边界

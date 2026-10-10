@@ -140,8 +140,8 @@ class ClaudePilotScriptTests(unittest.TestCase):
         self.assertIn("--claude-selftest", calls[1])
         plan = calls[2]
         self.assertFalse(any("--execute" in call for call in calls))
-        for flag, value in (("--agent", "claude"), ("--model", "claude-sonnet-5-5"), ("--design", "two-arm"),
-                            ("--repeats", "3"), ("--max-total-cost-usd", "25"), ("--max-budget-usd", "3"),
+        for flag, value in (("--agent", "claude"), ("--model", "claude-sonnet-5-5"), ("--design", "three-arm-hint"),
+                            ("--repeats", "6"), ("--max-total-cost-usd", "25"), ("--max-budget-usd", "3"),
                             ("--claude-sandbox", "on")):
             self.assertEqual(value, plan[plan.index(flag) + 1])
         self.assertTrue(plan[plan.index("--tasks-file") + 1].endswith("fixtures/docutils-pilot/tasks.json"))

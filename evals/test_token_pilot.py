@@ -453,6 +453,16 @@ class ClaudeTests(unittest.TestCase):
         self.assertNotIn(str(Path.home().resolve()), paths)
         self.assertNotIn(str((Path(directory) / "cache").resolve()), paths)  # 不存在的目录不列
 
+    def test_hint_matches_the_plugin_navigation_sentence(self):
+        import geb_hook
+        self.assertTrue(geb_hook.NAVIGATION_HINT.startswith(pilot.HINT_TEXT))
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "CLAUDE.md").write_text("# Project rules\nKeep it simple.")
+            pilot.write_hint(root, "CLAUDE.md")
+            self.assertEqual("# Project rules\nKeep it simple.\n\n" + pilot.HINT_TEXT + "\n",
+                             (root / "CLAUDE.md").read_text())
+
     def test_prompt_is_identical_across_claude_arms(self):
         task = {"name": "t", "prompts": {"symptom": "Fix it."}, "test_rule": "Add tests as needed."}
         prompts = {arm: pilot.build_prompt(task, "symptom", arm, "claude") for arm in pilot.ARMS}
@@ -1043,6 +1053,24 @@ class ClaudeRunnerTests(unittest.TestCase):
             report = self.run_pilot(Path(directory), "--repeats", "2", "--max-total-cost-usd", "5", mode="no-cost")
             self.assertEqual("cost_unknown", report["stop_reason"])
             self.assertEqual(1, len(report["trials"]))
+
+    def test_hint_arm_gets_only_a_rule_file_line(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            report = self.run_pilot(root, "--repeats", "1", "--design", "three-arm-hint")
+            self.assertEqual("schedule_complete", report["stop_reason"])
+            self.assertEqual({"file": "CLAUDE.md", "text": pilot.HINT_TEXT}, report["hint_arm"])
+            trials = {t["arm"]: t for t in report["trials"]}
+            self.assertEqual({"index", "hint", "fugue"}, set(trials))
+            self.assertTrue(all(t["accepted"] for t in trials.values()))
+            hint_md = root / "out" / trials["hint"]["trial_dir"] / "workspace" / "CLAUDE.md"
+            self.assertEqual(pilot.HINT_TEXT + "\n", hint_md.read_text())
+            for arm in ("index", "fugue"):
+                self.assertFalse((root / "out" / trials[arm]["trial_dir"] / "workspace" / "CLAUDE.md").exists())
+            self.assertNotIn("--plugin-dir", self.probe(root, trials["hint"])["argv"])
+            self.assertNotEqual(trials["hint"]["base_commit"], trials["index"]["base_commit"])
+            self.assertEqual({"hint_effect", "hooks_effect", "plugin_effect"},
+                             set(report["summary"]["comparisons"]))
 
     def test_missing_plugin_stops_the_experiment(self):
         with tempfile.TemporaryDirectory() as directory:

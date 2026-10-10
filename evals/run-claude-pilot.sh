@@ -17,12 +17,13 @@ if [[ "$stage" == "--help" ]]; then
         'plan     no model calls: fetch docutils once, verify the tasks in both workspaces, run the' \
         '         Claude Code self-test against a local mock API, save the compare plan' \
         'aa       A/A noise: the index arm twice per block (run this first)' \
-        'compare  index vs fugue (Claude Code plugin with hooks); DESIGN=three-arm adds noindex' \
+        'compare  index (no pointer) / hint (CLAUDE.md points to the index) / fugue (plugin with hooks);' \
+        '         DESIGN=two-arm runs index vs fugue only' \
         'Needs CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`) or ANTHROPIC_API_KEY for aa/compare.' \
         'Settings: MODEL EFFORT REPEATS TASKS DESIGN COST_BUDGET TRIAL_BUDGET TIMEOUT MAX_TURNS SANDBOX' \
         '          PILOT_CLAUDE PILOT_OUTPUT PILOT_PYTHON SOURCE_CACHE' \
-        'Defaults: claude-sonnet-5-5, Claude default effort, aa 2 / compare 3 repeats, all four tasks,' \
-        '          two-arm, 25 USD per run, 3 USD per trial, 1500 s per trial, SANDBOX=on (on|basic|off)'
+        'Defaults: claude-sonnet-5-5, Claude default effort, aa 2 / compare 6 repeats, all four tasks,' \
+        '          three-arm-hint, 25 USD per run, 3 USD per trial, 1500 s per trial, SANDBOX=on (on|basic|off)'
     exit 0
 fi
 
@@ -53,8 +54,9 @@ if [[ "$stage" == "aa" ]]; then
     design=(--design aa --aa-arm index)
     repeats="${REPEATS:-2}"
 else
-    design=(--design "${DESIGN:-two-arm}")
-    repeats="${REPEATS:-3}"
+    # 首轮 A/A:主指标对数比标准差约 0.36,检出 20% 差异约需 21 对 → 4 个任务 × 6 次
+    design=(--design "${DESIGN:-three-arm-hint}")
+    repeats="${REPEATS:-6}"
 fi
 args=(--agent claude --claude "${PILOT_CLAUDE:-claude}" --tasks-file "$tasks_file"
       --model "${MODEL:-claude-sonnet-5-5}" --repeats "$repeats" --timeout "${TIMEOUT:-1500}"

@@ -24,6 +24,7 @@
 |----|--------|------|
 | `noindex` | 删除 `PROJECT_INDEX.md`、`FOLDER_INDEX.md`;删除代码文件前 50 行中以 `[INPUT]:`/`[OUTPUT]:`/`[POS]:`/`[PROTOCOL]:` 开头的标签行,标签删光后留下的空文档字符串或空注释块一并删除;删除规则文件中独占一行标记的 GEB 托管块;任务文件 `strip_exclude` 声明的样本数据不动 | 不安装 |
 | `index` | 源码原样 | 不安装 |
+| `hint` | 源码原样,项目规则文件(Claude 为 `CLAUDE.md`,Codex 为 `AGENTS.md`)里只有一句导航提示,与插件 SessionStart 注入的第一句相同 | 不安装 |
 | `fugue` | 源码原样 | Codex:隔离 HOME 内安装冻结的 skill 副本,并在 `AGENTS.md` 启用。Claude Code:同一副本(含 `hooks/`、`.claude-plugin/`)经 `--plugin-dir` 作为插件加载 |
 
 每次试验在 `strip` 字段记录删除的索引文件数、头部行数、空块数和托管块数,便于复核剥离范围。剥离按字节读写,CRLF 文件保持原样。`noindex` 和 `index` 两组的提示词完全相同,只有工作区不同;Claude Code 三组的提示词完全相同,差别只有工作区和插件。
@@ -100,7 +101,17 @@ python3 -B evals/run_token_pilot.py --verify-tasks
 
 ### 要回答的问题
 
-v2.7 把同步、检查、计量交给钩子,模型只在语义缺口出现时补一句。这一轮在 Claude Code 上回答:已有索引时,装上钩子插件(`fugue`)比只有索引(`index`)多花还是少花。先跑 A/A 确定噪声,再跑 `index` 对 `fugue` 两组;`DESIGN=three-arm` 时加上 `noindex`。
+v2.7 把同步、检查、计量交给钩子,模型只在语义缺口出现时补一句。这一轮在 Claude Code 上回答:已有索引时,装上钩子插件(`fugue`)是多花还是少花。
+
+首轮 A/A(见 [试点记录](TOKEN_PILOT_RESULTS.md))发现,没有任何提示时模型 16 次里只读过 1 次索引。所以正式比较默认用三组(`--design three-arm-hint`):
+
+| 比较 | 对照 → 处理 | 回答的问题 |
+|------|-------------|------------|
+| `hint_effect` | `index` → `hint` | 让模型知道并使用索引,省还是费 |
+| `hooks_effect` | `hint` → `fugue` | 模型已在用索引时,插件钩子流程本身省还是费 |
+| `plugin_effect` | `index` → `fugue` | 装插件相对普通 Claude Code 的总效应 |
+
+`DESIGN=two-arm` 只跑 `index` 对 `fugue`。
 
 ### 外部仓库与任务
 
@@ -168,8 +179,8 @@ export CLAUDE_CODE_OAUTH_TOKEN=<上一步输出>
 # 3. A/A 噪声:index 组跑两遍,默认 4 个任务 × 2 次 = 16 次调用
 bash evals/run-claude-pilot.sh aa
 
-# 4. 按 A/A 的 power_hint 定 REPEATS,再跑 index 对 fugue
-REPEATS=3 bash evals/run-claude-pilot.sh compare
+# 4. 三组比较:默认 4 个任务 × 6 次 × 3 组 = 72 次调用(A/A 估计检出 20% 差异约需 21 对)
+bash evals/run-claude-pilot.sh compare
 ```
 
 默认 `claude-sonnet-5-5`、Claude 默认推理强度、每次 1500 秒、单次 3 美元上限、整轮 25 美元标价上限(每个完整块后检查,最多超出一个块)。可用 `MODEL`、`EFFORT`、`REPEATS`、`TASKS`、`DESIGN`、`COST_BUDGET`、`TRIAL_BUDGET`、`TIMEOUT`、`MAX_TURNS`、`SANDBOX`、`PILOT_CLAUDE`、`PILOT_OUTPUT`、`SOURCE_CACHE` 修改;自检失败时按提示处理(例如 `SANDBOX=basic` 重跑 `plan`),不要跳过;没有令牌时 `aa`/`compare` 直接退出,不做任何事。结果在 `~/fugue-pilot/claude-<阶段>-<时间>-<进程号>/`,含 `report.json` 与 `navigation.json`;私有输出包含工作副本、事件流和隔离配置目录里的对话记录,不要整目录上传。
